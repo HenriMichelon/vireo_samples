@@ -25,6 +25,6 @@ export namespace samples {
         virtual void onKeyUp(uint32_t key)     {}
 
     protected:
-        std::unique_ptr<backend::RenderingBackEnd> renderingBackEnd;
+        unique_ptr<backend::RenderingBackEnd> renderingBackEnd;
     };
 }

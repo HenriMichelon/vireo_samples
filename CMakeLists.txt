@@ -47,8 +47,8 @@ file(GLOB_RECURSE SHADERS_SOURCE_FILES
 )
 add_custom_target(post_build_shaders ALL
         COMMENT "Copying Shaders [${VIREO_TARGET}]"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${SHADERS_BUILD_DIR} ${SHADERS_BUILD_DIR}
-        BYPRODUCTS ${SHADERS_BUILD_DIR}/default.vert.spv
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${VIREO_SHADERS_BUILD_DIR} ${SHADERS_BUILD_DIR}
+        BYPRODUCTS ${SHADERS_BUILD_DIR}/dummy_vert.spv
 )
 
 #######################################################

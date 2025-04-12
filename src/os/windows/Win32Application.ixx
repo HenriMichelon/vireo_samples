@@ -19,17 +19,24 @@ namespace samples {
     export class Win32Application {
     public:
         static int run(
-            std::shared_ptr<Application> app,
+            shared_ptr<Application> app,
             UINT width, UINT height,
-            const std::wstring& name, HINSTANCE hInstance, int nCmdShow);
+            const wstring& name, HINSTANCE hInstance, int nCmdShow);
         static HWND getHwnd() { return hwnd; }
         static auto& getApp() { return app; }
 
-    protected:
-        static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
     private:
+        static constexpr auto ID_VULKAN{1001};
+        static constexpr auto ID_DIRECTX{1002};
+
         static HWND hwnd;
-        static std::shared_ptr<Application> app;
+        static shared_ptr<Application> app;
+
+        static backend::RenderingBackends backendSelectorDialog(HINSTANCE hInstance, wstring& title);
+
+        static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+        static LRESULT CALLBACK SelectorWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+        static bool dirExists(const string& dirName_in);
+
     };
 }

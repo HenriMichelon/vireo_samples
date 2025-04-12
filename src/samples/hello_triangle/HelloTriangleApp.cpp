@@ -10,7 +10,7 @@ module samples.hellotriangle;
 
 import samples.win32;
 
-APP(std::make_shared<samples::HelloTriangleApp>(), L"Hello Triangle", 800, 600);
+APP(make_shared<samples::HelloTriangleApp>(), L"Hello Triangle", 800, 600);
 
 namespace samples {
 
@@ -18,7 +18,7 @@ namespace samples {
         renderingBackEnd->setClearColor( 0.0f, 0.2f, 0.4f);
         const auto aspectRatio = renderingBackEnd->getSwapChain()->getAspectRatio();
 
-        const auto triangleVertices = std::vector<Vertex> {
+        const auto triangleVertices = vector<Vertex> {
             { { 0.0f, 0.25f * aspectRatio, 0.0f }, { 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
             { { 0.25f, -0.25f * aspectRatio, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
@@ -109,8 +109,8 @@ namespace samples {
             L"default");
 
         for (uint32_t i = 0; i < backend::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            auto descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + std::to_wstring(i));
-            auto samplerDescriptorSet = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + std::to_wstring(i));
+            auto descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
+            auto samplerDescriptorSet = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 
             descriptorSet->update(BINDING_TEXTURE, textures);
             descriptorSet->update(BINDING_UBO1, uboBuffer1);
@@ -183,13 +183,13 @@ namespace samples {
 
     // Generate a simple black and white checkerboard texture.
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
-    std::vector<unsigned char> HelloTriangleApp::generateTextureData() const {
+    vector<unsigned char> HelloTriangleApp::generateTextureData() const {
         const auto rowPitch = TextureWidth * TexturePixelSize;
         const auto cellPitch = rowPitch >> 3;        // The width of a cell in the checkboard texture.
         const auto cellHeight = TextureWidth >> 3;    // The height of a cell in the checkerboard texture.
         const auto textureSize = rowPitch * TextureHeight;
 
-        std::vector<unsigned char> data(textureSize);
+        vector<unsigned char> data(textureSize);
         unsigned char* pData = &data[0];
 
         for (int n = 0; n < textureSize; n += TexturePixelSize) {

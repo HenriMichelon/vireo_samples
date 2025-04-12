@@ -26,7 +26,7 @@ export namespace samples {
         static constexpr auto TextureWidth = 256;
         static constexpr auto TextureHeight = 256;
         static constexpr auto TexturePixelSize = 4;
-        std::vector<unsigned char> generateTextureData() const;
+        vector<unsigned char> generateTextureData() const;
 
     private:
         struct Vertex {
@@ -50,7 +50,7 @@ export namespace samples {
 
         const backend::DescriptorIndex BINDING_SAMPLERS{0};
 
-        const std::vector<backend::VertexInputLayout::AttributeDescription> vertexAttributes{
+        const vector<backend::VertexInputLayout::AttributeDescription> vertexAttributes{
             {"POSITION", backend::VertexInputLayout::R32G32B32_FLOAT, 0},
             {"TEXCOORD",    backend::VertexInputLayout::R32G32_FLOAT, 12},
             {"COLOR",    backend::VertexInputLayout::R32G32B32_FLOAT, 20}
@@ -60,18 +60,18 @@ export namespace samples {
         float colorIncrement{1.0f};
         float scaleIncrement{1.0f};
 
-        std::vector<std::shared_ptr<backend::FrameData>> framesData{backend::SwapChain::FRAMES_IN_FLIGHT};
-        std::vector<std::shared_ptr<backend::CommandAllocator>> graphicCommandAllocator{backend::SwapChain::FRAMES_IN_FLIGHT};
-        std::vector<std::shared_ptr<backend::CommandList>> graphicCommandList{backend::SwapChain::FRAMES_IN_FLIGHT};
-        std::shared_ptr<backend::DescriptorLayout> descriptorLayout;
-        std::shared_ptr<backend::DescriptorLayout> samplersDescriptorLayout;
-        std::map<std::string, std::shared_ptr<backend::PipelineResources>> pipelineResources;
-        std::map<std::string, std::shared_ptr<backend::Pipeline>> pipelines;
-        std::shared_ptr<backend::Buffer> vertexBuffer;
-        std::shared_ptr<backend::Buffer> uboBuffer1;
-        std::shared_ptr<backend::Buffer> uboBuffer2;
-        std::vector<std::shared_ptr<backend::Image>> textures;
-        std::vector<std::shared_ptr<backend::Sampler>> samplers;
+        vector<shared_ptr<backend::FrameData>> framesData{backend::SwapChain::FRAMES_IN_FLIGHT};
+        vector<shared_ptr<backend::CommandAllocator>> graphicCommandAllocator{backend::SwapChain::FRAMES_IN_FLIGHT};
+        vector<shared_ptr<backend::CommandList>> graphicCommandList{backend::SwapChain::FRAMES_IN_FLIGHT};
+        shared_ptr<backend::DescriptorLayout> descriptorLayout;
+        shared_ptr<backend::DescriptorLayout> samplersDescriptorLayout;
+        map<string, shared_ptr<backend::PipelineResources>> pipelineResources;
+        map<string, shared_ptr<backend::Pipeline>> pipelines;
+        shared_ptr<backend::Buffer> vertexBuffer;
+        shared_ptr<backend::Buffer> uboBuffer1;
+        shared_ptr<backend::Buffer> uboBuffer2;
+        vector<shared_ptr<backend::Image>> textures;
+        vector<shared_ptr<backend::Sampler>> samplers;
 
     };
 }
