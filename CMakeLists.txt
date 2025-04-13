@@ -65,7 +65,7 @@ set(COMMON_MODULES
 set(MY_TARGET ${PROJECT_NAME})
 add_executable(${MY_TARGET}
         ${COMMON_SOURCES}
-        ${SRC_DIR}/samples/hello_triangle/HelloTriangleApp.cpp
+        ${SRC_DIR}/samples/triangle/TriangleApp.cpp
 )
 
 target_sources(${MY_TARGET}
@@ -73,7 +73,7 @@ target_sources(${MY_TARGET}
     FILE_SET CXX_MODULES
     FILES
         ${COMMON_MODULES}
-        ${SRC_DIR}/samples/hello_triangle/HelloTriangleApp.ixx
+        ${SRC_DIR}/samples/triangle/TriangleApp.ixx
 )
 
 compile_options(${MY_TARGET})
