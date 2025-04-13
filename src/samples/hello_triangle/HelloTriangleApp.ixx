@@ -12,15 +12,12 @@ import samples.app;
 
 export namespace samples {
 
-    class HelloTriangleApp final : public Application {
+    class HelloTriangleApp : public Application {
     public:
         void onInit() override;
         void onUpdate() override;
         void onRender() override;
         void onDestroy() override;
-
-        void onKeyDown(uint32_t /*key*/) override {}
-        void onKeyUp(uint32_t /*key*/) override {}
 
     protected:
         static constexpr auto TextureWidth = 256;
@@ -56,17 +53,19 @@ export namespace samples {
             {"COLOR",    vireo::VertexInputLayout::R32G32B32_FLOAT, 20}
         };
 
-
         float colorIncrement{1.0f};
         float scaleIncrement{1.0f};
 
         vector<shared_ptr<vireo::FrameData>> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
         vector<shared_ptr<vireo::CommandAllocator>> graphicCommandAllocator{vireo::SwapChain::FRAMES_IN_FLIGHT};
         vector<shared_ptr<vireo::CommandList>> graphicCommandList{vireo::SwapChain::FRAMES_IN_FLIGHT};
+
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
+
         map<string, shared_ptr<vireo::PipelineResources>> pipelineResources;
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
+
         shared_ptr<vireo::Buffer> vertexBuffer;
         shared_ptr<vireo::Buffer> uboBuffer1;
         shared_ptr<vireo::Buffer> uboBuffer2;

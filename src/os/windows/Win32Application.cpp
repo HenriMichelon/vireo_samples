@@ -14,8 +14,6 @@ namespace samples {
     HWND Win32Application::hwnd = nullptr;
     shared_ptr<Application> Win32Application::app{};
 
-
-
     LRESULT CALLBACK Win32Application::SelectorWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (msg) {
         case WM_COMMAND:
@@ -157,8 +155,6 @@ namespace samples {
         wstring title = name;
         title.append(L" : ");
 
-
-
         WNDCLASSEX windowClass = {};
         windowClass.cbSize = sizeof(WNDCLASSEX);
         windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -193,6 +189,7 @@ namespace samples {
         const vireo::Configuration configuration{
             .windowHandle = hwnd,
             .backend      = backendSelectorDialog(hInstance, title),
+            .vSyncMode    = vireo::VSyncMode::VSYNC,
         };
         app->initRenderingBackEnd(configuration);
         SetWindowText(hwnd, title.c_str());

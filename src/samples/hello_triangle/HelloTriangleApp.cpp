@@ -8,8 +8,6 @@ module;
 #include "Macros.h"
 module samples.hellotriangle;
 
-import samples.win32;
-
 APP(make_shared<samples::HelloTriangleApp>(), L"Hello Triangle", 800, 600);
 
 namespace samples {
