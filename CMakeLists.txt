@@ -54,7 +54,6 @@ add_custom_target(post_build_shaders ALL
 #######################################################
 # Common files
 set(COMMON_SOURCES
-        ${SRC_DIR}/samples/Application.cpp
         ${SRC_DIR}/os/windows/Win32Application.cpp
 )
 set(COMMON_MODULES

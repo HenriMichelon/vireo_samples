@@ -43,7 +43,7 @@ namespace samples {
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
     }
 
-    vireo::RenderingBackends Win32Application::backendSelectorDialog(HINSTANCE hInstance, wstring& title) {
+    vireo::Backends Win32Application::backendSelectorDialog(const HINSTANCE hInstance, wstring& title) {
         SetProcessDPIAware();
         const auto className = L"ApiSelectorWindow";
         const WNDCLASS wc{
@@ -131,11 +131,11 @@ namespace samples {
         switch (result) {
         case ID_DIRECTX: {
             title.append(L"DirectX 12");
-            return vireo::RenderingBackends::DIRECTX;
+            return vireo::Backends::DIRECTX;
         }
         default: {
             title.append(L"Vulkan 1.3");
-            return vireo::RenderingBackends::VULKAN;
+            return vireo::Backends::VULKAN;
         }
         }
     }
@@ -190,7 +190,11 @@ namespace samples {
         SetWindowPos(hwnd, nullptr, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 
         Win32Application::app = app;
-        app->initRenderingBackEnd(backendSelectorDialog(hInstance, title));
+        const vireo::Configuration configuration{
+            .windowHandle = hwnd,
+            .backend      = backendSelectorDialog(hInstance, title),
+        };
+        app->initRenderingBackEnd(configuration);
         SetWindowText(hwnd, title.c_str());
         app->onInit();
 

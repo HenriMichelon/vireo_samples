@@ -29,7 +29,7 @@ namespace samples {
         static HWND hwnd;
         static shared_ptr<Application> app;
 
-        static vireo::RenderingBackends backendSelectorDialog(HINSTANCE hInstance, wstring& title);
+        static vireo::Backends backendSelectorDialog(HINSTANCE hInstance, wstring& title);
 
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         static LRESULT CALLBACK SelectorWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

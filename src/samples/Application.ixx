@@ -14,7 +14,9 @@ export namespace samples {
     public:
         virtual ~Application() = default;
 
-        void initRenderingBackEnd(const vireo::RenderingBackends& backendType);
+        void initRenderingBackEnd(const vireo::Configuration& configuration) {
+            renderingBackEnd = vireo::RenderingBackEnd::create(configuration);
+        }
 
         virtual void onInit() = 0;
         virtual void onUpdate() {}
