@@ -9,10 +9,7 @@ module;
 #include "Win32Libraries.h"
 export module samples.win32;
 
-import glm;
 import samples.app;
-import vireo.backend;
-using namespace vireo;
 
 namespace samples {
 
@@ -32,7 +29,7 @@ namespace samples {
         static HWND hwnd;
         static shared_ptr<Application> app;
 
-        static backend::RenderingBackends backendSelectorDialog(HINSTANCE hInstance, wstring& title);
+        static vireo::RenderingBackends backendSelectorDialog(HINSTANCE hInstance, wstring& title);
 
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         static LRESULT CALLBACK SelectorWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

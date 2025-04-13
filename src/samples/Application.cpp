@@ -10,16 +10,16 @@ module samples.app;
 
 import samples.win32;
 
-import vireo.backend.directx;
-import vireo.backend.vulkan;
+import vireo.directx;
+import vireo.vulkan;
 
 namespace samples {
 
-    void Application::initRenderingBackEnd(const backend::RenderingBackends& backendType) {
-        if (backendType == backend::RenderingBackends::VULKAN) {
-            renderingBackEnd = make_unique<backend::VKRenderingBackEnd>(Win32Application::getHwnd());
+    void Application::initRenderingBackEnd(const vireo::RenderingBackends& backendType) {
+        if (backendType == vireo::RenderingBackends::VULKAN) {
+            renderingBackEnd = make_unique<vireo::VKRenderingBackEnd>(Win32Application::getHwnd());
         } else {
-            renderingBackEnd = make_unique<backend::DXRenderingBackEnd>(Win32Application::getHwnd());
+            renderingBackEnd = make_unique<vireo::DXRenderingBackEnd>(Win32Application::getHwnd());
         }
     }
 

@@ -14,7 +14,7 @@ export namespace samples {
     public:
         virtual ~Application() = default;
 
-        void initRenderingBackEnd(const backend::RenderingBackends& backendType);
+        void initRenderingBackEnd(const vireo::RenderingBackends& backendType);
 
         virtual void onInit() = 0;
         virtual void onUpdate() {}
@@ -25,6 +25,6 @@ export namespace samples {
         virtual void onKeyUp(uint32_t key)     {}
 
     protected:
-        unique_ptr<backend::RenderingBackEnd> renderingBackEnd;
+        unique_ptr<vireo::RenderingBackEnd> renderingBackEnd;
     };
 }

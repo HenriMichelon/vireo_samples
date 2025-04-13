@@ -43,7 +43,7 @@ namespace samples {
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
     }
 
-    backend::RenderingBackends Win32Application::backendSelectorDialog(HINSTANCE hInstance, wstring& title) {
+    vireo::RenderingBackends Win32Application::backendSelectorDialog(HINSTANCE hInstance, wstring& title) {
         SetProcessDPIAware();
         const auto className = L"ApiSelectorWindow";
         const WNDCLASS wc{
@@ -131,11 +131,11 @@ namespace samples {
         switch (result) {
         case ID_DIRECTX: {
             title.append(L"DirectX 12");
-            return backend::RenderingBackends::DIRECTX;
+            return vireo::RenderingBackends::DIRECTX;
         }
         default: {
             title.append(L"Vulkan 1.3");
-            return backend::RenderingBackends::VULKAN;
+            return vireo::RenderingBackends::VULKAN;
         }
         }
     }
