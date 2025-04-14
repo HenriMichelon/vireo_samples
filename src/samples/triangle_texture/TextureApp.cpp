@@ -45,7 +45,7 @@ namespace samples {
 
         const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
-        uploadCommandList->reset();
+        uploadCommandAllocator->reset();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->upload(textures[0], generateTextureData().data());
@@ -75,13 +75,13 @@ namespace samples {
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            auto descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
-            auto samplerDescriptorSet = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
+            descriptorSet[i] = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
+            samplersDescriptorSet[i] = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 
-            descriptorSet->update(BINDING_TEXTURE, textures);
-            samplerDescriptorSet->update(BINDING_SAMPLERS, samplers);
+            descriptorSet[i]->update(BINDING_TEXTURE, textures);
+            samplersDescriptorSet[i]->update(BINDING_SAMPLERS, samplers);
 
-            framesData[i] = renderingBackEnd->createFrameData(i, {descriptorSet, samplerDescriptorSet});
+            framesData[i] = renderingBackEnd->createFrameData(i);
             graphicCommandAllocator[i] = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
             graphicCommandList[i] = graphicCommandAllocator[i]->createCommandList();
         }
@@ -92,23 +92,24 @@ namespace samples {
 
     void TextureApp::onRender() {
         const auto swapChain = renderingBackEnd->getSwapChain();
-        const auto frameData = framesData[swapChain->getCurrentFrameIndex()];
+        const auto frame = swapChain->getCurrentFrameIndex();
+        const auto frameData = framesData[frame];
 
         if (!swapChain->begin(frameData)) { return; }
+        graphicCommandAllocator[frame]->reset();
+        const auto commandList = graphicCommandList[frame];
+        commandList->begin();
+        renderingBackEnd->beginRendering(frameData, commandList);
 
-        const auto commandList = graphicCommandList[swapChain->getCurrentFrameIndex()];
-        const auto pipeline = pipelines["default"];
-
-        commandList->reset();
-        commandList->begin(pipeline);
-        renderingBackEnd->beginRendering(frameData, pipelineResources["default"], pipeline, commandList);
-
+        commandList->bindPipeline(pipelines["default"]);
+        commandList->bindDescriptors({descriptorSet[frame], samplersDescriptorSet[frame]});
         commandList->bindVertexBuffer(vertexBuffer);
         commandList->drawInstanced(3);
 
         renderingBackEnd->endRendering(commandList);
         swapChain->end(frameData, commandList);
         commandList->end();
+
         renderingBackEnd->getGraphicCommandQueue()->submit(frameData, {commandList});
 
         swapChain->present(frameData);

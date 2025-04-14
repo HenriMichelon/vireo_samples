@@ -32,18 +32,13 @@ namespace samples {
             vireo::ImageFormat::R8G8B8A8_SRGB,
             512, 512,
             L"CheckerBoardTexture1"));
-        textures.push_back(renderingBackEnd->createImage(
-            vireo::ImageFormat::R8G8B8A8_SRGB,
-            256, 256,
-            L"CheckerBoardTexture2"));
 
         const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
-        uploadCommandList->reset();
+        uploadCommandAllocator->reset();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->upload(textures[0], generateTextureData(512, 512).data());
-        uploadCommandList->upload(textures[1], generateTextureData(512,512).data());
         uploadCommandList->end();
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
@@ -85,25 +80,35 @@ namespace samples {
             L"default");
 
         const auto defaultVertexInputLayout = renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes);
-        const auto vertexShader = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer.vert");
-        const auto fragmentShader = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer.frag");
-        pipelines["default"] = renderingBackEnd->createPipeline(
+
+        const auto vertexShader1 = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.vert");
+        const auto fragmentShader1 = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.frag");
+        pipelines["shader1"] = renderingBackEnd->createPipeline(
             pipelineResources["default"],
             defaultVertexInputLayout,
-            vertexShader,
-            fragmentShader,
-            L"default");
+            vertexShader1,
+            fragmentShader1,
+            L"shader1");
+
+        const auto vertexShader2 = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.vert");
+        const auto fragmentShader2 = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.frag");
+        pipelines["shader2"] = renderingBackEnd->createPipeline(
+            pipelineResources["default"],
+            defaultVertexInputLayout,
+            vertexShader2,
+            fragmentShader2,
+            L"shader2");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            auto descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
-            auto samplerDescriptorSet = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
+            descriptorSet[i] = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
+            samplersDescriptorSet[i] = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 
-            descriptorSet->update(BINDING_TEXTURE, textures);
-            descriptorSet->update(BINDING_UBO1, uboBuffer1);
-            descriptorSet->update(BINDING_UBO2, uboBuffer2);
-            samplerDescriptorSet->update(BINDING_SAMPLERS, samplers);
+            descriptorSet[i]->update(BINDING_TEXTURE, textures);
+            descriptorSet[i]->update(BINDING_UBO1, uboBuffer1);
+            descriptorSet[i]->update(BINDING_UBO2, uboBuffer2);
+            samplersDescriptorSet[i]->update(BINDING_SAMPLERS, samplers);
 
-            framesData[i] = renderingBackEnd->createFrameData(i, {descriptorSet, samplerDescriptorSet});
+            framesData[i] = renderingBackEnd->createFrameData(i);
             graphicCommandAllocator[i] = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
             graphicCommandList[i] = graphicCommandAllocator[i]->createCommandList();
         }
@@ -134,17 +139,22 @@ namespace samples {
 
     void TriangleApp::onRender() {
         const auto swapChain = renderingBackEnd->getSwapChain();
-        const auto frameData = framesData[swapChain->getCurrentFrameIndex()];
+        const auto frame = swapChain->getCurrentFrameIndex();
+        const auto frameData = framesData[frame];
 
         if (!swapChain->begin(frameData)) { return; }
+        graphicCommandAllocator[frame]->reset();
+        const auto commandList = graphicCommandList[frame];
+        commandList->begin();
+        renderingBackEnd->beginRendering(frameData, commandList);
 
-        const auto commandList = graphicCommandList[swapChain->getCurrentFrameIndex()];
-        const auto pipeline = pipelines["default"];
+        commandList->bindPipeline(pipelines["shader1"]);
+        commandList->bindDescriptors({descriptorSet[frame], samplersDescriptorSet[frame]});
+        commandList->bindVertexBuffer(vertexBuffer);
+        commandList->drawInstanced(3, 1);
 
-        commandList->reset();
-        commandList->begin(pipeline);
-        renderingBackEnd->beginRendering(frameData, pipelineResources["default"], pipeline, commandList);
-
+        commandList->bindPipeline(pipelines["shader2"]);
+        commandList->bindDescriptors({descriptorSet[frame], samplersDescriptorSet[frame]});
         commandList->bindVertexBuffer(vertexBuffer);
         commandList->drawInstanced(3, 2);
 

@@ -66,6 +66,9 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
 
+        vector<shared_ptr<vireo::DescriptorSet>> descriptorSet{vireo::SwapChain::FRAMES_IN_FLIGHT};
+        vector<shared_ptr<vireo::DescriptorSet>> samplersDescriptorSet{vireo::SwapChain::FRAMES_IN_FLIGHT};
+
         map<string, shared_ptr<vireo::PipelineResources>> pipelineResources;
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
     };

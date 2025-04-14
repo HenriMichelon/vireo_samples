@@ -31,7 +31,7 @@ namespace samples {
 
         const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
-        uploadCommandList->reset();
+        uploadCommandAllocator->reset();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->end();
@@ -50,7 +50,7 @@ namespace samples {
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            framesData[i] = renderingBackEnd->createFrameData(i, {});
+            framesData[i] = renderingBackEnd->createFrameData(i);
             graphicCommandAllocator[i] = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
             graphicCommandList[i] = graphicCommandAllocator[i]->createCommandList();
         }
@@ -61,23 +61,23 @@ namespace samples {
 
     void TriangleApp::onRender() {
         const auto swapChain = renderingBackEnd->getSwapChain();
-        const auto frameData = framesData[swapChain->getCurrentFrameIndex()];
+        const auto frame = swapChain->getCurrentFrameIndex();
+        const auto frameData = framesData[frame];
 
         if (!swapChain->begin(frameData)) { return; }
+        graphicCommandAllocator[frame]->reset();
+        const auto commandList = graphicCommandList[frame];
+        commandList->begin();
+        renderingBackEnd->beginRendering(frameData, commandList);
 
-        const auto commandList = graphicCommandList[swapChain->getCurrentFrameIndex()];
-        const auto pipeline = pipelines["default"];
-
-        commandList->reset();
-        commandList->begin(pipeline);
-        renderingBackEnd->beginRendering(frameData, pipelineResources["default"], pipeline, commandList);
-
+        commandList->bindPipeline(pipelines["default"]);
         commandList->bindVertexBuffer(vertexBuffer);
         commandList->drawInstanced(3);
 
         renderingBackEnd->endRendering(commandList);
         swapChain->end(frameData, commandList);
         commandList->end();
+
         renderingBackEnd->getGraphicCommandQueue()->submit(frameData, {commandList});
 
         swapChain->present(frameData);
