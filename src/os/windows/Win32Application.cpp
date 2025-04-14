@@ -14,23 +14,138 @@ namespace samples {
     HWND Win32Application::hwnd = nullptr;
     shared_ptr<Application> Win32Application::app{};
 
-    LRESULT CALLBACK Win32Application::SelectorWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    int Win32Application::run(const shared_ptr<Application>& app,
+                              const UINT width,
+                              const UINT height,
+                              const wstring& name,
+                              const HINSTANCE hInstance,
+                              const int nCmdShow) {
+        if (!dirExists("shaders")) {
+            MessageBox(nullptr,
+                       L"Shaders directory not found, please run the application from the root of the project",
+                       L"Error",
+                       MB_OK);
+            return 0;
+        }
+
+        wstring title = name;
+        title.append(L" : ");
+
+        const auto windowClass = WNDCLASSEX{
+            .cbSize = sizeof(WNDCLASSEX),
+            .style = CS_HREDRAW | CS_VREDRAW,
+            .lpfnWndProc = WindowProc,
+            .hInstance = hInstance,
+            .hCursor = LoadCursor(NULL, IDC_ARROW),
+            .lpszClassName = L"VireoSampleClass",
+        };
+        RegisterClassEx(&windowClass);
+
+        auto windowRect = RECT{0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
+        AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+
+        hwnd = CreateWindow(
+            windowClass.lpszClassName,
+            title.c_str(),
+            WS_OVERLAPPEDWINDOW,
+            CW_USEDEFAULT,
+            CW_USEDEFAULT,
+            windowRect.right - windowRect.left,
+            windowRect.bottom - windowRect.top,
+            nullptr,
+            nullptr,
+            hInstance,
+            nullptr);
+
+        auto rect = RECT{};
+        GetWindowRect(hwnd, &rect);
+        const auto x = (GetSystemMetrics(SM_CXSCREEN) - (rect.right - rect.left)) / 2;
+        const auto y = (GetSystemMetrics(SM_CYSCREEN) - (rect.bottom - rect.top)) / 2;
+        SetWindowPos(hwnd, nullptr, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+
+        Win32Application::app = app;
+        const vireo::Configuration configuration{
+            .windowHandle = hwnd,
+            .backend      = backendSelectorDialog(hInstance, title),
+            // .backend      = vireo::Backends::VULKAN,
+            // .backend      = vireo::Backends::DIRECTX,
+            .vSyncMode    = vireo::VSyncMode::VSYNC,
+        };
+        app->initRenderingBackEnd(configuration);
+
+        if (configuration.backend == vireo::Backends::VULKAN) {
+            title.append(L"Vulkan 1.3");
+        } else {
+            title.append(L"DirectX 12");
+        }
+        SetWindowText(hwnd, title.c_str());
+
+        app->onInit();
+        ShowWindow(hwnd, nCmdShow);
+        auto msg = MSG{};
+        while (msg.message != WM_QUIT) {
+            if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        }
+        app->onDestroy();
+        return static_cast<char>(msg.wParam);
+    }
+
+    LRESULT CALLBACK Win32Application::WindowProc(const HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam) {
+        const auto& app = getApp();
+        switch (message) {
+            case WM_CREATE: {
+                const auto pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
+                SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
+                }
+                return 0;
+
+            case WM_KEYDOWN:
+                if (app) {
+                    app->onKeyDown(static_cast<uint32_t>(wParam));
+                }
+                return 0;
+
+            case WM_KEYUP:
+                if (app) {
+                    app->onKeyUp(static_cast<uint32_t>(wParam));
+                }
+                return 0;
+
+            case WM_PAINT:
+                if (app) {
+                    app->onUpdate();
+                    app->onRender();
+                }
+                return 0;
+
+            case WM_DESTROY:
+                PostQuitMessage(0);
+                return 0;
+            default:;
+        }
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+
+    LRESULT CALLBACK Win32Application::SelectorWindowProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) {
         switch (msg) {
-        case WM_COMMAND:
-            switch (LOWORD(wParam)) {
-            case ID_VULKAN:
-                PostQuitMessage(ID_VULKAN);
+            case WM_COMMAND:
+                switch (LOWORD(wParam)) {
+                case ID_VULKAN:
+                    PostQuitMessage(ID_VULKAN);
+                    break;
+                case ID_DIRECTX:
+                    PostQuitMessage(ID_DIRECTX);
+                    break;
+                default:;
+                }
                 break;
-            case ID_DIRECTX:
-                PostQuitMessage(ID_DIRECTX);
+            case WM_CLOSE:
+                PostQuitMessage(IDCANCEL);
                 break;
             default:;
-            }
-            break;
-        case WM_CLOSE:
-            PostQuitMessage(IDCANCEL);
-            break;
-        default:;
         }
 
         return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -41,7 +156,7 @@ namespace samples {
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
     }
 
-    vireo::Backends Win32Application::backendSelectorDialog(const HINSTANCE hInstance, wstring& title) {
+    vireo::Backends Win32Application::backendSelectorDialog(const HINSTANCE hInstance, const wstring& title) {
         SetProcessDPIAware();
         const auto className = L"ApiSelectorWindow";
         const WNDCLASS wc{
@@ -109,140 +224,28 @@ namespace samples {
             nullptr);
         SendMessage(hDirectX, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), TRUE);
 
-        RECT rect;
+        auto rect = RECT{};
         GetWindowRect(hWnd, &rect);
         const auto x = (GetSystemMetrics(SM_CXSCREEN) - (rect.right - rect.left)) / 2;
         const auto y = (GetSystemMetrics(SM_CYSCREEN) - (rect.bottom - rect.top)) / 2;
         SetWindowPos(hWnd, nullptr, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+
         ShowWindow(hWnd, SW_SHOW);
         UpdateWindow(hWnd);
-
-        MSG msg;
-        int result = IDCANCEL;
+        auto msg = MSG{};
         while (GetMessage(&msg, nullptr, 0, 0)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
         CloseWindow(hWnd);
 
-        result = static_cast<int>(msg.wParam);
-        switch (result) {
-        case ID_DIRECTX: {
-            title.append(L"DirectX 12");
-            return vireo::Backends::DIRECTX;
-        }
-        default: {
-            title.append(L"Vulkan 1.3");
-            return vireo::Backends::VULKAN;
-        }
-        }
-    }
-
-    int Win32Application::run(shared_ptr<Application> app,
-                              const UINT width,
-                              const UINT height,
-                              const wstring& name,
-                              const HINSTANCE hInstance,
-                              const int nCmdShow) {
-        if (!dirExists("shaders")) {
-            MessageBox(nullptr,
-                       L"Shaders directory not found, please run the application from the root of the project",
-                       L"Error",
-                       MB_OK);
-            return 0;
-        }
-
-        wstring title = name;
-        title.append(L" : ");
-
-        WNDCLASSEX windowClass = {};
-        windowClass.cbSize = sizeof(WNDCLASSEX);
-        windowClass.style = CS_HREDRAW | CS_VREDRAW;
-        windowClass.lpfnWndProc = WindowProc;
-        windowClass.hInstance = hInstance;
-        windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-        windowClass.lpszClassName = L"DXSampleClass";
-        RegisterClassEx(&windowClass);
-
-        RECT windowRect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
-        AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
-
-        hwnd = CreateWindow(windowClass.lpszClassName,
-                            title.c_str(),
-                            WS_OVERLAPPEDWINDOW,
-                            CW_USEDEFAULT,
-                            CW_USEDEFAULT,
-                            windowRect.right - windowRect.left,
-                            windowRect.bottom - windowRect.top,
-                            nullptr,
-                            nullptr,
-                            hInstance,
-                            nullptr);
-
-        RECT rect;
-        GetWindowRect(hwnd, &rect);
-        const auto x = (GetSystemMetrics(SM_CXSCREEN) - (rect.right - rect.left)) / 2;
-        const auto y = (GetSystemMetrics(SM_CYSCREEN) - (rect.bottom - rect.top)) / 2;
-        SetWindowPos(hwnd, nullptr, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-
-        Win32Application::app = app;
-        const vireo::Configuration configuration{
-            .windowHandle = hwnd,
-            .backend      = vireo::Backends::VULKAN,// backendSelectorDialog(hInstance, title),
-            .vSyncMode    = vireo::VSyncMode::VSYNC,
-        };
-        app->initRenderingBackEnd(configuration);
-        SetWindowText(hwnd, title.c_str());
-        app->onInit();
-
-        ShowWindow(hwnd, nCmdShow);
-
-        MSG msg = {};
-        while (msg.message != WM_QUIT) {
-            if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
+        switch (static_cast<int>(msg.wParam)) {
+            case ID_DIRECTX: {
+                return vireo::Backends::DIRECTX;
+            }
+            default: {
+                return vireo::Backends::VULKAN;
             }
         }
-
-        app->onDestroy();
-        return static_cast<char>(msg.wParam);
-    }
-
-    LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        auto& pSample = getApp();
-
-        switch (message) {
-        case WM_CREATE: {
-            LPCREATESTRUCT pCreateStruct = reinterpret_cast<LPCREATESTRUCT>(lParam);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
-        }
-            return 0;
-
-        case WM_KEYDOWN:
-            if (pSample) {
-                pSample->onKeyDown(static_cast<uint32_t>(wParam));
-            }
-            return 0;
-
-        case WM_KEYUP:
-            if (pSample) {
-                pSample->onKeyUp(static_cast<uint32_t>(wParam));
-            }
-            return 0;
-
-        case WM_PAINT:
-            if (pSample) {
-                pSample->onUpdate();
-                pSample->onRender();
-            }
-            return 0;
-
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
-        }
-
-        return DefWindowProc(hWnd, message, wParam, lParam);
     }
 }

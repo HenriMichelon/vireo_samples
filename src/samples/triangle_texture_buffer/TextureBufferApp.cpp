@@ -16,7 +16,7 @@ namespace samples {
         renderingBackEnd->setClearColor( 0.0f, 0.2f, 0.4f);
         const auto aspectRatio = renderingBackEnd->getSwapChain()->getAspectRatio();
 
-        const auto triangleVertices = vector<Vertex> {
+        triangleVertices = {
             { { 0.0f, 0.25f * aspectRatio, 0.0f }, { 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
             { { 0.25f, -0.25f * aspectRatio, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
@@ -32,28 +32,6 @@ namespace samples {
             vireo::ImageFormat::R8G8B8A8_SRGB,
             512, 512,
             L"CheckerBoardTexture"));
-
-        const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
-        auto uploadCommandList = uploadCommandAllocator->createCommandList();
-        uploadCommandList->begin();
-        uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
-        uploadCommandList->upload(textures[0], generateTextureData(textures[0]->getWidth(), textures[0]->getHeight()).data());
-        uploadCommandList->end();
-        renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
-
-        uboBuffer1 = renderingBackEnd->createBuffer(
-            vireo::Buffer::UNIFORM,
-            sizeof(GlobalUBO1),
-            1, 256,
-            L"UBO1");
-        uboBuffer1->map();
-        uboBuffer2 = renderingBackEnd->createBuffer(
-            vireo::Buffer::UNIFORM,
-            sizeof(GlobalUBO2),
-            1, 256,
-            L"UBO2");
-        uboBuffer2->map();
-
         samplers.push_back(renderingBackEnd->createSampler(
             vireo::Filter::NEAREST,
             vireo::Filter::NEAREST,
@@ -63,6 +41,27 @@ namespace samples {
             0.0f, 1.0f,
             false,
             vireo::MipMapMode::NEAREST));
+        uboBuffer1 = renderingBackEnd->createBuffer(
+            vireo::Buffer::UNIFORM,
+            sizeof(GlobalUBO1),
+            1, 256,
+            L"UBO1");
+        uboBuffer2 = renderingBackEnd->createBuffer(
+            vireo::Buffer::UNIFORM,
+            sizeof(GlobalUBO2),
+            1, 256,
+            L"UBO2");
+
+        const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
+        auto uploadCommandList = uploadCommandAllocator->createCommandList();
+        uploadCommandList->begin();
+        uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
+        uploadCommandList->upload(textures[0], generateTextureData(textures[0]->getWidth(), textures[0]->getHeight()).data());
+        uploadCommandList->end();
+        renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
+
+        uboBuffer1->map();
+        uboBuffer2->map();
 
         descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
         descriptorLayout->add(BINDING_UBO1, vireo::DescriptorType::BUFFER);
@@ -77,7 +76,9 @@ namespace samples {
         const auto defaultLayout = renderingBackEnd->createPipelineResources(
             { descriptorLayout, samplersDescriptorLayout },
             L"default");
-        const auto defaultVertexInputLayout = renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes);
+        const auto defaultVertexInputLayout = renderingBackEnd->createVertexLayout(
+            sizeof(Vertex),
+            vertexAttributes);
 
         pipelines["shader1"] = renderingBackEnd->createPipeline(
             defaultLayout,
@@ -94,17 +95,17 @@ namespace samples {
             L"shader2");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            descriptorSet[i] = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
-            samplersDescriptorSet[i] = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
+            framesData[i].descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
+            framesData[i].samplersDescriptorSet = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 
-            descriptorSet[i]->update(BINDING_TEXTURE, textures);
-            descriptorSet[i]->update(BINDING_UBO1, uboBuffer1);
-            descriptorSet[i]->update(BINDING_UBO2, uboBuffer2);
-            samplersDescriptorSet[i]->update(BINDING_SAMPLERS, samplers);
+            framesData[i].descriptorSet->update(BINDING_UBO1, uboBuffer1);
+            framesData[i].descriptorSet->update(BINDING_UBO2, uboBuffer2);
+            framesData[i].descriptorSet->update(BINDING_TEXTURE, textures);
+            framesData[i].samplersDescriptorSet->update(BINDING_SAMPLERS, samplers);
 
-            framesData[i] = renderingBackEnd->createFrameData(i);
-            graphicCommandAllocator[i] = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
-            graphicCommandList[i] = graphicCommandAllocator[i]->createCommandList();
+            framesData[i].frameData = renderingBackEnd->createFrameData(i);
+            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
+            framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
         }
 
         renderingBackEnd->getTransferCommandQueue()->waitIdle();
@@ -124,7 +125,7 @@ namespace samples {
         }
         uboBuffer1->write(&ubo1);
 
-        ubo2.color += 0.01f * colorIncrement;
+        ubo2.color += 0.005f * colorIncrement;
         if ((ubo2.color.x > 0.5f) || (ubo2.color.x < 0.0f)) {
             colorIncrement = -colorIncrement;
         }
@@ -133,31 +134,30 @@ namespace samples {
 
     void TriangleApp::onRender() {
         const auto swapChain = renderingBackEnd->getSwapChain();
-        const auto frame = swapChain->getCurrentFrameIndex();
-        const auto frameData = framesData[frame];
+        const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
-        if (!swapChain->begin(frameData)) { return; }
-        graphicCommandAllocator[frame]->reset();
-        const auto commandList = graphicCommandList[frame];
-        commandList->begin();
-        renderingBackEnd->beginRendering(frameData, commandList);
+        if (!swapChain->begin(frame.frameData)) { return; }
+        frame.commandAllocator->reset();
+        frame.commandList->begin();
+        renderingBackEnd->beginRendering(frame.frameData, frame.commandList);
 
-        commandList->bindPipeline(pipelines["shader1"]);
-        commandList->bindDescriptors({descriptorSet[frame], samplersDescriptorSet[frame]});
-        commandList->bindVertexBuffer(vertexBuffer);
-        commandList->drawInstanced(3, 1);
+        frame.commandList->bindPipeline(pipelines["shader1"]);
+        frame.commandList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
+        frame.commandList->bindVertexBuffer(vertexBuffer);
+        frame.commandList->drawInstanced(triangleVertices.size());
 
-        commandList->bindPipeline(pipelines["shader2"]);
-        commandList->bindDescriptors({descriptorSet[frame], samplersDescriptorSet[frame]});
-        commandList->bindVertexBuffer(vertexBuffer);
-        commandList->drawInstanced(3, 2);
+        frame.commandList->bindPipeline(pipelines["shader2"]);
+        frame.commandList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
+        frame.commandList->bindVertexBuffer(vertexBuffer);
+        frame.commandList->drawInstanced(triangleVertices.size(), 2);
 
-        renderingBackEnd->endRendering(commandList);
-        swapChain->end(frameData, commandList);
-        commandList->end();
-        renderingBackEnd->getGraphicCommandQueue()->submit(frameData, {commandList});
+        renderingBackEnd->endRendering(frame.commandList);
+        swapChain->end(frame.frameData, frame.commandList);
+        frame.commandList->end();
 
-        swapChain->present(frameData);
+        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {frame.commandList});
+
+        swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
     }
 
@@ -165,14 +165,14 @@ namespace samples {
         uboBuffer1->unmap();
         uboBuffer2->unmap();
         renderingBackEnd->waitIdle();
-        for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            renderingBackEnd->destroyFrameData(framesData[i]);
+        for (auto& data : framesData) {
+            renderingBackEnd->destroyFrameData(data.frameData);
         }
     }
 
     // Generate a simple black and white checkerboard texture.
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
-    vector<unsigned char> TriangleApp::generateTextureData(uint32_t width, uint32_t height) const {
+    vector<unsigned char> TriangleApp::generateTextureData(const uint32_t width, const uint32_t height) {
         const auto rowPitch = width * 4;
         const auto cellPitch = rowPitch >> 3;        // The width of a cell in the checkboard texture.
         const auto cellHeight = width >> 3;    // The height of a cell in the checkerboard texture.

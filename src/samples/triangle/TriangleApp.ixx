@@ -27,11 +27,15 @@ export namespace samples {
             {"POSITION", vireo::VertexInputLayout::R32G32B32_FLOAT, 0},
             {"COLOR",    vireo::VertexInputLayout::R32G32B32_FLOAT, 12}
         };
+        vector<Vertex>            triangleVertices;
         shared_ptr<vireo::Buffer> vertexBuffer;
 
-        vector<shared_ptr<vireo::FrameData>> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT}; // TODO
-        vector<shared_ptr<vireo::CommandAllocator>> graphicCommandAllocator{vireo::SwapChain::FRAMES_IN_FLIGHT};
-        vector<shared_ptr<vireo::CommandList>> graphicCommandList{vireo::SwapChain::FRAMES_IN_FLIGHT};
+        struct FrameData {
+            shared_ptr<vireo::FrameData>        frameData;
+            shared_ptr<vireo::CommandAllocator> commandAllocator;
+            shared_ptr<vireo::CommandList>      commandList;
+        };
+        vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
     };

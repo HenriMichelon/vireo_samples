@@ -11,14 +11,16 @@ export module samples.win32;
 
 import samples.app;
 
-namespace samples {
+export namespace samples {
 
-    export class Win32Application {
+    class Win32Application {
     public:
         static int run(
-            shared_ptr<Application> app,
+            const shared_ptr<Application>& app,
             UINT width, UINT height,
-            const wstring& name, HINSTANCE hInstance, int nCmdShow);
+            const wstring& name,
+            HINSTANCE hInstance,
+            int nCmdShow);
         static HWND getHwnd() { return hwnd; }
         static auto& getApp() { return app; }
 
@@ -29,11 +31,9 @@ namespace samples {
         static HWND hwnd;
         static shared_ptr<Application> app;
 
-        static vireo::Backends backendSelectorDialog(HINSTANCE hInstance, wstring& title);
-
+        static bool dirExists(const string& dirName_in);
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         static LRESULT CALLBACK SelectorWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-        static bool dirExists(const string& dirName_in);
-
+        static vireo::Backends backendSelectorDialog(HINSTANCE hInstance, const wstring& title);
     };
 }

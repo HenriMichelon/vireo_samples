@@ -16,7 +16,7 @@ namespace samples {
         renderingBackEnd->setClearColor( 0.0f, 0.2f, 0.4f);
         const auto aspectRatio = renderingBackEnd->getSwapChain()->getAspectRatio();
 
-        const auto triangleVertices = vector<Vertex> {
+        triangleVertices = {
             { { 0.0f, 0.25f * aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f} },
             { { 0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f } }
@@ -44,9 +44,9 @@ namespace samples {
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            framesData[i] = renderingBackEnd->createFrameData(i);
-            graphicCommandAllocator[i] = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
-            graphicCommandList[i] = graphicCommandAllocator[i]->createCommandList();
+            framesData[i].frameData = renderingBackEnd->createFrameData(i);
+            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
+            framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
         }
 
         renderingBackEnd->getTransferCommandQueue()->waitIdle();
@@ -55,33 +55,31 @@ namespace samples {
 
     void TriangleApp::onRender() {
         const auto swapChain = renderingBackEnd->getSwapChain();
-        const auto frame = swapChain->getCurrentFrameIndex();
-        const auto frameData = framesData[frame];
+        const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
-        if (!swapChain->begin(frameData)) { return; }
-        graphicCommandAllocator[frame]->reset();
-        const auto commandList = graphicCommandList[frame];
-        commandList->begin();
-        renderingBackEnd->beginRendering(frameData, commandList);
+        if (!swapChain->begin(frame.frameData)) { return; }
+        frame.commandAllocator->reset();
+        frame.commandList->begin();
+        renderingBackEnd->beginRendering(frame.frameData, frame.commandList);
 
-        commandList->bindPipeline(pipelines["default"]);
-        commandList->bindVertexBuffer(vertexBuffer);
-        commandList->drawInstanced(3);
+        frame.commandList->bindPipeline(pipelines["default"]);
+        frame.commandList->bindVertexBuffer(vertexBuffer);
+        frame.commandList->drawInstanced(triangleVertices.size());
 
-        renderingBackEnd->endRendering(commandList);
-        swapChain->end(frameData, commandList);
-        commandList->end();
+        renderingBackEnd->endRendering(frame.commandList);
+        swapChain->end(frame.frameData, frame.commandList);
+        frame.commandList->end();
 
-        renderingBackEnd->getGraphicCommandQueue()->submit(frameData, {commandList});
+        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {frame.commandList});
 
-        swapChain->present(frameData);
+        swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
     }
 
     void TriangleApp::onDestroy() {
         renderingBackEnd->waitIdle();
-        for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            renderingBackEnd->destroyFrameData(framesData[i]);
+        for (auto& data : framesData) {
+            renderingBackEnd->destroyFrameData(data.frameData);
         }
     }
 

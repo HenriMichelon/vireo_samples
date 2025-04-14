@@ -18,38 +18,37 @@ export namespace samples {
         void onRender() override;
         void onDestroy() override;
 
-    protected:
-
     private:
+        const vireo::DescriptorIndex BINDING_TEXTURE{0};
+        const vireo::DescriptorIndex BINDING_SAMPLERS{0};
+
         struct Vertex {
             vec3 pos;
             vec2 uv;
         };
-
-        const vireo::DescriptorIndex BINDING_TEXTURE{0};
-        const vireo::DescriptorIndex BINDING_SAMPLERS{0};
-
         const vector<vireo::VertexInputLayout::AttributeDescription> vertexAttributes{
             {"POSITION", vireo::VertexInputLayout::R32G32B32_FLOAT, 0},
             {"TEXCOORD",    vireo::VertexInputLayout::R32G32_FLOAT, 12},
         };
 
-        shared_ptr<vireo::Buffer> vertexBuffer;
-        vector<shared_ptr<vireo::Image>> textures;
+        vector<Vertex>                     triangleVertices;
+        shared_ptr<vireo::Buffer>          vertexBuffer;
+        vector<shared_ptr<vireo::Image>>   textures;
         vector<shared_ptr<vireo::Sampler>> samplers;
 
-        vector<shared_ptr<vireo::FrameData>> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
-        vector<shared_ptr<vireo::CommandAllocator>> graphicCommandAllocator{vireo::SwapChain::FRAMES_IN_FLIGHT};
-        vector<shared_ptr<vireo::CommandList>> graphicCommandList{vireo::SwapChain::FRAMES_IN_FLIGHT};
+        struct FrameData {
+            shared_ptr<vireo::FrameData>        frameData;
+            shared_ptr<vireo::CommandAllocator> commandAllocator;
+            shared_ptr<vireo::CommandList>      commandList;
+            shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
+        };
+        vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
-
-        vector<shared_ptr<vireo::DescriptorSet>> descriptorSet{vireo::SwapChain::FRAMES_IN_FLIGHT};
-        vector<shared_ptr<vireo::DescriptorSet>> samplersDescriptorSet{vireo::SwapChain::FRAMES_IN_FLIGHT};
-
+        shared_ptr<vireo::DescriptorLayout>      descriptorLayout;
+        shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
 
-        vector<unsigned char> generateTextureData(uint32_t width, uint32_t height) const;
+        static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);
     };
 }
