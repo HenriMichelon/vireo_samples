@@ -52,7 +52,7 @@ namespace samples {
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
             framesData[i] = renderingBackEnd->createFrameData(i, {});
             graphicCommandAllocator[i] = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
-            graphicCommandList[i] = graphicCommandAllocator[i]->createCommandList(pipelines["default"]);
+            graphicCommandList[i] = graphicCommandAllocator[i]->createCommandList();
         }
 
         renderingBackEnd->getTransferCommandQueue()->waitIdle();

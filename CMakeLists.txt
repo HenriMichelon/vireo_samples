@@ -50,6 +50,8 @@ add_custom_target(post_build_shaders ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${VIREO_SHADERS_BUILD_DIR} ${SHADERS_BUILD_DIR}
         BYPRODUCTS ${SHADERS_BUILD_DIR}/dummy_vert.spv
 )
+add_shaders(target_shaders ${SHADERS_BUILD_DIR} ${VIREO_SHADERS_DIR} ${SHADERS_SOURCE_FILES})
+add_dependencies(target_shaders ${VIREO_TARGET})
 
 #######################################################
 # Common files
@@ -62,32 +64,52 @@ set(COMMON_MODULES
 )
 
 #######################################################
-set(MY_TARGET ${PROJECT_NAME})
-add_executable(${MY_TARGET}
-        ${COMMON_SOURCES}
-        ${SRC_DIR}/samples/triangle/TriangleApp.cpp
+function(build_target TARGET_NAME SRCS MODULES)
+    message("Building target ${TARGET_NAME}")
+    add_executable(${TARGET_NAME} ${COMMON_SOURCES} ${SRCS})
+    target_sources(${TARGET_NAME}
+        PUBLIC
+        FILE_SET CXX_MODULES
+        FILES
+            ${COMMON_MODULES}
+            ${MODULES}
+    )
+    compile_options(${TARGET_NAME})
+    target_include_directories(${TARGET_NAME} PUBLIC ${INCLUDE_DIR} ${VIREO_INCLUDE_DIR})
+    target_link_libraries(${TARGET_NAME} ${VIREO_TARGET} glm::glm glm-modules std-cxx-modules)
+    add_dependencies(${TARGET_NAME} target_shaders)
+    if(WIN32)
+        target_link_libraries(${TARGET_NAME} Xinput dinput8 dxguid dxgi d3d12 d3dcompiler)
+        if(MINGW)
+            target_link_options(${TARGET_NAME} PRIVATE "-mwindows")
+        endif()
+        set_target_properties(${TARGET_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+    endif()
+endfunction()
+
+#######################################################
+set(TRIANGLE_SRC
+    ${SRC_DIR}/samples/triangle/TriangleApp.cpp
 )
-
-target_sources(${MY_TARGET}
-    PUBLIC
-    FILE_SET CXX_MODULES
-    FILES
-        ${COMMON_MODULES}
-        ${SRC_DIR}/samples/triangle/TriangleApp.ixx
+set(TRIANGLE_MODULES
+    ${SRC_DIR}/samples/triangle/TriangleApp.ixx
 )
+build_target(triangle ${TRIANGLE_SRC} ${TRIANGLE_MODULES})
 
-compile_options(${MY_TARGET})
-target_include_directories(${MY_TARGET} PUBLIC ${INCLUDE_DIR} ${VIREO_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${VIREO_TARGET} glm::glm glm-modules std-cxx-modules)
-if(WIN32)
-target_link_libraries(${MY_TARGET} Xinput dinput8 dxguid dxgi d3d12 d3dcompiler)
-if(MINGW)
-    target_link_options(${MY_TARGET} PRIVATE "-mwindows")
-endif()
-set_target_properties(${MY_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
-endif()
+#######################################################
+set(TRIANGLE_TEXTURE_SRC
+        ${SRC_DIR}/samples/triangle_texture/TextureApp.cpp
+)
+set(TRIANGLE_TEXTURE_MODULES
+        ${SRC_DIR}/samples/triangle_texture/TextureApp.ixx
+)
+build_target(triangle_texture ${TRIANGLE_TEXTURE_SRC} ${TRIANGLE_TEXTURE_MODULES})
 
-add_shaders(${MY_TARGET}_shaders ${SHADERS_BUILD_DIR} ${VIREO_SHADERS_DIR} ${SHADERS_SOURCE_FILES})
-add_dependencies(post_build_shaders ${MY_TARGET}_shaders)
-add_dependencies(${MY_TARGET}_shaders ${VIREO_TARGET})
-add_dependencies(${MY_TARGET} post_build_shaders)
+#######################################################
+set(TRIANGLE_BUFFER_SRC
+        ${SRC_DIR}/samples/triangle_texture_buffer/TextureBufferApp.cpp
+)
+set(TRIANGLE_BUFFER_MODULES
+        ${SRC_DIR}/samples/triangle_texture_buffer/TextureBufferApp.ixx
+)
+build_target(triangle_texture_buffer ${TRIANGLE_BUFFER_SRC} ${TRIANGLE_BUFFER_MODULES})
