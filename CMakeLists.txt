@@ -30,8 +30,6 @@ include(cmake/libraries.cmake)
 #######################################################
 add_subdirectory(${VIREO_PROJECT_DIR} external_lib_build)
 set(VIREO_INCLUDE_DIR ${VIREO_PROJECT_DIR}/include)
-set(VIREO_SHADERS_DIR ${VIREO_PROJECT_DIR}/src/shaders)
-set(VIREO_SHADERS_BUILD_DIR ${VIREO_PROJECT_DIR}/shaders)
 set(VIREO_TARGET "vireo_ral")
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -45,12 +43,7 @@ file(MAKE_DIRECTORY ${SHADERS_BUILD_DIR})
 file(GLOB_RECURSE SHADERS_SOURCE_FILES
         "${SHADERS_SRC_DIR}/*.slang"
 )
-add_custom_target(post_build_shaders ALL
-        COMMENT "Copying Shaders [${VIREO_TARGET}]"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${VIREO_SHADERS_BUILD_DIR} ${SHADERS_BUILD_DIR}
-        BYPRODUCTS ${SHADERS_BUILD_DIR}/dummy_vert.spv
-)
-add_shaders(target_shaders ${SHADERS_BUILD_DIR} ${VIREO_SHADERS_DIR} ${SHADERS_SOURCE_FILES})
+add_shaders(target_shaders ${SHADERS_BUILD_DIR} ${SHADERS_SOURCE_FILES})
 add_dependencies(target_shaders ${VIREO_TARGET})
 
 #######################################################
