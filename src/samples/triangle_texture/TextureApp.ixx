@@ -47,6 +47,8 @@ export namespace samples {
 
         shared_ptr<vireo::DescriptorLayout>      descriptorLayout;
         shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;
+
+        static constexpr auto pipelineConfig = vireo::Pipeline::Configuration {};
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
 
         static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);

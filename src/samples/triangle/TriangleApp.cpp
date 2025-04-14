@@ -41,7 +41,7 @@ namespace samples {
             renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
             renderingBackEnd->createShaderModule("shaders/triangle_color.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_color.frag"),
-            vireo::CullMode::BACK,
+            pipelineConfig,
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {

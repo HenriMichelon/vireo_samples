@@ -37,6 +37,7 @@ export namespace samples {
         };
         vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
+        static constexpr auto pipelineConfig = vireo::Pipeline::Configuration {};
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
     };
 }

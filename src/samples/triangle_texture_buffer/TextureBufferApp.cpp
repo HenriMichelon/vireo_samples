@@ -85,7 +85,7 @@ namespace samples {
             defaultVertexInputLayout,
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.frag"),
-            vireo::CullMode::BACK,
+            pipelineConfig,
             L"shader1");
 
         pipelines["shader2"] = renderingBackEnd->createPipeline(
@@ -93,7 +93,7 @@ namespace samples {
             defaultVertexInputLayout,
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.frag"),
-            vireo::CullMode::BACK,
+            pipelineConfig,
             L"shader2");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
