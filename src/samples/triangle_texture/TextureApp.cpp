@@ -65,6 +65,7 @@ namespace samples {
             renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
             renderingBackEnd->createShaderModule("shaders/triangle_texture.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_texture.frag"),
+            vireo::CullMode::BACK,
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
