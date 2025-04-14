@@ -39,9 +39,9 @@ export namespace samples {
         };
 
         const vector<vireo::VertexInputLayout::AttributeDescription> vertexAttributes{
-            {"POSITION", vireo::VertexInputLayout::R32G32B32_FLOAT, 0},
-            {"TEXCOORD",    vireo::VertexInputLayout::R32G32_FLOAT, 12},
-            {"COLOR",    vireo::VertexInputLayout::R32G32B32_FLOAT, 20}
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
+            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, 12},
+            {"COLOR", vireo::AttributeFormat::R32G32B32_FLOAT, 20}
         };
 
         float colorIncrement{1.0f};

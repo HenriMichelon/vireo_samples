@@ -23,7 +23,7 @@ namespace samples {
         };
 
         vertexBuffer = renderingBackEnd->createBuffer(
-            vireo::Buffer::Type::VERTEX,
+            vireo::BufferType::VERTEX,
             sizeof(Vertex),
             triangleVertices.size(),
             1,
@@ -42,7 +42,7 @@ namespace samples {
             false,
             vireo::MipMapMode::NEAREST));
 
-        const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
+        const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
@@ -75,7 +75,7 @@ namespace samples {
             framesData[i].samplersDescriptorSet->update(BINDING_SAMPLERS, samplers);
 
             framesData[i].frameData = renderingBackEnd->createFrameData(i);
-            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
+            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
         }
 

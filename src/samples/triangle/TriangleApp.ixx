@@ -24,8 +24,8 @@ export namespace samples {
             vec3 color;
         };
         const vector<vireo::VertexInputLayout::AttributeDescription> vertexAttributes{
-            {"POSITION", vireo::VertexInputLayout::R32G32B32_FLOAT, 0},
-            {"COLOR",    vireo::VertexInputLayout::R32G32B32_FLOAT, 12}
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
+            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, 12}
         };
         vector<Vertex>            triangleVertices;
         shared_ptr<vireo::Buffer> vertexBuffer;

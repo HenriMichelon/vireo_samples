@@ -27,8 +27,8 @@ export namespace samples {
             vec2 uv;
         };
         const vector<vireo::VertexInputLayout::AttributeDescription> vertexAttributes{
-            {"POSITION", vireo::VertexInputLayout::R32G32B32_FLOAT, 0},
-            {"TEXCOORD",    vireo::VertexInputLayout::R32G32_FLOAT, 12},
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
+            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, 12},
         };
 
         vector<Vertex>                     triangleVertices;

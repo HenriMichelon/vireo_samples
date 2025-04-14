@@ -23,13 +23,13 @@ namespace samples {
         };
 
         vertexBuffer = renderingBackEnd->createBuffer(
-            vireo::Buffer::Type::VERTEX,
+            vireo::BufferType::VERTEX,
             sizeof(Vertex),
             triangleVertices.size(),
             1,
             L"TriangleVertexBuffer");
 
-        const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
+        const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
@@ -45,7 +45,7 @@ namespace samples {
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
             framesData[i].frameData = renderingBackEnd->createFrameData(i);
-            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::GRAPHIC);
+            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
         }
 
