@@ -199,7 +199,7 @@ namespace samples {
                 pData[n] = 0xff;        // R
                 pData[n + 1] = 0xff;    // G
                 pData[n + 2] = 0xff;    // B
-                pData[n + 3] = 0xff;    // A
+                pData[n + 3] = 0x00;    // A
             }
         }
         return data;
