@@ -188,7 +188,7 @@ namespace samples {
         Win32Application::app = app;
         const vireo::Configuration configuration{
             .windowHandle = hwnd,
-            .backend      = vireo::Backends::DIRECTX,// backendSelectorDialog(hInstance, title),
+            .backend      = vireo::Backends::VULKAN,// backendSelectorDialog(hInstance, title),
             .vSyncMode    = vireo::VSyncMode::VSYNC,
         };
         app->initRenderingBackEnd(configuration);

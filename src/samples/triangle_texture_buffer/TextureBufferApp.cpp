@@ -31,14 +31,13 @@ namespace samples {
         textures.push_back(renderingBackEnd->createImage(
             vireo::ImageFormat::R8G8B8A8_SRGB,
             512, 512,
-            L"CheckerBoardTexture1"));
+            L"CheckerBoardTexture"));
 
         const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
-        uploadCommandAllocator->reset();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
-        uploadCommandList->upload(textures[0], generateTextureData(512, 512).data());
+        uploadCommandList->upload(textures[0], generateTextureData(textures[0]->getWidth(), textures[0]->getHeight()).data());
         uploadCommandList->end();
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
@@ -75,28 +74,23 @@ namespace samples {
         samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER, samplers.size());
         samplersDescriptorLayout->build();
 
-        pipelineResources["default"] = renderingBackEnd->createPipelineResources(
+        const auto defaultLayout = renderingBackEnd->createPipelineResources(
             { descriptorLayout, samplersDescriptorLayout },
             L"default");
-
         const auto defaultVertexInputLayout = renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes);
 
-        const auto vertexShader1 = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.vert");
-        const auto fragmentShader1 = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.frag");
         pipelines["shader1"] = renderingBackEnd->createPipeline(
-            pipelineResources["default"],
+            defaultLayout,
             defaultVertexInputLayout,
-            vertexShader1,
-            fragmentShader1,
+            renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.vert"),
+            renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.frag"),
             L"shader1");
 
-        const auto vertexShader2 = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.vert");
-        const auto fragmentShader2 = renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.frag");
         pipelines["shader2"] = renderingBackEnd->createPipeline(
-            pipelineResources["default"],
+            defaultLayout,
             defaultVertexInputLayout,
-            vertexShader2,
-            fragmentShader2,
+            renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.vert"),
+            renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.frag"),
             L"shader2");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
@@ -206,7 +200,6 @@ namespace samples {
                 pData[n + 3] = 0xff;    // A
             }
         }
-
         return data;
     }
 

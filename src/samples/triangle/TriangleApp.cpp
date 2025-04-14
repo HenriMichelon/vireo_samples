@@ -31,22 +31,16 @@ namespace samples {
 
         const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
-        uploadCommandAllocator->reset();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->end();
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
-        pipelineResources["default"] = renderingBackEnd->createPipelineResources({ }, L"default");
-
-        const auto defaultVertexInputLayout = renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes);
-        const auto vertexShader = renderingBackEnd->createShaderModule("shaders/triangle_color.vert");
-        const auto fragmentShader = renderingBackEnd->createShaderModule("shaders/triangle_color.frag");
         pipelines["default"] = renderingBackEnd->createPipeline(
-            pipelineResources["default"],
-            defaultVertexInputLayout,
-            vertexShader,
-            fragmentShader,
+            renderingBackEnd->createPipelineResources({ }, L"default"),
+            renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
+            renderingBackEnd->createShaderModule("shaders/triangle_color.vert"),
+            renderingBackEnd->createShaderModule("shaders/triangle_color.frag"),
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {

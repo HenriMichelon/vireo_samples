@@ -29,11 +29,10 @@ export namespace samples {
         };
         shared_ptr<vireo::Buffer> vertexBuffer;
 
-        vector<shared_ptr<vireo::FrameData>> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
+        vector<shared_ptr<vireo::FrameData>> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT}; // TODO
         vector<shared_ptr<vireo::CommandAllocator>> graphicCommandAllocator{vireo::SwapChain::FRAMES_IN_FLIGHT};
         vector<shared_ptr<vireo::CommandList>> graphicCommandList{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
-        map<string, shared_ptr<vireo::PipelineResources>> pipelineResources;
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
     };
 }

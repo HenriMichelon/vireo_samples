@@ -19,9 +19,6 @@ export namespace samples {
         void onRender() override;
         void onDestroy() override;
 
-    protected:
-        vector<unsigned char> generateTextureData(uint32_t width, uint32_t height) const;
-
     private:
         struct Vertex {
             vec3 pos;
@@ -69,7 +66,8 @@ export namespace samples {
         vector<shared_ptr<vireo::DescriptorSet>> descriptorSet{vireo::SwapChain::FRAMES_IN_FLIGHT};
         vector<shared_ptr<vireo::DescriptorSet>> samplersDescriptorSet{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
-        map<string, shared_ptr<vireo::PipelineResources>> pipelineResources;
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
+
+        vector<unsigned char> generateTextureData(uint32_t width, uint32_t height) const;
     };
 }

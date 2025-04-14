@@ -19,7 +19,7 @@ struct VertexOutput {
 
 struct UBO1 {
     float4 offset;
-    float scale;
+    float  scale;
 };
 
 struct UBO2 {

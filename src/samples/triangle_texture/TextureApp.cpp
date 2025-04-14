@@ -30,8 +30,7 @@ namespace samples {
             L"TriangleVertexBuffer");
         textures.push_back(renderingBackEnd->createImage(
             vireo::ImageFormat::R8G8B8A8_SRGB,
-            TextureWidth,
-            TextureHeight,
+            512, 512,
             L"CheckerBoardTexture"));
         samplers.push_back(renderingBackEnd->createSampler(
             vireo::Filter::NEAREST,
@@ -45,10 +44,9 @@ namespace samples {
 
         const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandList::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
-        uploadCommandAllocator->reset();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
-        uploadCommandList->upload(textures[0], generateTextureData().data());
+        uploadCommandList->upload(textures[0], generateTextureData(textures[0]->getWidth(), textures[0]->getHeight()).data());
         uploadCommandList->end();
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
@@ -60,18 +58,13 @@ namespace samples {
         samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER, samplers.size());
         samplersDescriptorLayout->build();
 
-        pipelineResources["default"] = renderingBackEnd->createPipelineResources(
-            { descriptorLayout, samplersDescriptorLayout },
-            L"default");
-
-        const auto defaultVertexInputLayout = renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes);
-        const auto vertexShader = renderingBackEnd->createShaderModule("shaders/triangle_texture.vert");
-        const auto fragmentShader = renderingBackEnd->createShaderModule("shaders/triangle_texture.frag");
         pipelines["default"] = renderingBackEnd->createPipeline(
-            pipelineResources["default"],
-            defaultVertexInputLayout,
-            vertexShader,
-            fragmentShader,
+            renderingBackEnd->createPipelineResources(
+            { descriptorLayout, samplersDescriptorLayout },
+            L"default"),
+            renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
+            renderingBackEnd->createShaderModule("shaders/triangle_texture.vert"),
+            renderingBackEnd->createShaderModule("shaders/triangle_texture.frag"),
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
@@ -125,16 +118,16 @@ namespace samples {
 
     // Generate a simple black and white checkerboard texture.
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
-    vector<unsigned char> TextureApp::generateTextureData() const {
-        const auto rowPitch = TextureWidth * TexturePixelSize;
+    vector<unsigned char> TextureApp::generateTextureData(uint32_t width, uint32_t height) const {
+        const auto rowPitch = width * 4;
         const auto cellPitch = rowPitch >> 3;        // The width of a cell in the checkboard texture.
-        const auto cellHeight = TextureWidth >> 3;    // The height of a cell in the checkerboard texture.
-        const auto textureSize = rowPitch * TextureHeight;
+        const auto cellHeight = width >> 3;    // The height of a cell in the checkerboard texture.
+        const auto textureSize = rowPitch * height;
 
         vector<unsigned char> data(textureSize);
         unsigned char* pData = &data[0];
 
-        for (int n = 0; n < textureSize; n += TexturePixelSize) {
+        for (int n = 0; n < textureSize; n += 4) {
             const auto x = n % rowPitch;
             const auto y = n / rowPitch;
             const auto i = x / cellPitch;
@@ -153,7 +146,6 @@ namespace samples {
                 pData[n + 3] = 0xff;    // A
             }
         }
-
         return data;
     }
 
