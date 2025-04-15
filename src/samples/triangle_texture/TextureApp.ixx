@@ -31,7 +31,12 @@ export namespace samples {
             {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, 12},
         };
 
-        vector<Vertex>                     triangleVertices;
+        vector<Vertex> triangleVertices{
+                { { 0.0f, 0.25f, 0.0f }, { 0.5f, 0.0f } },
+                { { 0.25f, -0.25f, 0.0f }, { 1.0f, 1.0f } },
+                { { -0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f } }
+        };
+
         shared_ptr<vireo::Buffer>          vertexBuffer;
         vector<shared_ptr<vireo::Image>>   textures;
         vector<shared_ptr<vireo::Sampler>> samplers;

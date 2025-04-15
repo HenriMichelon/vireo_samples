@@ -27,7 +27,12 @@ export namespace samples {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, 12}
         };
-        vector<Vertex>            triangleVertices;
+        vector<Vertex>            triangleVertices{
+                { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
+                { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+                { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+        };
+
         shared_ptr<vireo::Buffer> vertexBuffer;
 
         struct FrameData {

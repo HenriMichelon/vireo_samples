@@ -12,7 +12,7 @@ import samples.app;
 
 export namespace samples {
 
-    class TriangleApp : public Application {
+    class TextureBufferApp : public Application {
     public:
         void onInit() override;
         void onUpdate() override;
@@ -47,9 +47,14 @@ export namespace samples {
         float colorIncrement{1.0f};
         float scaleIncrement{1.0f};
 
-        vector<Vertex>            triangleVertices;
-        GlobalUBO1                ubo1{};
-        GlobalUBO2                ubo2{};
+        vector<Vertex> triangleVertices{
+            { { 0.0f, 0.25f, 0.0f }, { 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
+            { { 0.25f, -0.25f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
+            { { -0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
+        };
+        GlobalUBO1     ubo1{};
+        GlobalUBO2     ubo2{};
+
         shared_ptr<vireo::Buffer> vertexBuffer;
         shared_ptr<vireo::Buffer> uboBuffer1;
         shared_ptr<vireo::Buffer> uboBuffer2;

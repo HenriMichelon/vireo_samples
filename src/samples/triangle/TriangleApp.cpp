@@ -14,13 +14,6 @@ namespace samples {
 
     void TriangleApp::onInit() {
         renderingBackEnd->setClearColor( 0.0f, 0.2f, 0.4f);
-        const auto aspectRatio = renderingBackEnd->getSwapChain()->getAspectRatio();
-
-        triangleVertices = {
-            { { 0.0f, 0.25f * aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f} },
-            { { 0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-            { { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f } }
-        };
 
         vertexBuffer = renderingBackEnd->createBuffer(
             vireo::BufferType::VERTEX,
@@ -60,18 +53,22 @@ namespace samples {
 
         if (!swapChain->begin(frame.frameData)) { return; }
         frame.commandAllocator->reset();
-        frame.commandList->begin();
-        renderingBackEnd->beginRendering(frame.frameData, frame.commandList);
 
-        frame.commandList->bindPipeline(pipelines["default"]);
-        frame.commandList->bindVertexBuffer(vertexBuffer);
-        frame.commandList->drawInstanced(triangleVertices.size());
+        const auto& cmdList = frame.commandList;
+        cmdList->begin();
+        renderingBackEnd->beginRendering(frame.frameData, cmdList);
+        cmdList->setViewports(1, {swapChain->getExtent()});
+        cmdList->setScissors(1, {swapChain->getExtent()});
 
-        renderingBackEnd->endRendering(frame.commandList);
-        swapChain->end(frame.frameData, frame.commandList);
-        frame.commandList->end();
+        cmdList->bindPipeline(pipelines["default"]);
+        cmdList->bindVertexBuffer(vertexBuffer);
+        cmdList->drawInstanced(triangleVertices.size());
 
-        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {frame.commandList});
+        renderingBackEnd->endRendering(cmdList);
+        swapChain->end(frame.frameData, cmdList);
+        cmdList->end();
+
+        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});
 
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();

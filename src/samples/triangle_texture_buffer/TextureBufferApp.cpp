@@ -8,19 +8,12 @@ module;
 #include "Macros.h"
 module samples.hellotriangle;
 
-APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 800, 600);
+APP(make_shared<samples::TextureBufferApp>(), L"Hello Triangle", 800, 600);
 
 namespace samples {
 
-    void TriangleApp::onInit() {
+    void TextureBufferApp::onInit() {
         renderingBackEnd->setClearColor( 0.0f, 0.2f, 0.4f);
-        const auto aspectRatio = renderingBackEnd->getSwapChain()->getAspectRatio();
-
-        triangleVertices = {
-            { { 0.0f, 0.25f * aspectRatio, 0.0f }, { 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
-            { { 0.25f, -0.25f * aspectRatio, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
-            { { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
-        };
 
         vertexBuffer = renderingBackEnd->createBuffer(
             vireo::BufferType::VERTEX,
@@ -114,7 +107,7 @@ namespace samples {
         uploadCommandList->cleanup();
     }
 
-    void TriangleApp::onUpdate() {
+    void TextureBufferApp::onUpdate() {
         constexpr float translationSpeed = 0.005f;
         constexpr float offsetBounds = 1.25f;
         ubo1.offset.x += translationSpeed;
@@ -134,36 +127,40 @@ namespace samples {
         uboBuffer2->write(&ubo2);
     }
 
-    void TriangleApp::onRender() {
+    void TextureBufferApp::onRender() {
         const auto swapChain = renderingBackEnd->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->begin(frame.frameData)) { return; }
         frame.commandAllocator->reset();
-        frame.commandList->begin();
-        renderingBackEnd->beginRendering(frame.frameData, frame.commandList);
 
-        frame.commandList->bindPipeline(pipelines["shader1"]);
-        frame.commandList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
-        frame.commandList->bindVertexBuffer(vertexBuffer);
-        frame.commandList->drawInstanced(triangleVertices.size());
+        const auto& cmdList = frame.commandList;
+        cmdList->begin();
+        renderingBackEnd->beginRendering(frame.frameData, cmdList);
+        cmdList->setViewports(1, {swapChain->getExtent()});
+        cmdList->setScissors(1, {swapChain->getExtent()});
 
-        frame.commandList->bindPipeline(pipelines["shader2"]);
-        frame.commandList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
-        frame.commandList->bindVertexBuffer(vertexBuffer);
-        frame.commandList->drawInstanced(triangleVertices.size(), 2);
+        cmdList->bindPipeline(pipelines["shader1"]);
+        cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
+        cmdList->bindVertexBuffer(vertexBuffer);
+        cmdList->drawInstanced(triangleVertices.size());
 
-        renderingBackEnd->endRendering(frame.commandList);
-        swapChain->end(frame.frameData, frame.commandList);
-        frame.commandList->end();
+        cmdList->bindPipeline(pipelines["shader2"]);
+        cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
+        cmdList->bindVertexBuffer(vertexBuffer);
+        cmdList->drawInstanced(triangleVertices.size(), 2);
 
-        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {frame.commandList});
+        renderingBackEnd->endRendering(cmdList);
+        swapChain->end(frame.frameData, cmdList);
+        cmdList->end();
+
+        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});
 
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
     }
 
-    void TriangleApp::onDestroy() {
+    void TextureBufferApp::onDestroy() {
         uboBuffer1->unmap();
         uboBuffer2->unmap();
         renderingBackEnd->waitIdle();
@@ -174,7 +171,7 @@ namespace samples {
 
     // Generate a simple black and white checkerboard texture.
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
-    vector<unsigned char> TriangleApp::generateTextureData(const uint32_t width, const uint32_t height) {
+    vector<unsigned char> TextureBufferApp::generateTextureData(const uint32_t width, const uint32_t height) {
         const auto rowPitch = width * 4;
         const auto cellPitch = rowPitch >> 3;        // The width of a cell in the checkboard texture.
         const auto cellHeight = width >> 3;    // The height of a cell in the checkerboard texture.
