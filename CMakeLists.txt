@@ -41,6 +41,7 @@ set(VIREO_TARGET "vireo_ral")
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SHADERS_SRC_DIR ${SRC_DIR}/shaders)
+set(SHADERS_INCLUDE_DIR ${SRC_DIR}/shaders/include)
 set(SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 
 #######################################################
@@ -49,7 +50,7 @@ file(MAKE_DIRECTORY ${SHADERS_BUILD_DIR})
 file(GLOB_RECURSE SHADERS_SOURCE_FILES
         "${SHADERS_SRC_DIR}/*.slang"
 )
-add_shaders(target_shaders ${SHADERS_BUILD_DIR} ${SHADERS_SOURCE_FILES})
+add_shaders(target_shaders ${SHADERS_BUILD_DIR} ${SHADERS_INCLUDE_DIR} ${SHADERS_SOURCE_FILES} )
 add_dependencies(target_shaders ${VIREO_TARGET})
 
 #######################################################
