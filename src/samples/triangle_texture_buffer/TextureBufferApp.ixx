@@ -20,6 +20,8 @@ export namespace samples {
         void onDestroy() override;
 
     private:
+        static constexpr float clearColor[] = {0.0f, 0.2f, 0.4f, 1.0f};
+
         const vireo::DescriptorIndex BINDING_UBO1{0};
         const vireo::DescriptorIndex BINDING_UBO2{1};
         const vireo::DescriptorIndex BINDING_TEXTURE{2};

@@ -19,6 +19,8 @@ export namespace samples {
         void onDestroy() override;
 
     private:
+        static constexpr float clearColor[] = {0.0f, 0.2f, 0.4f, 1.0f};
+
         struct Vertex {
             vec3 pos;
             vec3 color;

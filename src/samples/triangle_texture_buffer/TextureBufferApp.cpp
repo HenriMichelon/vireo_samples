@@ -13,8 +13,6 @@ APP(make_shared<samples::TextureBufferApp>(), L"Hello Triangle", 800, 600);
 namespace samples {
 
     void TextureBufferApp::onInit() {
-        renderingBackEnd->setClearColor( 0.0f, 0.2f, 0.4f);
-
         vertexBuffer = renderingBackEnd->createBuffer(
             vireo::BufferType::VERTEX,
             sizeof(Vertex),
@@ -136,7 +134,7 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
-        renderingBackEnd->beginRendering(frame.frameData, cmdList);
+        cmdList->beginRendering(frame.frameData, swapChain, clearColor);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
         cmdList->setPrimitiveTopology(vireo::PrimitiveTopology::TRIANGLE_LIST);
@@ -151,7 +149,7 @@ namespace samples {
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size(), 2);
 
-        renderingBackEnd->endRendering(cmdList);
+        cmdList->endRendering();
         swapChain->end(frame.frameData, cmdList);
         cmdList->end();
 
