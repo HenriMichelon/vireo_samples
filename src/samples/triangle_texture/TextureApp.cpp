@@ -89,6 +89,7 @@ namespace samples {
         renderingBackEnd->beginRendering(frame.frameData, cmdList);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
+        cmdList->setPrimitiveTopology(vireo::PrimitiveTopology::TRIANGLE_LIST);
 
         cmdList->bindPipeline(pipelines["default"]);
         cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
