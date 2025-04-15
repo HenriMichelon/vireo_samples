@@ -32,16 +32,11 @@ namespace samples {
             0.0f, 1.0f,
             false,
             vireo::MipMapMode::NEAREST));
-        uboBuffer1 = renderingBackEnd->createBuffer(
+        globalUboBuffer = renderingBackEnd->createBuffer(
             vireo::BufferType::UNIFORM,
-            sizeof(GlobalUBO1),
+            sizeof(GlobalUBO),
             1, 256,
             L"UBO1");
-        uboBuffer2 = renderingBackEnd->createBuffer(
-            vireo::BufferType::UNIFORM,
-            sizeof(GlobalUBO2),
-            1, 256,
-            L"UBO2");
 
         const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
@@ -51,12 +46,10 @@ namespace samples {
         uploadCommandList->end();
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
-        uboBuffer1->map();
-        uboBuffer2->map();
+        globalUboBuffer->map();
 
         descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
-        descriptorLayout->add(BINDING_UBO1, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_UBO2, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_UBO, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::IMAGE, textures.size());
         descriptorLayout->build();
 
@@ -64,15 +57,16 @@ namespace samples {
         samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER, samplers.size());
         samplersDescriptorLayout->build();
 
-        const auto defaultLayout = renderingBackEnd->createPipelineResources(
+        pipelinesResources["default"] = renderingBackEnd->createPipelineResources(
             { descriptorLayout, samplersDescriptorLayout },
+            pushConstantsDesc,
             L"default");
         const auto defaultVertexInputLayout = renderingBackEnd->createVertexLayout(
             sizeof(Vertex),
             vertexAttributes);
 
         pipelines["shader1"] = renderingBackEnd->createPipeline(
-            defaultLayout,
+            pipelinesResources["default"],
             defaultVertexInputLayout,
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.frag"),
@@ -80,7 +74,7 @@ namespace samples {
             L"shader1");
 
         pipelines["shader2"] = renderingBackEnd->createPipeline(
-            defaultLayout,
+            pipelinesResources["default"],
             defaultVertexInputLayout,
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.frag"),
@@ -91,8 +85,7 @@ namespace samples {
             framesData[i].descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
             framesData[i].samplersDescriptorSet = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 
-            framesData[i].descriptorSet->update(BINDING_UBO1, uboBuffer1);
-            framesData[i].descriptorSet->update(BINDING_UBO2, uboBuffer2);
+            framesData[i].descriptorSet->update(BINDING_UBO, globalUboBuffer);
             framesData[i].descriptorSet->update(BINDING_TEXTURE, textures);
             framesData[i].samplersDescriptorSet->update(BINDING_SAMPLERS, samplers);
 
@@ -108,28 +101,23 @@ namespace samples {
     void TextureBufferApp::onUpdate() {
         constexpr float translationSpeed = 0.005f;
         constexpr float offsetBounds = 1.25f;
-        ubo1.offset.x += translationSpeed;
-        if (ubo1.offset.x > offsetBounds) {
-            ubo1.offset.x = -offsetBounds;
+        globalUbo.offset.x += translationSpeed;
+        if (globalUbo.offset.x > offsetBounds) {
+            globalUbo.offset.x = -offsetBounds;
         }
-        ubo1.scale += 0.001f * scaleIncrement;
-        if ((ubo1.scale > 1.5f) || (ubo1.scale < 0.5f)) {
-            scaleIncrement = -scaleIncrement;
-        }
-        uboBuffer1->write(&ubo1);
+        globalUboBuffer->write(&globalUbo);
 
-        ubo2.color += 0.005f * colorIncrement;
-        if ((ubo2.color.x > 0.5f) || (ubo2.color.x < 0.0f)) {
+        pushConstants.color += 0.005f * colorIncrement;
+        if ((pushConstants.color.x > 0.5f) || (pushConstants.color.x < 0.0f)) {
             colorIncrement = -colorIncrement;
         }
-        uboBuffer2->write(&ubo2);
     }
 
     void TextureBufferApp::onRender() {
         const auto swapChain = renderingBackEnd->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
-        if (!swapChain->begin(frame.frameData)) { return; }
+        if (!swapChain->acquire(frame.frameData)) { return; }
         frame.commandAllocator->reset();
 
         const auto& cmdList = frame.commandList;
@@ -147,6 +135,7 @@ namespace samples {
         cmdList->bindPipeline(pipelines["shader2"]);
         cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);
+        cmdList->pushConstants(pipelinesResources["default"], pushConstantsDesc, &pushConstants);
         cmdList->drawInstanced(triangleVertices.size(), 2);
 
         cmdList->endRendering(frame.frameData, swapChain);
@@ -159,8 +148,7 @@ namespace samples {
     }
 
     void TextureBufferApp::onDestroy() {
-        uboBuffer1->unmap();
-        uboBuffer2->unmap();
+        globalUboBuffer->unmap();
         renderingBackEnd->waitIdle();
         for (auto& data : framesData) {
             renderingBackEnd->destroyFrameData(data.frameData);

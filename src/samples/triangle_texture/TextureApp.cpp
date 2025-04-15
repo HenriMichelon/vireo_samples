@@ -52,6 +52,7 @@ namespace samples {
         pipelines["default"] = renderingBackEnd->createPipeline(
             renderingBackEnd->createPipelineResources(
                 { descriptorLayout, samplersDescriptorLayout },
+                {},
                 L"default"),
             renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
             renderingBackEnd->createShaderModule("shaders/triangle_texture.vert"),

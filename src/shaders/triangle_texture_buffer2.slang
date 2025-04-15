@@ -17,19 +17,20 @@ struct VertexOutput {
     float3 color    : COLOR;
 };
 
-struct UBO1 {
+struct UBO {
     float4 offset;
-    float  scale;
 };
 
-struct UBO2 {
+struct PushConstants {
     float3 color;
 };
 
-ConstantBuffer<UBO1> ubo1   : register(b0);
-ConstantBuffer<UBO2> ubo2   : register(b1);
-Texture2D texture[1]        : register(t2);
-SamplerState samplers[1]    : register(s0, space1);
+[[push_constant]]
+PushConstants pushConstants : register(b0, space2);
+
+ConstantBuffer<UBO> ubo  : register(b0);
+Texture2D texture[1]     : register(t1);
+SamplerState samplers[1] : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;
@@ -42,5 +43,5 @@ VertexOutput vertexMain(VertexInput input) {
 }
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
-    return float4(input.uv.x, input.uv.y, 0.0, 1.0)+ float4(ubo2.color + input.color, 1.0);
+    return float4(input.uv.x, input.uv.y, 0.0, 1.0)+ float4(pushConstants.color + input.color, 1.0);
 }

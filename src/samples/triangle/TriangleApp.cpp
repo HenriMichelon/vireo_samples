@@ -28,7 +28,7 @@ namespace samples {
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
         pipelines["default"] = renderingBackEnd->createPipeline(
-            renderingBackEnd->createPipelineResources({ }, L"default"),
+            renderingBackEnd->createPipelineResources({ }, {}, L"default"),
             renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
             renderingBackEnd->createShaderModule("shaders/triangle_color.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_color.frag"),

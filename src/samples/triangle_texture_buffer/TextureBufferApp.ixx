@@ -22,9 +22,8 @@ export namespace samples {
     private:
         static constexpr float clearColor[] = {0.0f, 0.2f, 0.4f, 1.0f};
 
-        const vireo::DescriptorIndex BINDING_UBO1{0};
-        const vireo::DescriptorIndex BINDING_UBO2{1};
-        const vireo::DescriptorIndex BINDING_TEXTURE{2};
+        const vireo::DescriptorIndex BINDING_UBO{0};
+        const vireo::DescriptorIndex BINDING_TEXTURE{1};
         const vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         struct Vertex {
@@ -32,12 +31,15 @@ export namespace samples {
             vec2 uv;
             vec3 color;
         };
-        struct GlobalUBO1 {
+        struct GlobalUBO {
             vec4 offset;
-            alignas(16) float scale{1.0f};
         };
-        struct GlobalUBO2 {
-            alignas(16) vec3 color;
+        struct PushConstants {
+            vec3 color;
+        };
+        static constexpr auto pushConstantsDesc = vireo::PushConstantsDesc {
+            .stage = vireo::ShaderStage::FRAGMENT,
+            .size = sizeof(PushConstants),
         };
 
         const vector<vireo::VertexInputLayout::AttributeDescription> vertexAttributes{
@@ -54,12 +56,11 @@ export namespace samples {
             { { 0.25f, -0.25f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
         };
-        GlobalUBO1     ubo1{};
-        GlobalUBO2     ubo2{};
+        GlobalUBO     globalUbo{};
+        PushConstants pushConstants{};
 
         shared_ptr<vireo::Buffer> vertexBuffer;
-        shared_ptr<vireo::Buffer> uboBuffer1;
-        shared_ptr<vireo::Buffer> uboBuffer2;
+        shared_ptr<vireo::Buffer> globalUboBuffer;
 
         vector<shared_ptr<vireo::Image>>   textures;
         vector<shared_ptr<vireo::Sampler>> samplers;
@@ -80,6 +81,7 @@ export namespace samples {
             .colorBlendEnable = true,
         };
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
+        map<string, shared_ptr<vireo::PipelineResources>> pipelinesResources;
 
         static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);
     };
