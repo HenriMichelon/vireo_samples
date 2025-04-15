@@ -8,7 +8,13 @@ cmake_minimum_required(VERSION 3.29)
 
 #######################################################
 project(vireo_samples)
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.env.cmake")
+    message(FATAL_ERROR "Please create a .env.cmake file with the VIREO_PROJECT_DIR variable")
+endif ()
 include(.env.cmake)
+if (NOT DEFINED VIREO_PROJECT_DIR)
+    message(FATAL_ERROR "Please set VIREO_PROJECT_DIR in the .env.cmake file")
+endif()
 
 #######################################################
 set(CMAKE_CXX_STANDARD 23)
