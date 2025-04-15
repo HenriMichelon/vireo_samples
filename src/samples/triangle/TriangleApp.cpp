@@ -41,6 +41,11 @@ namespace samples {
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
         }
 
+        // renderTarget = renderingBackEnd->createRenderTarget(
+        //     vireo::ImageFormat::R8G8B8A8_SRGB,
+        //     1024,
+        //     1024);
+
         renderingBackEnd->getTransferCommandQueue()->waitIdle();
         uploadCommandList->cleanup();
     }
@@ -49,7 +54,7 @@ namespace samples {
         const auto swapChain = renderingBackEnd->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
-        if (!swapChain->begin(frame.frameData)) { return; }
+        if (!swapChain->acquire(frame.frameData)) { return; }
         frame.commandAllocator->reset();
 
         const auto& cmdList = frame.commandList;
@@ -57,14 +62,18 @@ namespace samples {
         cmdList->beginRendering(frame.frameData, swapChain, clearColor);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
+        // cmdList->beginRendering(renderTarget, clearColor);
+        // const auto extent = vireo::Extent{renderTarget->getImage()->getWidth(), renderTarget->getImage()->getHeight()};
+        // cmdList->setViewports(1, {extent});
+        // cmdList->setScissors(1, {extent});
         cmdList->setPrimitiveTopology(vireo::PrimitiveTopology::TRIANGLE_LIST);
 
         cmdList->bindPipeline(pipelines["default"]);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size());
 
-        cmdList->endRendering();
-        swapChain->end(frame.frameData, cmdList);
+        cmdList->endRendering(frame.frameData, swapChain);
+        // cmdList->endRendering(renderTarget);
         cmdList->end();
 
         renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});

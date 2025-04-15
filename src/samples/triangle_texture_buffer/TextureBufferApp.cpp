@@ -149,8 +149,7 @@ namespace samples {
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size(), 2);
 
-        cmdList->endRendering();
-        swapChain->end(frame.frameData, cmdList);
+        cmdList->endRendering(frame.frameData, swapChain);
         cmdList->end();
 
         renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});

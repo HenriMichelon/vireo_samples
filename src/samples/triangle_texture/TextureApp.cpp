@@ -79,7 +79,7 @@ namespace samples {
         const auto swapChain = renderingBackEnd->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
-        if (!swapChain->begin(frame.frameData)) { return; }
+        if (!swapChain->acquire(frame.frameData)) { return; }
         frame.commandAllocator->reset();
 
         const auto& cmdList = frame.commandList;
@@ -94,8 +94,7 @@ namespace samples {
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size());
 
-        cmdList->endRendering();
-        swapChain->end(frame.frameData, cmdList);
+        cmdList->endRendering(frame.frameData, swapChain);
         cmdList->end();
 
         renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});
