@@ -15,10 +15,9 @@ namespace samples {
     void ComputeApp::onInit() {
         params.imageSize.x = renderingBackEnd->getSwapChain()->getExtent().width;
         params.imageSize.y = renderingBackEnd->getSwapChain()->getExtent().height;
-        paramBuffer = renderingBackEnd->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
-        paramBuffer->map();
-        paramBuffer->write(&params);
-        paramBuffer->unmap();
+        paramsBuffer = renderingBackEnd->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
+        paramsBuffer->map();
+        paramsBuffer->write(&params);
 
         descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
         descriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::BUFFER);
@@ -27,7 +26,7 @@ namespace samples {
 
         pipeline = renderingBackEnd->createComputePipeline(
             renderingBackEnd->createPipelineResources( { descriptorLayout }),
-            renderingBackEnd->createShaderModule("shaders/gradient.comp")
+            renderingBackEnd->createShaderModule("shaders/shadertoy_circle.comp")
         );
 
         vector<shared_ptr<const vireo::CommandList>> commandLists;
@@ -39,7 +38,7 @@ namespace samples {
                 vireo::ImageFormat::R8G8B8A8_UNORM,
                 params.imageSize.x, params.imageSize.y);
             framesData[i].descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout);
-            framesData[i].descriptorSet->update(BINDING_PARAMS, paramBuffer);
+            framesData[i].descriptorSet->update(BINDING_PARAMS, paramsBuffer);
             framesData[i].descriptorSet->update(BINDING_IMAGE, framesData[i].image, true);
 
             framesData[i].commandList->begin();
@@ -49,6 +48,11 @@ namespace samples {
         }
         renderingBackEnd->getGraphicCommandQueue()->submit(commandLists);
         renderingBackEnd->getGraphicCommandQueue()->waitIdle();
+    }
+
+    void ComputeApp::onUpdate() {
+        params.time = getCurrentTimeMilliseconds() / 1000.0f;
+        paramsBuffer->write(&params);
     }
 
     void ComputeApp::onRender() {
@@ -79,10 +83,18 @@ namespace samples {
     }
 
     void ComputeApp::onDestroy() {
+        paramsBuffer->unmap();
         renderingBackEnd->waitIdle();
         for (auto& data : framesData) {
             renderingBackEnd->destroyFrameData(data.frameData);
         }
+    }
+
+    float ComputeApp::getCurrentTimeMilliseconds() {
+        using namespace std::chrono;
+        static auto startTime = steady_clock::now();
+        const duration<float, std::milli> elapsed = steady_clock::now() - startTime;
+        return elapsed.count();
     }
 
 }

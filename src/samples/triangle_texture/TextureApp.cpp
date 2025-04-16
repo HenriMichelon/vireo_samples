@@ -39,7 +39,6 @@ namespace samples {
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->barrier(texture, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
         uploadCommandList->upload(texture, generateTextureData(texture->getWidth(), texture->getHeight()).data());
-        uploadCommandList->barrier(texture, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
         uploadCommandList->end();
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
@@ -74,7 +73,12 @@ namespace samples {
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
         }
 
-        renderingBackEnd->getTransferCommandQueue()->waitIdle();
+        framesData[0].commandList->begin();
+        framesData[0].commandList->barrier(texture, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
+        framesData[0].commandList->end();
+        renderingBackEnd->getGraphicCommandQueue()->submit({framesData[0].commandList});
+
+        renderingBackEnd->waitIdle();
         uploadCommandList->cleanup();
     }
 
