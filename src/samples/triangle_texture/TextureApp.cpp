@@ -94,7 +94,7 @@ namespace samples {
         cmdList->setPrimitiveTopology(vireo::PrimitiveTopology::TRIANGLE_LIST);
 
         cmdList->bindPipeline(defaultPipeline);
-        cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
+        cmdList->bindDescriptors(defaultPipeline, {frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size());
 
