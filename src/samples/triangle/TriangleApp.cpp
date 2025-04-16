@@ -13,45 +13,45 @@ APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 800, 600);
 namespace samples {
 
     void TriangleApp::onInit() {
-        vertexBuffer = renderingBackEnd->createBuffer(
+        vertexBuffer = vireo->createBuffer(
             vireo::BufferType::VERTEX,
             sizeof(Vertex),
             triangleVertices.size(),
             1,
             L"TriangleVertexBuffer");
 
-        const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::TRANSFER);
+        const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->end();
-        renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
+        vireo->getTransferCommandQueue()->submit({uploadCommandList});
 
-        defaultPipeline = renderingBackEnd->createGraphicPipeline(
-            renderingBackEnd->createPipelineResources({ }, {}, L"default"),
-            renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
-            renderingBackEnd->createShaderModule("shaders/triangle_color.vert"),
-            renderingBackEnd->createShaderModule("shaders/triangle_color.frag"),
+        defaultPipeline = vireo->createGraphicPipeline(
+            vireo->createPipelineResources({ }, {}, L"default"),
+            vireo->createVertexLayout(sizeof(Vertex), vertexAttributes),
+            vireo->createShaderModule("shaders/triangle_color.vert"),
+            vireo->createShaderModule("shaders/triangle_color.frag"),
             defaultPipelineConfig,
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            framesData[i].frameData = renderingBackEnd->createFrameData(i);
-            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            framesData[i].frameData = vireo->createFrameData(i);
+            framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
         }
 
-        // renderTarget = renderingBackEnd->createRenderTarget(
+        // renderTarget = vireo->createRenderTarget(
         //     vireo::ImageFormat::R8G8B8A8_SRGB,
         //     1024,
         //     1024);
 
-        renderingBackEnd->getTransferCommandQueue()->waitIdle();
+        vireo->getTransferCommandQueue()->waitIdle();
         uploadCommandList->cleanup();
     }
 
     void TriangleApp::onRender() {
-        const auto swapChain = renderingBackEnd->getSwapChain();
+        const auto swapChain = vireo->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.frameData)) { return; }
@@ -77,16 +77,16 @@ namespace samples {
         cmdList->barrier(frame.frameData, swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});
+        vireo->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});
 
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
     }
 
     void TriangleApp::onDestroy() {
-        renderingBackEnd->waitIdle();
+        vireo->waitIdle();
         for (auto& data : framesData) {
-            renderingBackEnd->destroyFrameData(data.frameData);
+            vireo->destroyFrameData(data.frameData);
         }
     }
 

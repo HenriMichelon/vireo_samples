@@ -13,17 +13,17 @@ APP(make_shared<samples::TextureApp>(), L"Hello Triangle Texture", 800, 600);
 namespace samples {
 
     void TextureApp::onInit() {
-        vertexBuffer = renderingBackEnd->createBuffer(
+        vertexBuffer = vireo->createBuffer(
             vireo::BufferType::VERTEX,
             sizeof(Vertex),
             triangleVertices.size(),
             1,
             L"TriangleVertexBuffer");
-        texture = renderingBackEnd->createImage(
+        texture = vireo->createImage(
             vireo::ImageFormat::R8G8B8A8_SRGB,
             512, 512,
             L"CheckerBoardTexture");
-        sampler = renderingBackEnd->createSampler(
+        sampler = vireo->createSampler(
             vireo::Filter::NEAREST,
             vireo::Filter::NEAREST,
             vireo::AddressMode::CLAMP_TO_BORDER,
@@ -33,57 +33,57 @@ namespace samples {
             false,
             vireo::MipMapMode::NEAREST);
 
-        const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::TRANSFER);
+        const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->barrier(texture, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
         uploadCommandList->upload(texture, generateTextureData(texture->getWidth(), texture->getHeight()).data());
         uploadCommandList->end();
-        renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
+        vireo->getTransferCommandQueue()->submit({uploadCommandList});
 
-        descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
+        descriptorLayout = vireo->createDescriptorLayout(L"Global");
         descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->build();
 
-        samplersDescriptorLayout = renderingBackEnd->createSamplerDescriptorLayout(L"Samplers");
+        samplersDescriptorLayout = vireo->createSamplerDescriptorLayout(L"Samplers");
         samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplersDescriptorLayout->build();
 
-        defaultPipeline = renderingBackEnd->createGraphicPipeline(
-            renderingBackEnd->createPipelineResources(
+        defaultPipeline = vireo->createGraphicPipeline(
+            vireo->createPipelineResources(
                 { descriptorLayout, samplersDescriptorLayout },
                 {},
                 L"default"),
-            renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
-            renderingBackEnd->createShaderModule("shaders/triangle_texture.vert"),
-            renderingBackEnd->createShaderModule("shaders/triangle_texture.frag"),
+            vireo->createVertexLayout(sizeof(Vertex), vertexAttributes),
+            vireo->createShaderModule("shaders/triangle_texture.vert"),
+            vireo->createShaderModule("shaders/triangle_texture.frag"),
             defaultPipelineConfig,
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            framesData[i].descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
-            framesData[i].samplersDescriptorSet = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
+            framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
+            framesData[i].samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 
             framesData[i].descriptorSet->update(BINDING_TEXTURE, texture);
             framesData[i].samplersDescriptorSet->update(BINDING_SAMPLERS, sampler);
 
-            framesData[i].frameData = renderingBackEnd->createFrameData(i);
-            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            framesData[i].frameData = vireo->createFrameData(i);
+            framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
         }
 
+        vireo->getTransferCommandQueue()->waitIdle();
         framesData[0].commandList->begin();
         framesData[0].commandList->barrier(texture, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
         framesData[0].commandList->end();
-        renderingBackEnd->getGraphicCommandQueue()->submit({framesData[0].commandList});
-
-        renderingBackEnd->waitIdle();
+        vireo->getGraphicCommandQueue()->submit({framesData[0].commandList});
+        vireo->getGraphicCommandQueue()->waitIdle();
         uploadCommandList->cleanup();
     }
 
     void TextureApp::onRender() {
-        const auto swapChain = renderingBackEnd->getSwapChain();
+        const auto swapChain = vireo->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.frameData)) { return; }
@@ -106,16 +106,16 @@ namespace samples {
         cmdList->barrier(frame.frameData, swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});
+        vireo->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});
 
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
     }
 
     void TextureApp::onDestroy() {
-        renderingBackEnd->waitIdle();
+        vireo->waitIdle();
         for (auto& data : framesData) {
-            renderingBackEnd->destroyFrameData(data.frameData);
+            vireo->destroyFrameData(data.frameData);
         }
     }
 

@@ -17,20 +17,12 @@ struct VertexOutput {
     float3 color    : COLOR;
 };
 
-struct UBO {
-    float4 offset;
-};
-
 struct PushConstants {
     float3 color;
 };
 
 [[push_constant]]
 PushConstants pushConstants : register(b0, space2);
-
-ConstantBuffer<UBO> ubo  : register(b0);
-Texture2D texture[1]     : register(t1);
-SamplerState samplers[1] : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;

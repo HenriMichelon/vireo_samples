@@ -66,12 +66,12 @@ namespace samples {
         Win32Application::app = app;
         const vireo::Configuration configuration{
             .windowHandle = hwnd,
-            // .backend      = backendSelectorDialog(hInstance, title),
-            .backend      = vireo::Backends::VULKAN,
+            .backend      = backendSelectorDialog(hInstance, title),
+            // .backend      = vireo::Backends::VULKAN,
             // .backend      = vireo::Backends::DIRECTX,
             .vSyncMode    = vireo::VSyncMode::VSYNC,
         };
-        app->initRenderingBackEnd(configuration);
+        app->init(configuration);
 
         if (configuration.backend == vireo::Backends::VULKAN) {
             title.append(L"Vulkan 1.3");

@@ -16,14 +16,13 @@ struct VertexOutput {
     float3 color    : COLOR;
 };
 
-struct UBO {
+struct GlobalUBO {
     float4 offset;
-    float scale;
 };
 
-ConstantBuffer<UBO> ubo   : register(b0);
-Texture2D texture[1]      : register(t1);
-SamplerState samplers[1]  : register(s0, space1);
+ConstantBuffer<GlobalUBO> ubo : register(b0);
+Texture2D texture[1]          : register(t1);
+SamplerState samplers[1]      : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;

@@ -13,31 +13,30 @@ APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 800, 600);
 namespace samples {
 
     void ComputeApp::onInit() {
-        params.imageSize.x = renderingBackEnd->getSwapChain()->getExtent().width;
-        params.imageSize.y = renderingBackEnd->getSwapChain()->getExtent().height;
-        paramsBuffer = renderingBackEnd->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
+        params.imageSize.x = vireo->getSwapChain()->getExtent().width;
+        params.imageSize.y = vireo->getSwapChain()->getExtent().height;
+        paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
         paramsBuffer->map();
-        paramsBuffer->write(&params);
 
-        descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
+        descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_IMAGE, vireo::DescriptorType::READWRITE_IMAGE);
         descriptorLayout->build();
 
-        pipeline = renderingBackEnd->createComputePipeline(
-            renderingBackEnd->createPipelineResources( { descriptorLayout }),
-            renderingBackEnd->createShaderModule("shaders/shadertoy_circle.comp")
+        pipeline = vireo->createComputePipeline(
+            vireo->createPipelineResources( { descriptorLayout }),
+            vireo->createShaderModule("shaders/shadertoy_circle.comp")
         );
 
         vector<shared_ptr<const vireo::CommandList>> commandLists;
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            framesData[i].frameData = renderingBackEnd->createFrameData(i);
-            framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            framesData[i].frameData = vireo->createFrameData(i);
+            framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
-            framesData[i].image = renderingBackEnd->createReadWriteImage(
+            framesData[i].image = vireo->createReadWriteImage(
                 vireo::ImageFormat::R8G8B8A8_UNORM,
                 params.imageSize.x, params.imageSize.y);
-            framesData[i].descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout);
+            framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             framesData[i].descriptorSet->update(BINDING_PARAMS, paramsBuffer);
             framesData[i].descriptorSet->update(BINDING_IMAGE, framesData[i].image, true);
 
@@ -46,8 +45,8 @@ namespace samples {
             framesData[i].commandList->end();
             commandLists.push_back(framesData[i].commandList);
         }
-        renderingBackEnd->getGraphicCommandQueue()->submit(commandLists);
-        renderingBackEnd->getGraphicCommandQueue()->waitIdle();
+        vireo->getGraphicCommandQueue()->submit(commandLists);
+        vireo->getGraphicCommandQueue()->waitIdle();
     }
 
     void ComputeApp::onUpdate() {
@@ -56,7 +55,7 @@ namespace samples {
     }
 
     void ComputeApp::onRender() {
-        const auto swapChain = renderingBackEnd->getSwapChain();
+        const auto swapChain = vireo->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.frameData)) { return; }
@@ -76,7 +75,7 @@ namespace samples {
 
         frame.commandList->end();
 
-        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {frame.commandList});
+        vireo->getGraphicCommandQueue()->submit(frame.frameData, {frame.commandList});
 
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
@@ -84,9 +83,9 @@ namespace samples {
 
     void ComputeApp::onDestroy() {
         paramsBuffer->unmap();
-        renderingBackEnd->waitIdle();
+        vireo->waitIdle();
         for (auto& data : framesData) {
-            renderingBackEnd->destroyFrameData(data.frameData);
+            vireo->destroyFrameData(data.frameData);
         }
     }
 
