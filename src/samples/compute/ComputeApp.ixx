@@ -28,6 +28,8 @@ export namespace samples {
 
         struct FrameData {
             shared_ptr<vireo::FrameData>        frameData;
+            shared_ptr<vireo::CommandAllocator> graphicCommandAllocator;
+            shared_ptr<vireo::CommandList>      graphicCommandList;
         };
         vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
@@ -35,8 +37,6 @@ export namespace samples {
         shared_ptr<vireo::Buffer>           paramBuffer;
         shared_ptr<vireo::Image>            image;
 
-        shared_ptr<vireo::CommandAllocator> graphicCommandAllocator;
-        shared_ptr<vireo::CommandList>      graphicCommandList;
         shared_ptr<vireo::CommandAllocator> computeCommandAllocator;
         shared_ptr<vireo::CommandList>      computeCommandList;
         shared_ptr<vireo::DescriptorSet>    descriptorSet;

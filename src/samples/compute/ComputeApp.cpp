@@ -17,10 +17,9 @@ namespace samples {
         params.imageSize.y = renderingBackEnd->getSwapChain()->getExtent().height;
         paramBuffer = renderingBackEnd->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
 
-        image = renderingBackEnd->createImage(
+        image = renderingBackEnd->createReadWriteImage(
             vireo::ImageFormat::R8G8B8A8_UNORM,
-            params.imageSize.x, params.imageSize.y,
-            true);
+            params.imageSize.x, params.imageSize.y);
 
         descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
         descriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::BUFFER);
@@ -34,16 +33,18 @@ namespace samples {
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
             framesData[i].frameData = renderingBackEnd->createFrameData(i);
+            framesData[i].graphicCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            framesData[i].graphicCommandList = framesData[i].graphicCommandAllocator->createCommandList();
         }
 
         descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout);
         descriptorSet->update(BINDING_PARAMS, paramBuffer);
         descriptorSet->update(BINDING_IMAGE, image, true);
 
-        graphicCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::GRAPHIC);
-        graphicCommandList = graphicCommandAllocator->createCommandList();
         computeCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::COMPUTE);
         computeCommandList = computeCommandAllocator->createCommandList();
+
+        renderingBackEnd->waitIdle();
     }
 
     void ComputeApp::onRender() {
@@ -51,6 +52,14 @@ namespace samples {
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.frameData)) { return; }
+        frame.graphicCommandAllocator->reset();
+        frame.graphicCommandList->begin();
+        frame.graphicCommandList->barrier(frame.frameData, swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
+        frame.graphicCommandList->barrier(frame.frameData, swapChain, vireo::ResourceState::COPY_DST, vireo::ResourceState::PRESENT);
+        frame.graphicCommandList->end();
+
+        renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {frame.graphicCommandList});
+
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
     }
