@@ -59,6 +59,7 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
+        cmdList->barrier(frame.frameData, swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
         cmdList->beginRendering(frame.frameData, swapChain, clearColor);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
@@ -72,8 +73,8 @@ namespace samples {
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size());
 
-        cmdList->endRendering(frame.frameData, swapChain);
-        // cmdList->endRendering(renderTarget);
+        cmdList->endRendering();
+        cmdList->barrier(frame.frameData, swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
         cmdList->end();
 
         renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});

@@ -39,9 +39,9 @@ export namespace samples {
                 { { -0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f } }
         };
 
-        shared_ptr<vireo::Buffer>          vertexBuffer;
-        vector<shared_ptr<vireo::Image>>   textures;
-        vector<shared_ptr<vireo::Sampler>> samplers;
+        shared_ptr<vireo::Buffer>  vertexBuffer;
+        shared_ptr<vireo::Image>   texture;
+        shared_ptr<vireo::Sampler> sampler;
 
         struct FrameData {
             shared_ptr<vireo::FrameData>        frameData;

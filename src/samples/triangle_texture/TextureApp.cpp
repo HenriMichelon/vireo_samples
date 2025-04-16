@@ -19,11 +19,11 @@ namespace samples {
             triangleVertices.size(),
             1,
             L"TriangleVertexBuffer");
-        textures.push_back(renderingBackEnd->createImage(
+        texture = renderingBackEnd->createImage(
             vireo::ImageFormat::R8G8B8A8_SRGB,
             512, 512,
-            L"CheckerBoardTexture"));
-        samplers.push_back(renderingBackEnd->createSampler(
+            L"CheckerBoardTexture");
+        sampler = renderingBackEnd->createSampler(
             vireo::Filter::NEAREST,
             vireo::Filter::NEAREST,
             vireo::AddressMode::CLAMP_TO_BORDER,
@@ -31,22 +31,24 @@ namespace samples {
             vireo::AddressMode::CLAMP_TO_BORDER,
             0.0f, 1.0f,
             false,
-            vireo::MipMapMode::NEAREST));
+            vireo::MipMapMode::NEAREST);
 
         const auto uploadCommandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
-        uploadCommandList->upload(textures[0], generateTextureData(textures[0]->getWidth(), textures[0]->getHeight()).data());
+        uploadCommandList->barrier(texture, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
+        uploadCommandList->upload(texture, generateTextureData(texture->getWidth(), texture->getHeight()).data());
+        uploadCommandList->barrier(texture, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
         uploadCommandList->end();
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
         descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
-        descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::SAMPLED_IMAGE, textures.size());
+        descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->build();
 
         samplersDescriptorLayout = renderingBackEnd->createSamplerDescriptorLayout(L"Samplers");
-        samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER, samplers.size());
+        samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplersDescriptorLayout->build();
 
         defaultPipeline = renderingBackEnd->createGraphicPipeline(
@@ -64,8 +66,8 @@ namespace samples {
             framesData[i].descriptorSet = renderingBackEnd->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
             framesData[i].samplersDescriptorSet = renderingBackEnd->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 
-            framesData[i].descriptorSet->update(BINDING_TEXTURE, textures);
-            framesData[i].samplersDescriptorSet->update(BINDING_SAMPLERS, samplers);
+            framesData[i].descriptorSet->update(BINDING_TEXTURE, texture);
+            framesData[i].samplersDescriptorSet->update(BINDING_SAMPLERS, sampler);
 
             framesData[i].frameData = renderingBackEnd->createFrameData(i);
             framesData[i].commandAllocator = renderingBackEnd->createCommandAllocator(vireo::CommandType::GRAPHIC);
@@ -85,6 +87,7 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
+        cmdList->barrier(frame.frameData, swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
         cmdList->beginRendering(frame.frameData, swapChain, clearColor);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
@@ -95,7 +98,8 @@ namespace samples {
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size());
 
-        cmdList->endRendering(frame.frameData, swapChain);
+        cmdList->endRendering();
+        cmdList->barrier(frame.frameData, swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
         cmdList->end();
 
         renderingBackEnd->getGraphicCommandQueue()->submit(frame.frameData, {cmdList});
