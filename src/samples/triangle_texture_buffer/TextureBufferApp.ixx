@@ -42,7 +42,7 @@ export namespace samples {
             .size = sizeof(PushConstants),
         };
 
-        const vector<vireo::VertexInputLayout::AttributeDescription> vertexAttributes{
+        const vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
             {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, 12},
             {"COLOR", vireo::AttributeFormat::R32G32B32_FLOAT, 20}
@@ -77,7 +77,7 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout>      descriptorLayout;
         shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;
 
-        static constexpr auto pipelineConfig = vireo::Pipeline::Configuration {
+        static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorBlendEnable = true,
         };
         map<string, shared_ptr<vireo::Pipeline>> pipelines;

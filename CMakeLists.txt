@@ -113,3 +113,12 @@ set(TRIANGLE_BUFFER_MODULES
         ${SRC_DIR}/samples/triangle_texture_buffer/TextureBufferApp.ixx
 )
 build_target(triangle_texture_buffer ${TRIANGLE_BUFFER_SRC} ${TRIANGLE_BUFFER_MODULES})
+
+#######################################################
+set(COMPUTE_BUFFER_SRC
+        ${SRC_DIR}/samples/compute/ComputeApp.cpp
+)
+set(COMPUTE_BUFFER_MODULES
+        ${SRC_DIR}/samples/compute/ComputeApp.ixx
+)
+build_target(compute ${COMPUTE_BUFFER_SRC} ${COMPUTE_BUFFER_MODULES})

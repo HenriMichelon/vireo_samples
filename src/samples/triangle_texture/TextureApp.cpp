@@ -42,14 +42,14 @@ namespace samples {
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
         descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
-        descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::IMAGE, textures.size());
+        descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::SAMPLED_IMAGE, textures.size());
         descriptorLayout->build();
 
         samplersDescriptorLayout = renderingBackEnd->createSamplerDescriptorLayout(L"Samplers");
         samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER, samplers.size());
         samplersDescriptorLayout->build();
 
-        pipelines["default"] = renderingBackEnd->createPipeline(
+        defaultPipeline = renderingBackEnd->createGraphicPipeline(
             renderingBackEnd->createPipelineResources(
                 { descriptorLayout, samplersDescriptorLayout },
                 {},
@@ -57,7 +57,7 @@ namespace samples {
             renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
             renderingBackEnd->createShaderModule("shaders/triangle_texture.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_texture.frag"),
-            pipelineConfig,
+            defaultPipelineConfig,
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
@@ -90,7 +90,7 @@ namespace samples {
         cmdList->setScissors(1, {swapChain->getExtent()});
         cmdList->setPrimitiveTopology(vireo::PrimitiveTopology::TRIANGLE_LIST);
 
-        cmdList->bindPipeline(pipelines["default"]);
+        cmdList->bindPipeline(defaultPipeline);
         cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size());

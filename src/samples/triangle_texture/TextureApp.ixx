@@ -28,7 +28,7 @@ export namespace samples {
             vec3 pos;
             vec2 uv;
         };
-        const vector<vireo::VertexInputLayout::AttributeDescription> vertexAttributes{
+        const vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
             {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, 12},
         };
@@ -55,8 +55,8 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout>      descriptorLayout;
         shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;
 
-        static constexpr auto pipelineConfig = vireo::Pipeline::Configuration {};
-        map<string, shared_ptr<vireo::Pipeline>> pipelines;
+        static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {};
+        shared_ptr<vireo::Pipeline> defaultPipeline;
 
         static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);
     };

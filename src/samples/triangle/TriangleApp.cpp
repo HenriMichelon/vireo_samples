@@ -27,12 +27,12 @@ namespace samples {
         uploadCommandList->end();
         renderingBackEnd->getTransferCommandQueue()->submit({uploadCommandList});
 
-        pipelines["default"] = renderingBackEnd->createPipeline(
+        defaultPipeline = renderingBackEnd->createGraphicPipeline(
             renderingBackEnd->createPipelineResources({ }, {}, L"default"),
             renderingBackEnd->createVertexLayout(sizeof(Vertex), vertexAttributes),
             renderingBackEnd->createShaderModule("shaders/triangle_color.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_color.frag"),
-            pipelineConfig,
+            defaultPipelineConfig,
             L"default");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
@@ -68,7 +68,7 @@ namespace samples {
         // cmdList->setScissors(1, {extent});
         cmdList->setPrimitiveTopology(vireo::PrimitiveTopology::TRIANGLE_LIST);
 
-        cmdList->bindPipeline(pipelines["default"]);
+        cmdList->bindPipeline(defaultPipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size());
 

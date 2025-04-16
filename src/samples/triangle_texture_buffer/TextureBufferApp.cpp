@@ -8,7 +8,7 @@ module;
 #include "Macros.h"
 module samples.hellotriangle;
 
-APP(make_shared<samples::TextureBufferApp>(), L"Hello Triangle", 800, 600);
+APP(make_shared<samples::TextureBufferApp>(), L"Hello Triangle Texture Buffer PushConstants", 800, 600);
 
 namespace samples {
 
@@ -50,7 +50,7 @@ namespace samples {
 
         descriptorLayout = renderingBackEnd->createDescriptorLayout(L"Global");
         descriptorLayout->add(BINDING_UBO, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::IMAGE, textures.size());
+        descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::SAMPLED_IMAGE, textures.size());
         descriptorLayout->build();
 
         samplersDescriptorLayout = renderingBackEnd->createSamplerDescriptorLayout(L"Samplers");
@@ -65,20 +65,20 @@ namespace samples {
             sizeof(Vertex),
             vertexAttributes);
 
-        pipelines["shader1"] = renderingBackEnd->createPipeline(
+        pipelines["shader1"] = renderingBackEnd->createGraphicPipeline(
             pipelinesResources["default"],
             defaultVertexInputLayout,
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer1.frag"),
-            pipelineConfig,
+            defaultPipelineConfig,
             L"shader1");
 
-        pipelines["shader2"] = renderingBackEnd->createPipeline(
+        pipelines["shader2"] = renderingBackEnd->createGraphicPipeline(
             pipelinesResources["default"],
             defaultVertexInputLayout,
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.vert"),
             renderingBackEnd->createShaderModule("shaders/triangle_texture_buffer2.frag"),
-            pipelineConfig,
+            defaultPipelineConfig,
             L"shader2");
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {

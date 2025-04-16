@@ -25,7 +25,7 @@ export namespace samples {
             vec3 pos;
             vec3 color;
         };
-        const vector<vireo::VertexInputLayout::AttributeDescription> vertexAttributes{
+        const vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, 12}
         };
@@ -44,8 +44,8 @@ export namespace samples {
         };
         vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
-        static constexpr auto pipelineConfig = vireo::Pipeline::Configuration {};
-        map<string, shared_ptr<vireo::Pipeline>> pipelines;
+        static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {};
+        shared_ptr<vireo::Pipeline> defaultPipeline;
 
         // shared_ptr<vireo::RenderTarget> renderTarget;
     };
