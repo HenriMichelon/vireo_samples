@@ -18,6 +18,7 @@ export namespace samples {
         void onUpdate() override;
         void onRender() override;
         void onDestroy() override;
+        void onResize() override;
 
     private:
         const vireo::DescriptorIndex BINDING_PARAMS{0};

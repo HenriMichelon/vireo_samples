@@ -61,8 +61,8 @@ namespace samples {
 
         int x = CW_USEDEFAULT;
         int y = CW_USEDEFAULT;
-        int w = CW_USEDEFAULT;
-        int h = CW_USEDEFAULT;
+        int w = width;
+        int h = height;
         DWORD style;
         DWORD exStyle;
         if (width == 0 || height == 0) {
@@ -140,26 +140,27 @@ namespace samples {
                 SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreateStruct->lpCreateParams));
                 }
                 return 0;
-
             case WM_KEYDOWN:
                 if (app) {
                     app->onKeyDown(static_cast<uint32_t>(wParam));
                 }
                 return 0;
-
             case WM_KEYUP:
                 if (app) {
                     app->onKeyUp(static_cast<uint32_t>(wParam));
                 }
                 return 0;
-
             case WM_PAINT:
                 if (app) {
                     app->onUpdate();
                     app->onRender();
                 }
                 return 0;
-
+            case WM_SIZE:
+                if (app) {
+                    app->onResize();
+                }
+                return 0;
             case WM_CLOSE:
                 PostQuitMessage(0);
                 return 0;
@@ -275,7 +276,7 @@ namespace samples {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        CloseWindow(hWnd);
+        DestroyWindow(hWnd);
 
         switch (static_cast<int>(msg.wParam)) {
             case ID_DIRECTX: {

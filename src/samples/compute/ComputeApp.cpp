@@ -8,13 +8,11 @@ module;
 #include "Macros.h"
 module samples.compute;
 
-APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 800, 600);
+APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0);
 
 namespace samples {
 
     void ComputeApp::onInit() {
-        params.imageSize.x = vireo->getSwapChain()->getExtent().width;
-        params.imageSize.y = vireo->getSwapChain()->getExtent().height;
         paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
         paramsBuffer->map();
 
@@ -28,25 +26,13 @@ namespace samples {
             vireo->createShaderModule("shaders/compute.comp")
         );
 
-        vector<shared_ptr<const vireo::CommandList>> commandLists;
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
             framesData[i].frameData = vireo->createFrameData(i);
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
-            framesData[i].image = vireo->createReadWriteImage(
-                vireo::ImageFormat::R8G8B8A8_UNORM,
-                params.imageSize.x, params.imageSize.y);
             framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             framesData[i].descriptorSet->update(BINDING_PARAMS, paramsBuffer);
-            framesData[i].descriptorSet->update(BINDING_IMAGE, framesData[i].image, true);
-
-            framesData[i].commandList->begin();
-            framesData[i].commandList->barrier(framesData[i].image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_SRC);
-            framesData[i].commandList->end();
-            commandLists.push_back(framesData[i].commandList);
         }
-        vireo->getGraphicCommandQueue()->submit(commandLists);
-        vireo->getGraphicCommandQueue()->waitIdle();
     }
 
     void ComputeApp::onUpdate() {
@@ -79,6 +65,28 @@ namespace samples {
 
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
+    }
+
+    void ComputeApp::onResize() {
+        const auto swapChain = vireo->getSwapChain();
+        swapChain->recreate();
+        const auto extent = swapChain->getExtent();
+        params.imageSize.x = extent.width;
+        params.imageSize.y = extent.height;
+
+        vector<shared_ptr<const vireo::CommandList>> commandLists;
+        for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
+            framesData[i].image = vireo->createReadWriteImage(
+                vireo::ImageFormat::R8G8B8A8_UNORM,
+                params.imageSize.x, params.imageSize.y);
+            framesData[i].descriptorSet->update(BINDING_IMAGE, framesData[i].image, true);
+            framesData[i].commandList->begin();
+            framesData[i].commandList->barrier(framesData[i].image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_SRC);
+            framesData[i].commandList->end();
+            commandLists.push_back(framesData[i].commandList);
+        }
+        vireo->getGraphicCommandQueue()->submit(commandLists);
+        vireo->getGraphicCommandQueue()->waitIdle();
     }
 
     void ComputeApp::onDestroy() {

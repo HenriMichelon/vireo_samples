@@ -20,11 +20,11 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID) {
     float2 uv = float2(coord) / params.imageSize;
 
     const float frequency = 20.0;
-    const float amplitude = 0.02;
+    const float amplitude = 0.03;
     const float bandHeight = 0.05;
     const float speedX = 0.2;
     const float speedY = 2.0;
-    const float lightingStrength = 1.0;
+    const float lightingStrength = 0.75;
 
     float waveAmplitude = amplitude * (0.5 + 0.5 * sin(params.time * speedY)) + amplitude;
     float wavePhase = (uv.x + params.time * speedX) * frequency;
@@ -34,8 +34,19 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID) {
     int waveStripeIndex = int((uv.y + wave) / bandHeight);
     bool isEvenStripe = (waveStripeIndex % 2) == 0;
 
+    float3 color;
+    if (isEvenStripe) {
+        float2 uvUp = float2(coord.x, coord.y-1) / params.imageSize;
+        float2 uvDown = float2(coord.x, coord.y+1) / params.imageSize;
+        if (coord.y > 0 && ((int((uvUp.y + wave) / bandHeight) % 2 != 0) || (int((uvDown.y + wave) / bandHeight) % 2 != 0))) {
+            color = float3(1.0);
+        } else {
+            color = float3(uv.x + 0.25, uv.y, .5);
+        }
+    } else {
+        color = float3(0.0);
+    }
+//     float3 color = isEvenStripe ? float3(uv.x + 0.25, uv.y, .5) : float3(0.0f);
     float lighting = saturate(1.0 - slope * lightingStrength);
-    float3 color = isEvenStripe ? float3(uv.x + 0.25, uv.y, .5) : float3(0.0f);
-
     outputImage[coord] = float4(color * lighting, 1.0);
 }
