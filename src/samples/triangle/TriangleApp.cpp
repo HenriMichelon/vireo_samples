@@ -67,7 +67,6 @@ namespace samples {
         // const auto extent = vireo::Extent{renderTarget->getImage()->getWidth(), renderTarget->getImage()->getHeight()};
         // cmdList->setViewports(1, {extent});
         // cmdList->setScissors(1, {extent});
-        cmdList->setPrimitiveTopology(vireo::PrimitiveTopology::TRIANGLE_LIST);
 
         cmdList->bindPipeline(defaultPipeline);
         cmdList->bindVertexBuffer(vertexBuffer);

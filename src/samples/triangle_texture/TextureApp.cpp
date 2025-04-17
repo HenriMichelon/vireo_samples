@@ -95,7 +95,6 @@ namespace samples {
         cmdList->beginRendering(frame.frameData, swapChain, clearColor);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
-        cmdList->setPrimitiveTopology(vireo::PrimitiveTopology::TRIANGLE_LIST);
 
         cmdList->bindPipeline(defaultPipeline);
         cmdList->bindDescriptors(defaultPipeline, {frame.descriptorSet, frame.samplersDescriptorSet});

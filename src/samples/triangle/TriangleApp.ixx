@@ -44,7 +44,7 @@ export namespace samples {
         };
         vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
-        static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {};
+        static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration { };
         shared_ptr<vireo::Pipeline> defaultPipeline;
 
         // shared_ptr<vireo::RenderTarget> renderTarget;
