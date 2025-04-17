@@ -14,6 +14,21 @@ namespace samples {
     HWND Win32Application::hwnd = nullptr;
     shared_ptr<Application> Win32Application::app{};
 
+    struct MonitorEnumData {
+        int  enumIndex{0};
+        int  monitorIndex{0};
+        RECT monitorRect{0};
+    };
+    BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
+        const auto data = reinterpret_cast<MonitorEnumData*>(dwData);
+        if (data->enumIndex == data->monitorIndex) {
+            data->monitorRect = *lprcMonitor;
+            return FALSE;
+        }
+        data->enumIndex++;
+        return TRUE;
+    }
+
     int Win32Application::run(const shared_ptr<Application>& app,
                               const UINT width,
                               const UINT height,
@@ -41,17 +56,41 @@ namespace samples {
         };
         RegisterClassEx(&windowClass);
 
-        auto windowRect = RECT{0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
-        AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+        auto monitorData = MonitorEnumData {
+        };
 
-        hwnd = CreateWindow(
+        int x = CW_USEDEFAULT;
+        int y = CW_USEDEFAULT;
+        int w = CW_USEDEFAULT;
+        int h = CW_USEDEFAULT;
+        DWORD style;
+        DWORD exStyle;
+        if (width == 0 || height == 0) {
+            exStyle = WS_EX_APPWINDOW;
+            style = WS_POPUP | WS_MAXIMIZE;
+            EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
+            w = monitorData.monitorRect.right - monitorData.monitorRect.left;
+            h = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
+            x = monitorData.monitorRect.left;
+            y = monitorData.monitorRect.top;
+        } else {
+            style = WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX | WS_BORDER;
+            exStyle = 0;
+            auto windowRect = RECT{0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
+            AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+            x = (GetSystemMetrics(SM_CXSCREEN) - (windowRect.right - windowRect.left)) / 2;
+            y = (GetSystemMetrics(SM_CYSCREEN) - (windowRect.bottom - windowRect.top)) / 2;
+        }
+
+        hwnd = CreateWindowEx(
+            exStyle,
             windowClass.lpszClassName,
             title.c_str(),
-            WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT,
-            CW_USEDEFAULT,
-            windowRect.right - windowRect.left,
-            windowRect.bottom - windowRect.top,
+            style,
+            x,
+            y,
+            w,
+            h,
             nullptr,
             nullptr,
             hInstance,
@@ -59,9 +98,6 @@ namespace samples {
 
         auto rect = RECT{};
         GetWindowRect(hwnd, &rect);
-        const auto x = (GetSystemMetrics(SM_CXSCREEN) - (rect.right - rect.left)) / 2;
-        const auto y = (GetSystemMetrics(SM_CYSCREEN) - (rect.bottom - rect.top)) / 2;
-        SetWindowPos(hwnd, nullptr, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 
         Win32Application::app = app;
         const vireo::Configuration configuration{
