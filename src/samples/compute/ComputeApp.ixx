@@ -23,7 +23,7 @@ export namespace samples {
     private:
         const vireo::DescriptorIndex BINDING_PARAMS{0};
         const vireo::DescriptorIndex BINDING_IMAGE{1};
-        static constexpr float MAX_FLOAT = numeric_limits<float>::max();
+        static constexpr float MAX_FLOAT = 3.4028235e+38;
 
         struct Params {
             ivec2 imageSize{};

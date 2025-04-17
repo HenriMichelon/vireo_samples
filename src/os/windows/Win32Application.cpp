@@ -9,6 +9,8 @@ module;
 #include "Win32Libraries.h"
 module samples.win32;
 
+import vireo.tools;
+
 namespace samples {
 
     HWND Win32Application::hwnd = nullptr;
@@ -119,17 +121,22 @@ namespace samples {
         }
         SetWindowText(hwnd, title.c_str());
 
-        app->onInit();
-        ShowWindow(hwnd, nCmdShow);
-        auto msg = MSG{};
-        while (msg.message != WM_QUIT) {
-            if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
+        try {
+            app->onInit();
+            ShowWindow(hwnd, nCmdShow);
+            auto msg = MSG{};
+            while (msg.message != WM_QUIT) {
+                if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+                    TranslateMessage(&msg);
+                    DispatchMessage(&msg);
+                }
             }
+            app->onDestroy();
+            return static_cast<char>(msg.wParam);
+        } catch (vireo::Exception e) {
+            MessageBoxA(nullptr, e.what(), "Fatal error", MB_OK);
+            return 1;
         }
-        app->onDestroy();
-        return static_cast<char>(msg.wParam);
     }
 
     LRESULT CALLBACK Win32Application::WindowProc(const HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam) {

@@ -82,7 +82,7 @@ function(build_target TARGET_NAME SRCS MODULES)
     target_link_libraries(${TARGET_NAME} ${VIREO_TARGET} glm::glm glm-modules std-cxx-modules)
     add_dependencies(${TARGET_NAME} ${VIREO_TARGET})
     if(WIN32)
-        target_precompile_headers(${VIREO_TARGET} PRIVATE
+        target_precompile_headers(${TARGET_NAME} PRIVATE
                 "<windows.h>"
                 "<cstdint>"
         )
