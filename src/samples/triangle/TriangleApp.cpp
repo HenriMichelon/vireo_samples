@@ -21,9 +21,7 @@ namespace samples {
         vertexBuffer = vireo->createBuffer(
             vireo::BufferType::VERTEX,
             sizeof(Vertex),
-            triangleVertices.size(),
-            1,
-            L"TriangleVertexBuffer");
+            triangleVertices.size());
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
@@ -33,12 +31,11 @@ namespace samples {
         vireo->getTransferCommandQueue()->submit({uploadCommandList});
 
         defaultPipeline = vireo->createGraphicPipeline(
-            vireo->createPipelineResources({ }, {}, L"default"),
+            vireo->createPipelineResources({ }, {}),
             vireo->createVertexLayout(sizeof(Vertex), vertexAttributes),
             vireo->createShaderModule("shaders/triangle_color.vert"),
             vireo->createShaderModule("shaders/triangle_color.frag"),
-            defaultPipelineConfig,
-            L"default");
+            defaultPipelineConfig);
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
             framesData[i].frameData = vireo->createFrameData(i);
