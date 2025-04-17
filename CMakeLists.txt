@@ -27,6 +27,9 @@ endif()
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
+if(WIN32)
+    add_compile_definitions(WIN32_LEAN_AND_MEAN UNICODE _UNICODE)
+endif ()
 
 #######################################################
 include(FetchContent)
@@ -79,6 +82,10 @@ function(build_target TARGET_NAME SRCS MODULES)
     target_link_libraries(${TARGET_NAME} ${VIREO_TARGET} glm::glm glm-modules std-cxx-modules)
     add_dependencies(${TARGET_NAME} ${VIREO_TARGET})
     if(WIN32)
+        target_precompile_headers(${VIREO_TARGET} PRIVATE
+                "<windows.h>"
+                "<cstdint>"
+        )
         target_link_libraries(${TARGET_NAME} Xinput dinput8 dxguid dxgi d3d12 d3dcompiler)
         if(MINGW)
             target_link_options(${TARGET_NAME} PRIVATE "-mwindows")

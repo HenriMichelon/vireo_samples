@@ -196,7 +196,6 @@ namespace samples {
     }
 
     vireo::Backends Win32Application::backendSelectorDialog(const HINSTANCE hInstance, const wstring& title) {
-        SetProcessDPIAware();
         const auto className = L"ApiSelectorWindow";
         const WNDCLASS wc{
             .lpfnWndProc = SelectorWindowProc,
