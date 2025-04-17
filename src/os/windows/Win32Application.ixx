@@ -19,6 +19,7 @@ export namespace samples {
             const shared_ptr<Application>& app,
             UINT width, UINT height,
             const wstring& name,
+            bool vsync,
             HINSTANCE hInstance,
             int nCmdShow);
         static HWND getHwnd() { return hwnd; }

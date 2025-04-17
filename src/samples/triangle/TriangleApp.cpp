@@ -8,11 +8,16 @@ module;
 #include "Macros.h"
 module samples.hellotriangle;
 
-APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 800, 600);
+APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 1280, 720, false);
 
 namespace samples {
 
     void TriangleApp::onInit() {
+        const auto ratio = vireo->getSwapChain()->getAspectRatio();
+        for (auto& vertex : triangleVertices) {
+            vertex.pos.y *= ratio;
+        }
+
         vertexBuffer = vireo->createBuffer(
             vireo::BufferType::VERTEX,
             sizeof(Vertex),

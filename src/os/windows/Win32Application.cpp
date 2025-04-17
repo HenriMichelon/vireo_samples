@@ -35,6 +35,7 @@ namespace samples {
                               const UINT width,
                               const UINT height,
                               const wstring& name,
+                              const bool vsync,
                               const HINSTANCE hInstance,
                               const int nCmdShow) {
         if (!dirExists("shaders")) {
@@ -104,10 +105,10 @@ namespace samples {
         Win32Application::app = app;
         const vireo::Configuration configuration{
             .windowHandle = hwnd,
-            .backend      = backendSelectorDialog(hInstance, title),
-            // .backend      = vireo::Backends::VULKAN,
+            // .backend      = backendSelectorDialog(hInstance, title),
+            .backend      = vireo::Backends::VULKAN,
             // .backend      = vireo::Backends::DIRECTX,
-            .vSyncMode    = vireo::VSyncMode::VSYNC,
+            .presentMode    = vsync ? vireo::PresentMode::VSYNC : vireo::PresentMode::IMMEDIATE
         };
         if (configuration.backend == vireo::Backends::UNDEFINED) {
             return 0;

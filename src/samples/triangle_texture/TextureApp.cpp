@@ -8,11 +8,16 @@ module;
 #include "Macros.h"
 module samples.hellotexture;
 
-APP(make_shared<samples::TextureApp>(), L"Hello Triangle Texture", 800, 600);
+APP(make_shared<samples::TextureApp>(), L"Hello Triangle Texture", 1280, 720, false);
 
 namespace samples {
 
     void TextureApp::onInit() {
+        const auto ratio = vireo->getSwapChain()->getAspectRatio();
+        for (auto& vertex : triangleVertices) {
+            vertex.pos.y *= ratio;
+        }
+
         vertexBuffer = vireo->createBuffer(
             vireo::BufferType::VERTEX,
             sizeof(Vertex),

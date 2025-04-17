@@ -8,7 +8,7 @@ module;
 #include "Macros.h"
 module samples.compute;
 
-APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0);
+APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0, false);
 
 namespace samples {
 
