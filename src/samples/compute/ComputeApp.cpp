@@ -8,7 +8,7 @@ module;
 #include "Macros.h"
 module samples.compute;
 
-APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0);
+APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 800, 600);
 
 namespace samples {
 
@@ -82,8 +82,8 @@ namespace samples {
     }
 
     void ComputeApp::onDestroy() {
-        paramsBuffer->unmap();
         vireo->waitIdle();
+        paramsBuffer->unmap();
         for (auto& data : framesData) {
             vireo->destroyFrameData(data.frameData);
         }

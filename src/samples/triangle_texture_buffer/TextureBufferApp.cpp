@@ -156,8 +156,8 @@ namespace samples {
     }
 
     void TextureBufferApp::onDestroy() {
-        globalUboBuffer->unmap();
         vireo->waitIdle();
+        globalUboBuffer->unmap();
         for (auto& data : framesData) {
             vireo->destroyFrameData(data.frameData);
         }

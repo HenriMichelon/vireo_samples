@@ -50,8 +50,8 @@ file(MAKE_DIRECTORY ${SHADERS_BUILD_DIR})
 file(GLOB_RECURSE SHADERS_SOURCE_FILES
         "${SHADERS_SRC_DIR}/*.slang"
 )
-add_shaders(target_shaders ${SHADERS_BUILD_DIR} ${SHADERS_INCLUDE_DIR} ${SHADERS_SOURCE_FILES} )
-add_dependencies(target_shaders ${VIREO_TARGET})
+add_shaders(shaders ${SHADERS_BUILD_DIR} ${SHADERS_INCLUDE_DIR} ${SHADERS_SOURCE_FILES} )
+#add_dependencies(target_shaders ${VIREO_TARGET})
 
 #######################################################
 # Common files
@@ -77,7 +77,7 @@ function(build_target TARGET_NAME SRCS MODULES)
     compile_options(${TARGET_NAME})
     target_include_directories(${TARGET_NAME} PUBLIC ${INCLUDE_DIR} ${VIREO_INCLUDE_DIR})
     target_link_libraries(${TARGET_NAME} ${VIREO_TARGET} glm::glm glm-modules std-cxx-modules)
-    add_dependencies(${TARGET_NAME} target_shaders)
+    add_dependencies(${TARGET_NAME} ${VIREO_TARGET})
     if(WIN32)
         target_link_libraries(${TARGET_NAME} Xinput dinput8 dxguid dxgi d3d12 d3dcompiler)
         if(MINGW)

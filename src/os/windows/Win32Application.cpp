@@ -74,10 +74,10 @@ namespace samples {
             x = monitorData.monitorRect.left;
             y = monitorData.monitorRect.top;
         } else {
-            style = WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX | WS_BORDER;
+            style = WS_OVERLAPPEDWINDOW;
             exStyle = 0;
             auto windowRect = RECT{0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
-            AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
+            AdjustWindowRect(&windowRect, style, FALSE);
             x = (GetSystemMetrics(SM_CXSCREEN) - (windowRect.right - windowRect.left)) / 2;
             y = (GetSystemMetrics(SM_CYSCREEN) - (windowRect.bottom - windowRect.top)) / 2;
         }
@@ -107,6 +107,9 @@ namespace samples {
             // .backend      = vireo::Backends::DIRECTX,
             .vSyncMode    = vireo::VSyncMode::VSYNC,
         };
+        if (configuration.backend == vireo::Backends::UNDEFINED) {
+            return 0;
+        }
         app->init(configuration);
 
         if (configuration.backend == vireo::Backends::VULKAN) {
@@ -157,7 +160,7 @@ namespace samples {
                 }
                 return 0;
 
-            case WM_DESTROY:
+            case WM_CLOSE:
                 PostQuitMessage(0);
                 return 0;
             default:;
@@ -183,7 +186,6 @@ namespace samples {
                 break;
             default:;
         }
-
         return DefWindowProc(hWnd, msg, wParam, lParam);
     }
 
@@ -279,8 +281,11 @@ namespace samples {
             case ID_DIRECTX: {
                 return vireo::Backends::DIRECTX;
             }
-            default: {
+            case ID_VULKAN: {
                 return vireo::Backends::VULKAN;
+            }
+            default: {
+                return vireo::Backends::UNDEFINED;
             }
         }
     }
