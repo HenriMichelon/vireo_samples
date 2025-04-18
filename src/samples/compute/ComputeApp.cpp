@@ -45,7 +45,7 @@ namespace samples {
         const auto swapChain = vireo->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
-        if (!swapChain->acquire(frame.inFlightFence, frame.frameData)) { return; }
+        if (!swapChain->acquire(frame.inFlightFence)) { return; }
 
         frame.commandAllocator->reset();
         frame.commandList->begin();
@@ -62,7 +62,7 @@ namespace samples {
 
         frame.commandList->end();
 
-        vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, frame.frameData, {frame.commandList});
+        vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, swapChain, {frame.commandList});
 
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
