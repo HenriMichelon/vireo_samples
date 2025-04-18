@@ -27,7 +27,6 @@ namespace samples {
         );
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            framesData[i].frameData = vireo->createFrameData(i);
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout);
@@ -56,15 +55,15 @@ namespace samples {
         frame.commandList->dispatch((frame.image->getWidth() + 7)/8, (frame.image->getHeight() + 7)/8, 1);
         frame.commandList->barrier(frame.image, vireo::ResourceState::DISPATCH_TARGET, vireo::ResourceState::COPY_SRC);
 
-        frame.commandList->barrier(frame.frameData, swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
-        frame.commandList->copy(frame.image, frame.frameData, swapChain);
-        frame.commandList->barrier(frame.frameData, swapChain, vireo::ResourceState::COPY_DST, vireo::ResourceState::PRESENT);
+        frame.commandList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
+        frame.commandList->copy(frame.image, swapChain);
+        frame.commandList->barrier(swapChain, vireo::ResourceState::COPY_DST, vireo::ResourceState::PRESENT);
 
         frame.commandList->end();
 
         vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, swapChain, {frame.commandList});
 
-        swapChain->present(frame.frameData);
+        swapChain->present();
         swapChain->nextSwapChain();
     }
 
@@ -93,9 +92,6 @@ namespace samples {
     void ComputeApp::onDestroy() {
         vireo->waitIdle();
         paramsBuffer->unmap();
-        for (auto& data : framesData) {
-            vireo->destroyFrameData(data.frameData);
-        }
     }
 
     float ComputeApp::getCurrentTimeMilliseconds() {

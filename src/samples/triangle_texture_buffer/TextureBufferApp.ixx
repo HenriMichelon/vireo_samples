@@ -66,7 +66,6 @@ export namespace samples {
         vector<shared_ptr<vireo::Sampler>> samplers;
 
         struct FrameData {
-            shared_ptr<vireo::FrameData>        frameData;
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;

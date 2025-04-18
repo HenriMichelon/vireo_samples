@@ -38,7 +38,6 @@ export namespace samples {
         shared_ptr<vireo::Buffer> vertexBuffer;
 
         struct FrameData {
-            shared_ptr<vireo::FrameData>        frameData;
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;

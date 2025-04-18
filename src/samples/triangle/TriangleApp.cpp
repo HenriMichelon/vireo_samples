@@ -38,7 +38,6 @@ namespace samples {
             defaultPipelineConfig);
 
         for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
-            framesData[i].frameData = vireo->createFrameData(i);
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].inFlightFence =vireo->createFence();
@@ -62,7 +61,7 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
-        cmdList->barrier(frame.frameData, swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
+        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
         cmdList->beginRendering(swapChain, clearColor);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
@@ -76,20 +75,17 @@ namespace samples {
         cmdList->drawInstanced(triangleVertices.size());
 
         cmdList->endRendering();
-        cmdList->barrier(frame.frameData, swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
+        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
         cmdList->end();
 
         vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, swapChain, {cmdList});
 
-        swapChain->present(frame.frameData);
+        swapChain->present();
         swapChain->nextSwapChain();
     }
 
     void TriangleApp::onDestroy() {
         vireo->waitIdle();
-        for (auto& data : framesData) {
-            vireo->destroyFrameData(data.frameData);
-        }
     }
 
 }
