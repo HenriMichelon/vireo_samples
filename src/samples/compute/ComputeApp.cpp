@@ -32,6 +32,7 @@ namespace samples {
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             framesData[i].descriptorSet->update(BINDING_PARAMS, paramsBuffer);
+            framesData[i].inFlightFence =vireo->createFence();
         }
     }
 
@@ -44,7 +45,7 @@ namespace samples {
         const auto swapChain = vireo->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
-        if (!swapChain->acquire(frame.frameData)) { return; }
+        if (!swapChain->acquire(frame.inFlightFence, frame.frameData)) { return; }
 
         frame.commandAllocator->reset();
         frame.commandList->begin();
@@ -61,7 +62,7 @@ namespace samples {
 
         frame.commandList->end();
 
-        vireo->getGraphicCommandQueue()->submit(frame.frameData, {frame.commandList});
+        vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, frame.frameData, {frame.commandList});
 
         swapChain->present(frame.frameData);
         swapChain->nextSwapChain();
