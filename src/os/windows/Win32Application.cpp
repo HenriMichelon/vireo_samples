@@ -108,7 +108,6 @@ namespace samples {
             // .backend      = backendSelectorDialog(hInstance, title),
             .backend       = vireo::Backends::VULKAN,
             // .backend     = vireo::Backends::DIRECTX,
-            .msaa           = vireo::MSAA::X8,
             .presentMode    = vsync ? vireo::PresentMode::VSYNC : vireo::PresentMode::IMMEDIATE
         };
         if (configuration.backend == vireo::Backends::UNDEFINED) {

@@ -45,7 +45,7 @@ export namespace samples {
         vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
         static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
-            .useMSAA = true,
+            // .useMSAA = true,
         };
         shared_ptr<vireo::Pipeline> defaultPipeline;
 
