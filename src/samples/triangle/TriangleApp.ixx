@@ -48,7 +48,7 @@ export namespace samples {
 
         static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
-            .msaa = vireo::MSAA::X4
+            .msaa = vireo::MSAA::X8
         };
         shared_ptr<vireo::Pipeline>  defaultPipeline;
         shared_ptr<vireo::SwapChain> swapChain;

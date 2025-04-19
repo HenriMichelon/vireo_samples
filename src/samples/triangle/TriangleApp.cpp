@@ -70,8 +70,8 @@ namespace samples {
         cmdList->drawInstanced(triangleVertices.size());
 
         cmdList->endRendering();
+        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::UNDEFINED);
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
-        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::COPY_SRC);
         cmdList->end();
 
         vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, swapChain, {cmdList});
