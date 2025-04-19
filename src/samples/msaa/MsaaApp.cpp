@@ -30,7 +30,8 @@ namespace samples {
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->end();
-        vireo->getTransferCommandQueue()->submit({uploadCommandList});
+        const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
+        transferQueue->submit({uploadCommandList});
 
         defaultPipeline = vireo->createGraphicPipeline(
             vireo->createPipelineResources({ }, {}),
@@ -47,7 +48,7 @@ namespace samples {
             framesData[i].msaaRenderTarget = vireo->createRenderTarget(swapChain, defaultPipelineConfig.msaa);
         }
 
-        vireo->getTransferCommandQueue()->waitIdle();
+        transferQueue->waitIdle();
         uploadCommandList->cleanup();
     }
 
@@ -75,7 +76,7 @@ namespace samples {
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, swapChain, {cmdList});
+        graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});
 
         swapChain->present();
         swapChain->nextSwapChain();
@@ -86,6 +87,7 @@ namespace samples {
     }
 
     void MsaaApp::onDestroy() {
+        graphicSubmitQueue->waitIdle();
         vireo->waitIdle();
     }
 

@@ -47,7 +47,7 @@ namespace samples {
         uploadCommandList->barrier(texture, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
         uploadCommandList->upload(texture, generateTextureData(texture->getWidth(), texture->getHeight()).data());
         uploadCommandList->end();
-        auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
+        const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
 
         descriptorLayout = vireo->createDescriptorLayout(L"Global");
@@ -120,6 +120,7 @@ namespace samples {
     }
 
     void TextureApp::onDestroy() {
+        graphicSubmitQueue->waitIdle();
         vireo->waitIdle();
     }
 
