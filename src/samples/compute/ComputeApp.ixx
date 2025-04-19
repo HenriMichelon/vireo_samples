@@ -37,7 +37,7 @@ export namespace samples {
             shared_ptr<vireo::Fence>            inFlightFence;
             shared_ptr<vireo::Image>            image;
         };
-        vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
+        vector<FrameData> framesData;
 
         Params                              params{};
         shared_ptr<vireo::Buffer>           paramsBuffer;

@@ -13,7 +13,7 @@ APP(make_shared<samples::TextureBufferApp>(), L"Hello Triangle Texture Buffer Pu
 namespace samples {
 
     void TextureBufferApp::onInit() {
-        const auto swapChain = vireo->createSwapChain(vireo::PresentMode::VSYNC);
+        swapChain = vireo->createSwapChain(vireo::PresentMode::VSYNC);
 
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
@@ -89,7 +89,8 @@ namespace samples {
             defaultPipelineConfig,
             L"shader2");
 
-        for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
+        framesData.resize(swapChain->getFramesInFlight());
+        for (uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
             framesData[i].samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 

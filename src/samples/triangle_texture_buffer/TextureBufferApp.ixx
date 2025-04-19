@@ -72,7 +72,7 @@ export namespace samples {
             shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
             shared_ptr<vireo::Fence>            inFlightFence;
         };
-        vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
+        vector<FrameData> framesData;
 
         shared_ptr<vireo::DescriptorLayout>      descriptorLayout;
         shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;

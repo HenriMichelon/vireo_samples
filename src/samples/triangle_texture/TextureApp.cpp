@@ -13,8 +13,7 @@ APP(make_shared<samples::TextureApp>(), L"Hello Triangle Texture", 1280, 720);
 namespace samples {
 
     void TextureApp::onInit() {
-        const auto swapChain = vireo->createSwapChain(vireo::PresentMode::IMMEDIATE);
-
+        swapChain = vireo->createSwapChain(vireo::PresentMode::IMMEDIATE);
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
@@ -68,7 +67,8 @@ namespace samples {
             defaultPipelineConfig,
             L"default");
 
-        for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
+        framesData.resize(swapChain->getFramesInFlight());
+        for (uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
             framesData[i].samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
 

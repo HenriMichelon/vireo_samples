@@ -13,6 +13,7 @@ APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0);
 namespace samples {
 
     void ComputeApp::onInit() {
+        swapChain = vireo->createSwapChain(vireo::PresentMode::IMMEDIATE);
         paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
         paramsBuffer->map();
 
@@ -26,7 +27,8 @@ namespace samples {
             vireo->createShaderModule("shaders/compute.comp")
         );
 
-        for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
+        framesData.resize(swapChain->getFramesInFlight());
+        for (uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout);
@@ -41,7 +43,6 @@ namespace samples {
     }
 
     void ComputeApp::onRender() {
-        const auto swapChain = vireo->createSwapChain(vireo::PresentMode::IMMEDIATE);
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
@@ -74,7 +75,7 @@ namespace samples {
         params.imageSize.y = extent.height;
 
         vector<shared_ptr<const vireo::CommandList>> commandLists;
-        for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
+        for (uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].image = vireo->createReadWriteImage(
                 vireo::ImageFormat::R8G8B8A8_UNORM,
                 params.imageSize.x, params.imageSize.y);

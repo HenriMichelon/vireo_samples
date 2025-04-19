@@ -38,7 +38,8 @@ namespace samples {
             vireo->createShaderModule("shaders/triangle_color.frag"),
             defaultPipelineConfig);
 
-        for (uint32_t i = 0; i < vireo::SwapChain::FRAMES_IN_FLIGHT; i++) {
+        framesData.resize(swapChain->getFramesInFlight());
+        for (uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].inFlightFence =vireo->createFence();
@@ -82,6 +83,10 @@ namespace samples {
 
         swapChain->present();
         swapChain->nextSwapChain();
+    }
+
+    void TriangleApp::onResize() {
+        swapChain->recreate();
     }
 
     void TriangleApp::onDestroy() {

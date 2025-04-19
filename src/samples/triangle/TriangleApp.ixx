@@ -16,6 +16,7 @@ export namespace samples {
     public:
         void onInit() override;
         void onRender() override;
+        void onResize() override;
         void onDestroy() override;
 
     private:
@@ -42,7 +43,7 @@ export namespace samples {
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
         };
-        vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
+        vector<FrameData> framesData;
 
         static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
             // .useMSAA = true,
