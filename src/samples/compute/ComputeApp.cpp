@@ -13,7 +13,8 @@ APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0);
 namespace samples {
 
     void ComputeApp::onInit() {
-        swapChain = vireo->createSwapChain(vireo::ImageFormat::R8G8B8A8_SRGB, vireo::PresentMode::IMMEDIATE);
+        graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
+        swapChain = vireo->createSwapChain(vireo::ImageFormat::R8G8B8A8_SRGB, graphicSubmitQueue, vireo::PresentMode::IMMEDIATE);
         paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
         paramsBuffer->map();
 
@@ -62,8 +63,7 @@ namespace samples {
 
         frame.commandList->end();
 
-        vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, swapChain, {frame.commandList});
-
+        graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {frame.commandList});
         swapChain->present();
         swapChain->nextSwapChain();
     }
@@ -85,8 +85,8 @@ namespace samples {
             framesData[i].commandList->end();
             commandLists.push_back(framesData[i].commandList);
         }
-        vireo->getGraphicCommandQueue()->submit(commandLists);
-        vireo->getGraphicCommandQueue()->waitIdle();
+        graphicSubmitQueue->submit(commandLists);
+        graphicSubmitQueue->waitIdle();
     }
 
     void ComputeApp::onDestroy() {

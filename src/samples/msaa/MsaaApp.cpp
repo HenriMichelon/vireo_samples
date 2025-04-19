@@ -13,7 +13,8 @@ APP(make_shared<samples::TriangleApp>(), L"Hello MSAA", 1280, 720);
 namespace samples {
 
     void MsaaApp::onInit() {
-        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, vireo::PresentMode::IMMEDIATE);
+        graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
+        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::IMMEDIATE);
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;

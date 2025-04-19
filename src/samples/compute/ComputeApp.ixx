@@ -44,6 +44,7 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::Pipeline>         pipeline;
         shared_ptr<vireo::SwapChain>        swapChain;
+        shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
 
         static float getCurrentTimeMilliseconds();
     };

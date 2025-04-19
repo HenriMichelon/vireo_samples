@@ -59,6 +59,7 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
         shared_ptr<vireo::Pipeline>         defaultPipeline;
+        shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
         shared_ptr<vireo::SwapChain>        swapChain;
 
         static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);

@@ -76,14 +76,15 @@ export namespace samples {
 
         shared_ptr<vireo::DescriptorLayout>      descriptorLayout;
         shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;
+        shared_ptr<vireo::SubmitQueue>           graphicSubmitQueue;
+        shared_ptr<vireo::SwapChain>             swapChain;
 
         static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .colorBlendEnable = true,
         };
-        map<string, shared_ptr<vireo::Pipeline>> pipelines;
         map<string, shared_ptr<vireo::PipelineResources>> pipelinesResources;
-        shared_ptr<vireo::SwapChain> swapChain;
+        map<string, shared_ptr<vireo::Pipeline>>          pipelines;
 
         static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);
     };

@@ -13,7 +13,8 @@ APP(make_shared<samples::TextureBufferApp>(), L"Hello Triangle Texture Buffer Pu
 namespace samples {
 
     void TextureBufferApp::onInit() {
-        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, vireo::PresentMode::VSYNC);
+        graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
+        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::VSYNC);
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
@@ -51,7 +52,8 @@ namespace samples {
         uploadCommandList->barrier(textures[0], vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
         uploadCommandList->upload(textures[0], generateTextureData(textures[0]->getWidth(), textures[0]->getHeight()).data());
         uploadCommandList->end();
-        vireo->getTransferCommandQueue()->submit({uploadCommandList});
+        const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
+        transferQueue->submit({uploadCommandList});
 
         globalUboBuffer->map();
 
@@ -103,12 +105,12 @@ namespace samples {
             framesData[i].inFlightFence =vireo->createFence();
         }
 
-        vireo->getTransferCommandQueue()->waitIdle();
+        transferQueue->waitIdle();
         framesData[0].commandList->begin();
         framesData[0].commandList->barrier(textures[0], vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
         framesData[0].commandList->end();
-        vireo->getGraphicCommandQueue()->submit({framesData[0].commandList});
-        vireo->getGraphicCommandQueue()->waitIdle();
+        graphicSubmitQueue->submit({framesData[0].commandList});
+        graphicSubmitQueue->waitIdle();
         uploadCommandList->cleanup();
     }
 
@@ -155,8 +157,7 @@ namespace samples {
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, swapChain, {cmdList});
-
+        graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});
         swapChain->present();
         swapChain->nextSwapChain();
     }
