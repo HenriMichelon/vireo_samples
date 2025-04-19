@@ -13,7 +13,7 @@ APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0);
 namespace samples {
 
     void ComputeApp::onInit() {
-        swapChain = vireo->createSwapChain(vireo::PresentMode::IMMEDIATE);
+        swapChain = vireo->createSwapChain(vireo::ImageFormat::R8G8B8A8_SRGB, vireo::PresentMode::IMMEDIATE);
         paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
         paramsBuffer->map();
 

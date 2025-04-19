@@ -13,7 +13,7 @@ APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 1280, 720);
 namespace samples {
 
     void TriangleApp::onInit() {
-        swapChain = vireo->createSwapChain(vireo::PresentMode::IMMEDIATE);
+        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, vireo::PresentMode::IMMEDIATE);
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
@@ -43,12 +43,8 @@ namespace samples {
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].inFlightFence =vireo->createFence();
+            framesData[i].msaaRenderTarget = vireo->createRenderTarget(swapChain, defaultPipelineConfig.msaa);
         }
-
-        // renderTarget = vireo->createRenderTarget(
-        //     vireo::ImageFormat::R8G8B8A8_SRGB,
-        //     1024,
-        //     1024);
 
         vireo->getTransferCommandQueue()->waitIdle();
         uploadCommandList->cleanup();
@@ -63,13 +59,11 @@ namespace samples {
         const auto& cmdList = frame.commandList;
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
-        cmdList->beginRendering(swapChain, clearColor);
+        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
+        cmdList->beginRendering(frame.msaaRenderTarget, swapChain, clearColor);
+        // cmdList->beginRendering(swapChain, clearColor);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
-        // cmdList->beginRendering(renderTarget, clearColor);
-        // const auto extent = vireo::Extent{renderTarget->getImage()->getWidth(), renderTarget->getImage()->getHeight()};
-        // cmdList->setViewports(1, {extent});
-        // cmdList->setScissors(1, {extent});
 
         cmdList->bindPipeline(defaultPipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
@@ -77,6 +71,7 @@ namespace samples {
 
         cmdList->endRendering();
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
+        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::COPY_SRC);
         cmdList->end();
 
         vireo->getGraphicCommandQueue()->submit(frame.inFlightFence, swapChain, {cmdList});
