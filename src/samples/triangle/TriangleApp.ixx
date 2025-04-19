@@ -42,13 +42,11 @@ export namespace samples {
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
-            shared_ptr<vireo::RenderTarget>     msaaRenderTarget;
         };
         vector<FrameData> framesData;
 
         static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
-            .msaa = vireo::MSAA::X8
         };
         shared_ptr<vireo::Pipeline>  defaultPipeline;
         shared_ptr<vireo::SwapChain> swapChain;

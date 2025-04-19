@@ -78,6 +78,7 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;
 
         static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
+            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .colorBlendEnable = true,
         };
         map<string, shared_ptr<vireo::Pipeline>> pipelines;

@@ -6,13 +6,13 @@
 */
 module;
 #include "Macros.h"
-module samples.hellotriangle;
+module samples.hellomsaa;
 
-APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 1280, 720);
+APP(make_shared<samples::TriangleApp>(), L"Hello MSAA", 1280, 720);
 
 namespace samples {
 
-    void TriangleApp::onInit() {
+    void MsaaApp::onInit() {
         swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, vireo::PresentMode::IMMEDIATE);
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
@@ -43,13 +43,14 @@ namespace samples {
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].inFlightFence =vireo->createFence();
+            framesData[i].msaaRenderTarget = vireo->createRenderTarget(swapChain, defaultPipelineConfig.msaa);
         }
 
         vireo->getTransferCommandQueue()->waitIdle();
         uploadCommandList->cleanup();
     }
 
-    void TriangleApp::onRender() {
+    void MsaaApp::onRender() {
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
@@ -58,7 +59,9 @@ namespace samples {
         const auto& cmdList = frame.commandList;
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
-        cmdList->beginRendering(swapChain, clearColor);
+        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
+        cmdList->beginRendering(frame.msaaRenderTarget, swapChain, clearColor);
+        // cmdList->beginRendering(swapChain, clearColor);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
 
@@ -67,6 +70,7 @@ namespace samples {
         cmdList->drawInstanced(triangleVertices.size());
 
         cmdList->endRendering();
+        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::UNDEFINED);
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
         cmdList->end();
 
@@ -76,11 +80,11 @@ namespace samples {
         swapChain->nextSwapChain();
     }
 
-    void TriangleApp::onResize() {
+    void MsaaApp::onResize() {
         swapChain->recreate();
     }
 
-    void TriangleApp::onDestroy() {
+    void MsaaApp::onDestroy() {
         vireo->waitIdle();
     }
 
