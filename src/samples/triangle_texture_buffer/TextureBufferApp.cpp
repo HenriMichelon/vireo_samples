@@ -8,12 +8,14 @@ module;
 #include "Macros.h"
 module samples.hellotriangle;
 
-APP(make_shared<samples::TextureBufferApp>(), L"Hello Triangle Texture Buffer PushConstants", 1280, 720, true);
+APP(make_shared<samples::TextureBufferApp>(), L"Hello Triangle Texture Buffer PushConstants", 1280, 720);
 
 namespace samples {
 
     void TextureBufferApp::onInit() {
-        const auto ratio = vireo->getSwapChain()->getAspectRatio();
+        const auto swapChain = vireo->createSwapChain(vireo::PresentMode::VSYNC);
+
+        const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
         }
@@ -126,7 +128,6 @@ namespace samples {
     }
 
     void TextureBufferApp::onRender() {
-        const auto swapChain = vireo->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }

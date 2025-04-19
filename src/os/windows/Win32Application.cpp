@@ -21,7 +21,7 @@ namespace samples {
         int  monitorIndex{0};
         RECT monitorRect{0};
     };
-    BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
+    BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC , LPRECT lprcMonitor, LPARAM dwData) {
         const auto data = reinterpret_cast<MonitorEnumData*>(dwData);
         if (data->enumIndex == data->monitorIndex) {
             data->monitorRect = *lprcMonitor;
@@ -35,7 +35,6 @@ namespace samples {
                               const UINT width,
                               const UINT height,
                               const wstring& name,
-                              const bool vsync,
                               const HINSTANCE hInstance,
                               const int nCmdShow) {
         if (!dirExists("shaders")) {
@@ -108,7 +107,6 @@ namespace samples {
             .backend      = backendSelectorDialog(hInstance, title),
             // .backend       = vireo::Backends::VULKAN,
             // .backend     = vireo::Backends::DIRECTX,
-            .presentMode    = vsync ? vireo::PresentMode::VSYNC : vireo::PresentMode::IMMEDIATE
         };
         if (configuration.backend == vireo::Backends::UNDEFINED) {
             return 0;

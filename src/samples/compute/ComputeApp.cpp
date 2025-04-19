@@ -8,7 +8,7 @@ module;
 #include "Macros.h"
 module samples.compute;
 
-APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0, false);
+APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0);
 
 namespace samples {
 
@@ -41,7 +41,7 @@ namespace samples {
     }
 
     void ComputeApp::onRender() {
-        const auto swapChain = vireo->getSwapChain();
+        const auto swapChain = vireo->createSwapChain(vireo::PresentMode::IMMEDIATE);
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
@@ -68,7 +68,6 @@ namespace samples {
     }
 
     void ComputeApp::onResize() {
-        const auto swapChain = vireo->getSwapChain();
         swapChain->recreate();
         const auto extent = swapChain->getExtent();
         params.imageSize.x = extent.width;

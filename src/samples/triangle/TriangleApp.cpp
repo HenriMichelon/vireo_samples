@@ -8,12 +8,13 @@ module;
 #include "Macros.h"
 module samples.hellotriangle;
 
-APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 1280, 720, false);
+APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 1280, 720);
 
 namespace samples {
 
     void TriangleApp::onInit() {
-        const auto ratio = vireo->getSwapChain()->getAspectRatio();
+        swapChain = vireo->createSwapChain(vireo::PresentMode::IMMEDIATE);
+        const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
         }
@@ -53,7 +54,6 @@ namespace samples {
     }
 
     void TriangleApp::onRender() {
-        const auto swapChain = vireo->getSwapChain();
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }

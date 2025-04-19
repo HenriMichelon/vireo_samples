@@ -47,7 +47,8 @@ export namespace samples {
         static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
             // .useMSAA = true,
         };
-        shared_ptr<vireo::Pipeline> defaultPipeline;
+        shared_ptr<vireo::Pipeline>  defaultPipeline;
+        shared_ptr<vireo::SwapChain> swapChain;
 
         // shared_ptr<vireo::RenderTarget> renderTarget;
     };

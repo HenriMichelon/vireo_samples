@@ -52,11 +52,12 @@ export namespace samples {
         };
         vector<FrameData> framesData{vireo::SwapChain::FRAMES_IN_FLIGHT};
 
-        shared_ptr<vireo::DescriptorLayout>      descriptorLayout;
-        shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;
-
         static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {};
-        shared_ptr<vireo::Pipeline> defaultPipeline;
+
+        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
+        shared_ptr<vireo::Pipeline>         defaultPipeline;
+        shared_ptr<vireo::SwapChain>        swapChain;
 
         static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);
     };

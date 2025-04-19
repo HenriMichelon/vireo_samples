@@ -43,6 +43,7 @@ export namespace samples {
         shared_ptr<vireo::Buffer>           paramsBuffer;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::Pipeline>         pipeline;
+        shared_ptr<vireo::SwapChain>        swapChain;
 
         static float getCurrentTimeMilliseconds();
     };

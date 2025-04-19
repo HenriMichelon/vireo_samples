@@ -26,11 +26,11 @@ export namespace samples {
 
         virtual void onDestroy() = 0;
 
-        virtual void onResize() { vireo->getSwapChain()->recreate(); }
+        virtual void onResize() {}
 
-        virtual void onKeyDown(uint32_t key)   {}
+        virtual void onKeyDown(uint32_t key) {}
 
-        virtual void onKeyUp(uint32_t key)     {}
+        virtual void onKeyUp(uint32_t key) {}
 
     protected:
         unique_ptr<vireo::Vireo> vireo;

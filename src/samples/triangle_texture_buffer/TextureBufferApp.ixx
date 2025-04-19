@@ -82,6 +82,7 @@ export namespace samples {
         };
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
         map<string, shared_ptr<vireo::PipelineResources>> pipelinesResources;
+        shared_ptr<vireo::SwapChain> swapChain;
 
         static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);
     };
