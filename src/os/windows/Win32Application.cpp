@@ -102,18 +102,15 @@ namespace samples {
         GetWindowRect(hwnd, &rect);
 
         Win32Application::app = app;
-        const vireo::Configuration configuration{
-            .windowHandle = hwnd,
-            .backend      = backendSelectorDialog(hInstance, title),
-            // .backend       = vireo::Backends::VULKAN,
-            // .backend     = vireo::Backends::DIRECTX,
-        };
-        if (configuration.backend == vireo::Backends::UNDEFINED) {
+        const auto backend = backendSelectorDialog(hInstance, title);
+            // const auto backend = vireo::Backends::VULKAN,
+            // const auto backend = vireo::Backends::DIRECTX,
+        if (backend == vireo::Backend::UNDEFINED) {
             return 0;
         }
-        app->init(configuration);
+        app->init(backend, hwnd);
 
-        if (configuration.backend == vireo::Backends::VULKAN) {
+        if (backend == vireo::Backend::VULKAN) {
             title.append(L"Vulkan 1.3");
         } else {
             title.append(L"DirectX 12");
@@ -201,7 +198,7 @@ namespace samples {
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
     }
 
-    vireo::Backends Win32Application::backendSelectorDialog(const HINSTANCE hInstance, const wstring& title) {
+    vireo::Backend Win32Application::backendSelectorDialog(const HINSTANCE hInstance, const wstring& title) {
         const auto className = L"ApiSelectorWindow";
         const WNDCLASS wc{
             .lpfnWndProc = SelectorWindowProc,
@@ -285,13 +282,13 @@ namespace samples {
 
         switch (static_cast<int>(msg.wParam)) {
             case ID_DIRECTX: {
-                return vireo::Backends::DIRECTX;
+                return vireo::Backend::DIRECTX;
             }
             case ID_VULKAN: {
-                return vireo::Backends::VULKAN;
+                return vireo::Backend::VULKAN;
             }
             default: {
-                return vireo::Backends::UNDEFINED;
+                return vireo::Backend::UNDEFINED;
             }
         }
     }

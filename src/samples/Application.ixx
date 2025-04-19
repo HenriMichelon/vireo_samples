@@ -14,8 +14,8 @@ export namespace samples {
     public:
         virtual ~Application() = default;
 
-        void init(const vireo::Configuration& configuration) {
-            vireo = vireo::Vireo::create(configuration);
+        void init(const vireo::Backend backend, void* windowHandle) {
+            vireo = vireo::Vireo::create(backend, windowHandle);
         }
 
         virtual void onInit() = 0;

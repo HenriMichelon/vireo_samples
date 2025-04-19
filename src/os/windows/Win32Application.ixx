@@ -34,6 +34,6 @@ export namespace samples {
         static bool dirExists(const string& dirName_in);
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         static LRESULT CALLBACK SelectorWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-        static vireo::Backends backendSelectorDialog(HINSTANCE hInstance, const wstring& title);
+        static vireo::Backend backendSelectorDialog(HINSTANCE hInstance, const wstring& title);
     };
 }

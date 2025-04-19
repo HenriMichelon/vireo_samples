@@ -101,7 +101,7 @@ set(TRIANGLE_SRC
 set(TRIANGLE_MODULES
     ${SRC_DIR}/samples/triangle/TriangleApp.ixx
 )
-build_target(triangle ${TRIANGLE_SRC} ${TRIANGLE_MODULES})
+#build_target(triangle ${TRIANGLE_SRC} ${TRIANGLE_MODULES})
 
 #######################################################
 set(TRIANGLE_TEXTURE_SRC
@@ -119,7 +119,7 @@ set(TRIANGLE_BUFFER_SRC
 set(TRIANGLE_BUFFER_MODULES
         ${SRC_DIR}/samples/triangle_texture_buffer/TextureBufferApp.ixx
 )
-build_target(triangle_texture_buffer ${TRIANGLE_BUFFER_SRC} ${TRIANGLE_BUFFER_MODULES})
+#build_target(triangle_texture_buffer ${TRIANGLE_BUFFER_SRC} ${TRIANGLE_BUFFER_MODULES})
 
 #######################################################
 set(COMPUTE_BUFFER_SRC
@@ -128,4 +128,4 @@ set(COMPUTE_BUFFER_SRC
 set(COMPUTE_BUFFER_MODULES
         ${SRC_DIR}/samples/compute/ComputeApp.ixx
 )
-build_target(compute ${COMPUTE_BUFFER_SRC} ${COMPUTE_BUFFER_MODULES})
+#build_target(compute ${COMPUTE_BUFFER_SRC} ${COMPUTE_BUFFER_MODULES})
