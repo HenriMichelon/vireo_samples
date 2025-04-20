@@ -32,7 +32,7 @@ export namespace samples {
         };
 
         struct Model {
-            mat4 transform;
+            mat4 transform{1.0f};
         };
 
         struct FrameData {
@@ -61,6 +61,7 @@ export namespace samples {
 
         static constexpr auto pipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
+            .cullMode = vireo::CullMode::BACK,
         };
 
         Global                              global{};

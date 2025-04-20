@@ -14,7 +14,7 @@ APP(make_shared<samples::CubeApp>(), L"Hello Cube", 1280, 720);
 namespace samples {
 
     void CubeApp::onUpdate() {
-        const float angle = radians(-1.0);
+        constexpr  float angle = radians(-1.0);
         model.transform = glm::rotate(model.transform, angle, AXIS_X);
         model.transform = glm::rotate(model.transform, angle, AXIS_Y);
         modelBuffer->write(&model, sizeof(Model));
@@ -43,7 +43,6 @@ namespace samples {
         globalBuffer->write(&global, sizeof(Global));
         globalBuffer->unmap();
 
-        model.transform= mat4(1.0f);
         modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
         modelBuffer->map();
 
