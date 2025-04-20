@@ -39,11 +39,11 @@ namespace samples {
             pipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
-        for (uint32_t i = 0; i < framesData.size(); i++) {
-            framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
-            framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
-            framesData[i].inFlightFence =vireo->createFence();
-            framesData[i].msaaRenderTarget = vireo->createRenderTarget(swapChain, pipelineConfig.msaa);
+        for (auto& frame : framesData) {
+            frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            frame.commandList = frame.commandAllocator->createCommandList();
+            frame.inFlightFence =vireo->createFence();
+            frame.msaaRenderTarget = vireo->createRenderTarget(swapChain, renderingConfig.clearColorValue, pipelineConfig.msaa);
         }
 
         transferQueue->waitIdle();
@@ -52,7 +52,6 @@ namespace samples {
 
     void MsaaApp::onRender() {
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
-
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
         frame.commandAllocator->reset();
 
@@ -82,6 +81,9 @@ namespace samples {
 
     void MsaaApp::onResize() {
         swapChain->recreate();
+        for (auto& frame : framesData) {
+            frame.msaaRenderTarget = vireo->createRenderTarget(swapChain, renderingConfig.clearColorValue, pipelineConfig.msaa);
+        }
     }
 
     void MsaaApp::onDestroy() {

@@ -25,7 +25,7 @@ namespace samples {
         swapChain = vireo->createSwapChain(
             pipelineConfig.colorRenderFormat,
             graphicSubmitQueue,
-            vireo::PresentMode::VSYNC);
+            vireo::PresentMode::IMMEDIATE);
         renderingConfig.swapChain = swapChain;
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
@@ -67,11 +67,20 @@ namespace samples {
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, globalBuffer);
             frame.descriptorSet->update(BINDING_MODEL, modelBuffer);
+            frame.msaaBuffer = vireo->createRenderTarget(swapChain, renderingConfig.clearColorValue, pipelineConfig.msaa);
             frame.depthBuffer = vireo->createRenderTarget(
                 vireo::ImageFormat::D32_SFLOAT,
                 swapChain->getExtent().width,
                 swapChain->getExtent().height,
-                vireo::RenderTargetType::DEPTH);
+                vireo::RenderTargetType::DEPTH,
+                renderingConfig.depthClearValue);
+            frame.msaaDepthBuffer = vireo->createRenderTarget(
+                frame.depthBuffer->getImage()->getFormat(),
+                frame.depthBuffer->getImage()->getWidth(),
+                frame.depthBuffer->getImage()->getHeight(),
+                vireo::RenderTargetType::DEPTH,
+                renderingConfig.depthClearValue,
+                pipelineConfig.msaa);
         }
 
         transferQueue->waitIdle();
@@ -87,8 +96,12 @@ namespace samples {
         const auto& cmdList = frame.commandList;
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+        cmdList->barrier(frame.msaaBuffer, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->barrier(frame.depthBuffer, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
+        cmdList->barrier(frame.msaaDepthBuffer, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
+        renderingConfig.multisampledColorRenderTarget = frame.msaaBuffer;
         renderingConfig.depthRenderTarget = frame.depthBuffer;
+        renderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
@@ -99,7 +112,9 @@ namespace samples {
         cmdList->drawInstanced(cubeVertices.size());
 
         cmdList->endRendering();
+        cmdList->barrier(frame.msaaBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);
         cmdList->barrier(frame.depthBuffer, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL, vireo::ResourceState::UNDEFINED);
+        cmdList->barrier(frame.msaaDepthBuffer, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL, vireo::ResourceState::UNDEFINED);
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
@@ -111,11 +126,20 @@ namespace samples {
     void CubeApp::onResize() {
         swapChain->recreate();
         for (auto& frame : framesData) {
+            frame.msaaBuffer = vireo->createRenderTarget(swapChain, renderingConfig.clearColorValue, pipelineConfig.msaa);
             frame.depthBuffer = vireo->createRenderTarget(
                 vireo::ImageFormat::D32_SFLOAT,
                 swapChain->getExtent().width,
                 swapChain->getExtent().height,
-                vireo::RenderTargetType::DEPTH);
+                vireo::RenderTargetType::DEPTH,
+                renderingConfig.depthClearValue);
+            frame.msaaDepthBuffer = vireo->createRenderTarget(
+                frame.depthBuffer->getImage()->getFormat(),
+                frame.depthBuffer->getImage()->getWidth(),
+                frame.depthBuffer->getImage()->getHeight(),
+                vireo::RenderTargetType::DEPTH,
+                renderingConfig.depthClearValue,
+                pipelineConfig.msaa);
         }
     }
 

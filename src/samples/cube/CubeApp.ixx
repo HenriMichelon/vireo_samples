@@ -40,7 +40,9 @@ export namespace samples {
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            shared_ptr<vireo::RenderTarget>     msaaBuffer;
             shared_ptr<vireo::RenderTarget>     depthBuffer;
+            shared_ptr<vireo::RenderTarget>     msaaDepthBuffer;
         };
 
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
@@ -62,6 +64,7 @@ export namespace samples {
 
         static constexpr auto pipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
+            .msaa = vireo::MSAA::X8,
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
             .depthWriteEnable = true,

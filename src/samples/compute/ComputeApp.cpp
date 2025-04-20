@@ -8,14 +8,14 @@ module;
 #include "Macros.h"
 module samples.compute;
 
-APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 0, 0);
+APP(make_shared<samples::ComputeApp>(), L"Hello Compute",00, 0);
 
 namespace samples {
 
     void ComputeApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(vireo::ImageFormat::R8G8B8A8_SRGB, graphicSubmitQueue, vireo::PresentMode::IMMEDIATE);
-        paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params), 1, 256);
+        paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params));
         paramsBuffer->map();
 
         descriptorLayout = vireo->createDescriptorLayout();
@@ -29,12 +29,12 @@ namespace samples {
         );
 
         framesData.resize(swapChain->getFramesInFlight());
-        for (uint32_t i = 0; i < framesData.size(); i++) {
-            framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
-            framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
-            framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            framesData[i].descriptorSet->update(BINDING_PARAMS, paramsBuffer);
-            framesData[i].inFlightFence =vireo->createFence();
+        for (auto& frame : framesData) {
+            frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            frame.commandList = frame.commandAllocator->createCommandList();
+            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
+            frame.descriptorSet->update(BINDING_PARAMS, paramsBuffer);
+            frame.inFlightFence =vireo->createFence();
         }
     }
 
@@ -75,15 +75,15 @@ namespace samples {
         params.imageSize.y = extent.height;
 
         vector<shared_ptr<const vireo::CommandList>> commandLists;
-        for (uint32_t i = 0; i < framesData.size(); i++) {
-            framesData[i].image = vireo->createReadWriteImage(
+        for (auto& frame : framesData) {
+            frame.image = vireo->createReadWriteImage(
                 vireo::ImageFormat::R8G8B8A8_UNORM,
                 params.imageSize.x, params.imageSize.y);
-            framesData[i].descriptorSet->update(BINDING_IMAGE, framesData[i].image, true);
-            framesData[i].commandList->begin();
-            framesData[i].commandList->barrier(framesData[i].image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_SRC);
-            framesData[i].commandList->end();
-            commandLists.push_back(framesData[i].commandList);
+            frame.descriptorSet->update(BINDING_IMAGE, frame.image, true);
+            frame.commandList->begin();
+            frame.commandList->barrier(frame.image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_SRC);
+            frame.commandList->end();
+            commandLists.push_back(frame.commandList);
         }
         graphicSubmitQueue->submit(commandLists);
         graphicSubmitQueue->waitIdle();
