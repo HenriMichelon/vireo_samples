@@ -14,9 +14,21 @@ struct VertexOutput {
     float3 color    : COLOR;
 };
 
+struct Global {
+    float4x4 projection;
+    float4x4 view;
+}
+
+struct Model {
+    float4x4 transform;
+}
+
+ConstantBuffer<Global> global : register(b0);
+ConstantBuffer<Model>  model  : register(b1);
+
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;
-    output.position = float4(input.position, 1.0) ;
+    output.position = mul(global.projection, mul(global.view, mul(model.transform, float4(input.position, 1.0))));
     output.color = input.color;
     return output;
 }

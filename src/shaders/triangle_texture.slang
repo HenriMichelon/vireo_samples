@@ -5,7 +5,7 @@
 * https://opensource.org/licenses/MIT
 */
 struct VertexInput {
-    float4 position : POSITION;
+    float3 position : POSITION;
     float2 uv       : TEXCOORD;
 };
 
@@ -19,7 +19,7 @@ SamplerState samplers[1]    : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;
-    output.position = input.position;
+    output.position = float4(input.position, 1.0);
     output.uv = input.uv;
     return output;
 }

@@ -28,7 +28,7 @@ export namespace samples {
         };
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
-            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, 12}
+            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3)}
         };
         vector<Vertex> triangleVertices{
                 { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },

@@ -30,7 +30,7 @@ export namespace samples {
         };
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
-            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, 12},
+            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, sizeof(vec3)},
         };
 
         vector<Vertex> triangleVertices{

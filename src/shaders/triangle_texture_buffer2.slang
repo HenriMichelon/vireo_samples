@@ -5,7 +5,7 @@
 * https://opensource.org/licenses/MIT
 */
 struct VertexInput {
-    float4 position : POSITION;
+    float3 position : POSITION;
     float2 uv       : TEXCOORD;
     float3 color    : COLOR;
     uint instanceID : SV_InstanceID;
@@ -26,7 +26,7 @@ PushConstants pushConstants : register(b0, space2);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;
-    output.position = input.position;
+    output.position = float4(input.position, 1.0);
     output.position.y -= 0.5;
     output.position.x += input.instanceID == 0 ? -0.5 : 0.5;
     output.uv = input.uv;

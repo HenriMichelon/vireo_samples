@@ -44,8 +44,8 @@ export namespace samples {
 
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
-            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, 12},
-            {"COLOR", vireo::AttributeFormat::R32G32B32_FLOAT, 20}
+            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, sizeof(vec3)},
+            {"COLOR", vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3) + sizeof(vec2)}
         };
 
         float colorIncrement{1.0f};
