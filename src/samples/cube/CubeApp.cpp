@@ -66,6 +66,11 @@ namespace samples {
             framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             framesData[i].descriptorSet->update(BINDING_GLOBAL, globalBuffer);
             framesData[i].descriptorSet->update(BINDING_MODEL, modelBuffer);
+            framesData[i].depthBuffer = vireo->createRenderTarget(
+                vireo::ImageFormat::D32_SFLOAT,
+                swapChain->getExtent().width,
+                swapChain->getExtent().height,
+                vireo::RenderTargetType::DEPTH);
         }
 
         transferQueue->waitIdle();

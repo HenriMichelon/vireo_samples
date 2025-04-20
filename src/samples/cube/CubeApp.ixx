@@ -40,6 +40,7 @@ export namespace samples {
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            shared_ptr<vireo::RenderTarget>     depthBuffer;
         };
 
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
