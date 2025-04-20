@@ -79,9 +79,12 @@ export namespace samples {
         shared_ptr<vireo::SubmitQueue>           graphicSubmitQueue;
         shared_ptr<vireo::SwapChain>             swapChain;
 
-        static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
+        static constexpr auto pipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .colorBlendEnable = true,
+        };
+        vireo::RenderingConfiguration renderingConfig {
+            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
         };
         map<string, shared_ptr<vireo::PipelineResources>> pipelinesResources;
         map<string, shared_ptr<vireo::Pipeline>>          pipelines;

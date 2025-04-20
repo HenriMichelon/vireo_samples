@@ -14,7 +14,8 @@ namespace samples {
 
     void TextureBufferApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
-        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::VSYNC);
+        swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::VSYNC);
+        renderingConfig.swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
@@ -79,7 +80,7 @@ namespace samples {
             defaultVertexInputLayout,
             vireo->createShaderModule("shaders/triangle_texture_buffer1.vert"),
             vireo->createShaderModule("shaders/triangle_texture_buffer1.frag"),
-            defaultPipelineConfig,
+            pipelineConfig,
             L"shader1");
 
         pipelines["shader2"] = vireo->createGraphicPipeline(
@@ -87,7 +88,7 @@ namespace samples {
             defaultVertexInputLayout,
             vireo->createShaderModule("shaders/triangle_texture_buffer2.vert"),
             vireo->createShaderModule("shaders/triangle_texture_buffer2.frag"),
-            defaultPipelineConfig,
+            pipelineConfig,
             L"shader2");
 
         framesData.resize(swapChain->getFramesInFlight());
@@ -137,8 +138,8 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
-        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
-        cmdList->beginRendering(swapChain, clearColor);
+        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+        cmdList->beginRendering(renderingConfig);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
 
@@ -154,7 +155,7 @@ namespace samples {
         cmdList->drawInstanced(triangleVertices.size(), 2);
 
         cmdList->endRendering();
-        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
+        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
         graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});

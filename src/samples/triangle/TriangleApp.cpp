@@ -60,7 +60,7 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
-        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
+        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
@@ -70,7 +70,7 @@ namespace samples {
         cmdList->drawInstanced(triangleVertices.size());
 
         cmdList->endRendering();
-        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
+        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
         graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});

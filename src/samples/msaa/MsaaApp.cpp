@@ -14,16 +14,14 @@ namespace samples {
 
     void MsaaApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
-        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::IMMEDIATE);
+        swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::IMMEDIATE);
+        renderingConfig.swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
         }
 
-        vertexBuffer = vireo->createBuffer(
-            vireo::BufferType::VERTEX,
-            sizeof(Vertex),
-            triangleVertices.size());
+        vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(Vertex), triangleVertices.size());
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
@@ -33,19 +31,19 @@ namespace samples {
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
 
-        defaultPipeline = vireo->createGraphicPipeline(
+        pipeline = vireo->createGraphicPipeline(
             vireo->createPipelineResources({ }, {}),
             vireo->createVertexLayout(sizeof(Vertex), vertexAttributes),
             vireo->createShaderModule("shaders/triangle_color.vert"),
             vireo->createShaderModule("shaders/triangle_color.frag"),
-            defaultPipelineConfig);
+            pipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
         for (uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].inFlightFence =vireo->createFence();
-            framesData[i].msaaRenderTarget = vireo->createRenderTarget(swapChain, defaultPipelineConfig.msaa);
+            framesData[i].msaaRenderTarget = vireo->createRenderTarget(swapChain, pipelineConfig.msaa);
         }
 
         transferQueue->waitIdle();
@@ -60,20 +58,20 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
-        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
-        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
-        cmdList->beginRendering(frame.msaaRenderTarget, swapChain, clearColor);
-        // cmdList->beginRendering(swapChain, clearColor);
+        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+        renderingConfig.multisampledColorRenderTarget = frame.msaaRenderTarget;
+        cmdList->beginRendering(renderingConfig);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
 
-        cmdList->bindPipeline(defaultPipeline);
+        cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->drawInstanced(triangleVertices.size());
 
         cmdList->endRendering();
-        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::UNDEFINED);
-        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
+        cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);
+        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
         graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});

@@ -31,9 +31,9 @@ export namespace samples {
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, 12}
         };
         vector<Vertex> triangleVertices{
-                { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
-                { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-                { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+            { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
+            { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+            { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
         };
 
         shared_ptr<vireo::Buffer> vertexBuffer;
@@ -46,11 +46,15 @@ export namespace samples {
         };
         vector<FrameData> framesData;
 
-        static constexpr auto defaultPipelineConfig = vireo::GraphicPipeline::Configuration {
+        static constexpr auto pipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .msaa = vireo::MSAA::X8
         };
-        shared_ptr<vireo::Pipeline>    defaultPipeline;
+        vireo::RenderingConfiguration renderingConfig {
+            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+        };
+
+        shared_ptr<vireo::Pipeline>    pipeline;
         shared_ptr<vireo::SwapChain>   swapChain;
         shared_ptr<vireo::SubmitQueue> graphicSubmitQueue;
 

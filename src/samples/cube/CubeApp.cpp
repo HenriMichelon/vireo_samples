@@ -26,6 +26,7 @@ namespace samples {
             pipelineConfig.colorRenderFormat,
             graphicSubmitQueue,
             vireo::PresentMode::VSYNC);
+        renderingConfig.swapChain = swapChain;
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
@@ -59,14 +60,14 @@ namespace samples {
             pipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
-        for (uint32_t i = 0; i < framesData.size(); i++) {
-            framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
-            framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
-            framesData[i].inFlightFence =vireo->createFence();
-            framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            framesData[i].descriptorSet->update(BINDING_GLOBAL, globalBuffer);
-            framesData[i].descriptorSet->update(BINDING_MODEL, modelBuffer);
-            framesData[i].depthBuffer = vireo->createRenderTarget(
+        for (auto& frame : framesData) {
+            frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            frame.commandList = frame.commandAllocator->createCommandList();
+            frame.inFlightFence =vireo->createFence();
+            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
+            frame.descriptorSet->update(BINDING_GLOBAL, globalBuffer);
+            frame.descriptorSet->update(BINDING_MODEL, modelBuffer);
+            frame.depthBuffer = vireo->createRenderTarget(
                 vireo::ImageFormat::D32_SFLOAT,
                 swapChain->getExtent().width,
                 swapChain->getExtent().height,
@@ -85,8 +86,10 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
-        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET);
-        cmdList->beginRendering(swapChain, clearColor);
+        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+        cmdList->barrier(frame.depthBuffer, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
+        renderingConfig.depthRenderTarget = frame.depthBuffer;
+        cmdList->beginRendering(renderingConfig);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
 
@@ -96,7 +99,8 @@ namespace samples {
         cmdList->drawInstanced(cubeVertices.size());
 
         cmdList->endRendering();
-        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET, vireo::ResourceState::PRESENT);
+        cmdList->barrier(frame.depthBuffer, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL, vireo::ResourceState::UNDEFINED);
+        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
         graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});
@@ -106,6 +110,13 @@ namespace samples {
 
     void CubeApp::onResize() {
         swapChain->recreate();
+        for (auto& frame : framesData) {
+            frame.depthBuffer = vireo->createRenderTarget(
+                vireo::ImageFormat::D32_SFLOAT,
+                swapChain->getExtent().width,
+                swapChain->getExtent().height,
+                vireo::RenderTargetType::DEPTH);
+        }
     }
 
     void CubeApp::onDestroy() {

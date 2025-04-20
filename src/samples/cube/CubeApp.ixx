@@ -63,6 +63,11 @@ export namespace samples {
         static constexpr auto pipelineConfig = vireo::GraphicPipeline::Configuration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .cullMode = vireo::CullMode::BACK,
+            .depthTestEnable = true,
+            .depthWriteEnable = true,
+        };
+        vireo::RenderingConfiguration renderingConfig {
+            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
         };
 
         Global                              global{};
