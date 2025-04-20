@@ -13,6 +13,13 @@ APP(make_shared<samples::CubeApp>(), L"Hello Cube", 1280, 720);
 
 namespace samples {
 
+    void CubeApp::onUpdate() {
+        const float angle = radians(-1.0);
+        model.transform = glm::rotate(model.transform, angle, AXIS_X);
+        model.transform = glm::rotate(model.transform, angle, AXIS_Y);
+        modelBuffer->write(&model, sizeof(Model));
+    }
+
     void CubeApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(
@@ -39,7 +46,6 @@ namespace samples {
         model.transform= mat4(1.0f);
         modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
         modelBuffer->map();
-        modelBuffer->write(&model, sizeof(Model));
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);

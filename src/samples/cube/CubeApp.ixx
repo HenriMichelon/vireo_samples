@@ -18,6 +18,7 @@ export namespace samples {
         void onRender() override;
         void onResize() override;
         void onDestroy() override;
+        void onUpdate() override;
 
     private:
         struct Vertex {
@@ -50,7 +51,10 @@ export namespace samples {
 
         static constexpr auto cameraPos = vec3(0.0f, 0.0f, 3.0f);
         static constexpr auto cameraTarget = vec3(0.0f, 0.0f, 0.0f);
-        static constexpr auto up = vec3(0.0f, 1.0f, 0.0f);
+        static constexpr auto AXIS_X = vec3(1.0f, 0.0f, 0.0f);
+        static constexpr auto AXIS_Y = vec3(0.0f, 1.0f, 0.0f);
+        static constexpr auto AXIS_Z = vec3(0.0f, 0.0f, 1.0f);
+        static constexpr auto up = AXIS_Y;
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
