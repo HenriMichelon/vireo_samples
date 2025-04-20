@@ -91,7 +91,7 @@ namespace samples {
 
     void ComputeApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
-        vireo->waitIdle();
+        swapChain->waitIdle();
         paramsBuffer->unmap();
     }
 

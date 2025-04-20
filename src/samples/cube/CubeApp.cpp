@@ -9,7 +9,7 @@ module;
 #include "Macros.h"
 module samples.hellocube;
 
-APP(make_shared<samples::CubeApp>(), L"Hello Cube", 1280, 720);
+APP(make_shared<samples::CubeApp>(), L"Hello Cube", 0, 0);
 
 namespace samples {
 
@@ -25,7 +25,7 @@ namespace samples {
         swapChain = vireo->createSwapChain(
             pipelineConfig.colorRenderFormat,
             graphicSubmitQueue,
-            vireo::PresentMode::IMMEDIATE);
+            vireo::PresentMode::VSYNC);
         renderingConfig.swapChain = swapChain;
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
@@ -145,7 +145,7 @@ namespace samples {
 
     void CubeApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
-        vireo->waitIdle();
+        swapChain->waitIdle();
         modelBuffer->unmap();
     }
 

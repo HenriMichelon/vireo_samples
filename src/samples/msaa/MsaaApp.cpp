@@ -88,7 +88,7 @@ namespace samples {
 
     void MsaaApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
-        vireo->waitIdle();
+        swapChain->waitIdle();
     }
 
 }

@@ -50,8 +50,6 @@ export namespace samples {
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3)}
         };
 
-        static constexpr float clearColor[] = {0.0f, 0.2f, 0.4f, 1.0f};
-
         static constexpr auto cameraPos = vec3(0.0f, 0.0f, 3.0f);
         static constexpr auto cameraTarget = vec3(0.0f, 0.0f, 0.0f);
         static constexpr auto AXIS_X = vec3(1.0f, 0.0f, 0.0f);

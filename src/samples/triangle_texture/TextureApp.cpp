@@ -122,7 +122,7 @@ namespace samples {
 
     void TextureApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
-        vireo->waitIdle();
+        swapChain->waitIdle();
     }
 
     // Generate a simple black and white checkerboard texture.

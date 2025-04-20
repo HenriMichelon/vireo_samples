@@ -165,7 +165,7 @@ namespace samples {
 
     void TextureBufferApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
-        vireo->waitIdle();
+        swapChain->waitIdle();
         globalUboBuffer->unmap();
     }
 

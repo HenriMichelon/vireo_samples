@@ -84,7 +84,7 @@ namespace samples {
 
     void TriangleApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
-        vireo->waitIdle();
+        swapChain->waitIdle();
     }
 
 }
