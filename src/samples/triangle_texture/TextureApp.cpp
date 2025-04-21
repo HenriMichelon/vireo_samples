@@ -13,8 +13,8 @@ APP(make_shared<samples::TextureApp>(), L"Hello Triangle Texture", 1280, 720);
 namespace samples {
 
     void TextureApp::onInit() {
-        graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"Graphic");
-        swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::IMMEDIATE);
+        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"Graphic");
+        swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormat, graphicQueue, vireo::PresentMode::IMMEDIATE);
         renderingConfig.swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
@@ -88,8 +88,8 @@ namespace samples {
         framesData[0].commandList->begin();
         framesData[0].commandList->barrier(texture, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
         framesData[0].commandList->end();
-        graphicSubmitQueue->submit({framesData[0].commandList});
-        graphicSubmitQueue->waitIdle();
+        graphicQueue->submit({framesData[0].commandList});
+        graphicQueue->waitIdle();
         uploadCommandList->cleanup();
     }
 
@@ -115,13 +115,13 @@ namespace samples {
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});
+        graphicQueue->submit(frame.inFlightFence, swapChain, {cmdList});
         swapChain->present();
         swapChain->nextSwapChain();
     }
 
     void TextureApp::onDestroy() {
-        graphicSubmitQueue->waitIdle();
+        graphicQueue->waitIdle();
         swapChain->waitIdle();
     }
 

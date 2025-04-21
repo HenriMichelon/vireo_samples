@@ -13,8 +13,8 @@ APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 1280, 720);
 namespace samples {
 
     void TriangleApp::onInit() {
-        graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
-        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::IMMEDIATE);
+        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
+        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, graphicQueue, vireo::PresentMode::IMMEDIATE);
         renderingConfig.swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
@@ -73,7 +73,7 @@ namespace samples {
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});
+        graphicQueue->submit(frame.inFlightFence, swapChain, {cmdList});
         swapChain->present();
         swapChain->nextSwapChain();
     }
@@ -83,7 +83,7 @@ namespace samples {
     }
 
     void TriangleApp::onDestroy() {
-        graphicSubmitQueue->waitIdle();
+        graphicQueue->waitIdle();
         swapChain->waitIdle();
     }
 

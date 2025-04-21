@@ -51,7 +51,7 @@ export namespace samples {
         };
         shared_ptr<vireo::Pipeline>    defaultPipeline;
         shared_ptr<vireo::SwapChain>   swapChain;
-        shared_ptr<vireo::SubmitQueue> graphicSubmitQueue;
+        shared_ptr<vireo::SubmitQueue> graphicQueue;
 
     };
 }
