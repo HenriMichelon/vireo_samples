@@ -67,7 +67,7 @@ namespace samples {
 
         cmdList->bindPipeline(defaultPipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
-        cmdList->drawInstanced(triangleVertices.size());
+        cmdList->draw(triangleVertices.size());
 
         cmdList->endRendering();
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);

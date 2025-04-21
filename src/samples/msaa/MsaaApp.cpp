@@ -66,7 +66,7 @@ namespace samples {
 
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
-        cmdList->drawInstanced(triangleVertices.size());
+        cmdList->draw(triangleVertices.size());
 
         cmdList->endRendering();
         cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);

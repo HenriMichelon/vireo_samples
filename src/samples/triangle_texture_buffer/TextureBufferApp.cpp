@@ -146,13 +146,13 @@ namespace samples {
         cmdList->bindPipeline(pipelines["shader1"]);
         cmdList->bindDescriptors(pipelines["shader1"], {frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);
-        cmdList->drawInstanced(triangleVertices.size());
+        cmdList->draw(triangleVertices.size());
 
         cmdList->bindPipeline(pipelines["shader2"]);
         cmdList->bindDescriptors(pipelines["shader2"], {frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->pushConstants(pipelinesResources["default"], pushConstantsDesc, &pushConstants);
-        cmdList->drawInstanced(triangleVertices.size(), 2);
+        cmdList->draw(triangleVertices.size(), 2);
 
         cmdList->endRendering();
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);

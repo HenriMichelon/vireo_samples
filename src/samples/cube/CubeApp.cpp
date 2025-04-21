@@ -21,18 +21,21 @@ namespace samples {
     }
 
     void CubeApp::onInit() {
-        graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
+        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(
             pipelineConfig.colorRenderFormat,
-            graphicSubmitQueue,
+            graphicQueue,
             vireo::PresentMode::VSYNC);
         renderingConfig.swapChain = swapChain;
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
+        indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX,sizeof(uint32_t),cubeIndices.size());
+
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
+        uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
         uploadCommandList->end();
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
@@ -108,8 +111,9 @@ namespace samples {
 
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
+        cmdList->bindIndexBuffer(indexBuffer);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
-        cmdList->drawInstanced(cubeVertices.size());
+        cmdList->drawIndexed(cubeIndices.size());
 
         cmdList->endRendering();
         cmdList->barrier(frame.msaaBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);
@@ -118,7 +122,7 @@ namespace samples {
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});
+        graphicQueue->submit(frame.inFlightFence, swapChain, {cmdList});
         swapChain->present();
         swapChain->nextSwapChain();
     }
@@ -144,7 +148,7 @@ namespace samples {
     }
 
     void CubeApp::onDestroy() {
-        graphicSubmitQueue->waitIdle();
+        graphicQueue->waitIdle();
         swapChain->waitIdle();
         modelBuffer->unmap();
     }
