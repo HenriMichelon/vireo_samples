@@ -31,11 +31,15 @@ namespace samples {
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
         indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX,sizeof(uint32_t),cubeIndices.size());
 
+        skyboxVertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(float) * 3,skyboxVertices.size() / 3);
+        skyboxCubeMap = vireo->createImage(vireo::ImageFormat::R8G8B8A8_SRGB, 1024, 1024, 6);
+
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
         uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
+        uploadCommandList->upload(skyboxVertexBuffer, &skyboxVertices[0]);
         uploadCommandList->end();
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
@@ -44,8 +48,15 @@ namespace samples {
         global.projection = perspective(radians(75.0f), swapChain->getAspectRatio(), 0.1f, 100.0f);
         globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
         globalBuffer->map();
-        globalBuffer->write(&global, sizeof(Global));
+        globalBuffer->write(&global);
         globalBuffer->unmap();
+
+        skyboxGlobal.view = mat4(mat3(global.view));
+        skyboxGlobal.projection = global.projection;
+        skyboxGlobalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
+        skyboxGlobalBuffer->map();
+        skyboxGlobalBuffer->write(&skyboxGlobal);
+        skyboxGlobalBuffer->unmap();
 
         modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
         modelBuffer->map();
@@ -55,12 +66,23 @@ namespace samples {
         descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
         descriptorLayout->build();
 
+        skyboxDescriptorLayout = vireo->createDescriptorLayout();
+        skyboxDescriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
+        skyboxDescriptorLayout->build();
+
         pipeline = vireo->createGraphicPipeline(
             vireo->createPipelineResources({ descriptorLayout }),
             vireo->createVertexLayout(sizeof(Vertex), vertexAttributes),
             vireo->createShaderModule("shaders/cube_color_mvp.vert"),
             vireo->createShaderModule("shaders/cube_color_mvp.frag"),
             pipelineConfig);
+
+        skyboxPipeline = vireo->createGraphicPipeline(
+            vireo->createPipelineResources({ skyboxDescriptorLayout }),
+            vireo->createVertexLayout(sizeof(float) * 3, skyboxVertexAttributes),
+            vireo->createShaderModule("shaders/skybox.vert"),
+            vireo->createShaderModule("shaders/skybox.frag"),
+            skyboxPipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
@@ -85,6 +107,9 @@ namespace samples {
                 renderingConfig.depthClearValue,
                 pipelineConfig.msaa);
         }
+
+        skyboxDescriptorSet = vireo->createDescriptorSet(skyboxDescriptorLayout);
+        skyboxDescriptorSet->update(BINDING_GLOBAL, skyboxGlobalBuffer);
 
         transferQueue->waitIdle();
         uploadCommandList->cleanup();
@@ -114,6 +139,11 @@ namespace samples {
         cmdList->bindIndexBuffer(indexBuffer);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
         cmdList->drawIndexed(cubeIndices.size());
+
+        cmdList->bindPipeline(skyboxPipeline);
+        cmdList->bindVertexBuffer(skyboxVertexBuffer);
+        cmdList->bindDescriptors(skyboxPipeline, {skyboxDescriptorSet});
+        cmdList->draw(skyboxVertices.size() / 3);
 
         cmdList->endRendering();
         cmdList->barrier(frame.msaaBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);

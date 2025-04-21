@@ -74,6 +74,7 @@ export namespace samples {
         Global                              global{};
         Model                               model{};
         vector<FrameData>                   framesData;
+
         shared_ptr<vireo::Buffer>           vertexBuffer;
         shared_ptr<vireo::Buffer>           indexBuffer;
         shared_ptr<vireo::Buffer>           globalBuffer;
@@ -82,6 +83,24 @@ export namespace samples {
         shared_ptr<vireo::SwapChain>        swapChain;
         shared_ptr<vireo::SubmitQueue>      graphicQueue;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+
+        static constexpr auto skyboxPipelineConfig = vireo::GraphicPipelineConfiguration {
+            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
+            .msaa = vireo::MSAA::X8,
+            .cullMode = vireo::CullMode::BACK,
+            .depthTestEnable = true,
+            .depthWriteEnable = false,
+        };
+        const vector<vireo::VertexAttributeDesc> skyboxVertexAttributes{
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
+        };
+        Global                              skyboxGlobal{};
+        shared_ptr<vireo::Buffer>           skyboxGlobalBuffer;
+        shared_ptr<vireo::Buffer>           skyboxVertexBuffer;
+        shared_ptr<vireo::Image>            skyboxCubeMap;
+        shared_ptr<vireo::Pipeline>         skyboxPipeline;
+        shared_ptr<vireo::DescriptorLayout> skyboxDescriptorLayout;
+        shared_ptr<vireo::DescriptorSet>    skyboxDescriptorSet;
 
         vector<Vertex> cubeVertices = {
             { { -0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f } },
@@ -108,6 +127,50 @@ export namespace samples {
             3, 2, 6,  6, 7, 3,
             // bottom
             4, 5, 1,  1, 0, 4
+        };
+
+        vector<float> skyboxVertices {
+            -1.0f, 1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, 1.0f, -1.0f,
+            -1.0f, 1.0f, -1.0f,
+
+            -1.0f, -1.0f, 1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, 1.0f, -1.0f,
+            -1.0f, 1.0f, -1.0f,
+            -1.0f, 1.0f, 1.0f,
+            -1.0f, -1.0f, 1.0f,
+
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+
+            -1.0f, -1.0f, 1.0f,
+            -1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, -1.0f, 1.0f,
+            -1.0f, -1.0f, 1.0f,
+
+            -1.0f, 1.0f, -1.0f,
+            1.0f, 1.0f, -1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            -1.0f, 1.0f, 1.0f,
+            -1.0f, 1.0f, -1.0f,
+
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f, 1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f, 1.0f,
+            1.0f, -1.0f, 1.0f
         };
 
     };

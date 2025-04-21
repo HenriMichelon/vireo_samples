@@ -123,8 +123,3 @@ build_target(msaa ${MSAA_SRC} ${MSAA_MODULES})
 set(CUBE_SRC ${SRC_DIR}/samples/cube/CubeApp.cpp)
 set(CUBE_MODULES ${SRC_DIR}/samples/cube/CubeApp.ixx)
 build_target(cube ${CUBE_SRC} ${CUBE_MODULES})
-
-#######################################################
-set(SKYBOX_SRC ${SRC_DIR}/samples/skybox/SkyboxApp.cpp)
-set(SKYBOX_MODULES ${SRC_DIR}/samples/skybox/SkyboxApp.ixx)
-build_target(skybox ${SKYBOX_SRC} ${SKYBOX_MODULES})
