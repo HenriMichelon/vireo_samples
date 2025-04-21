@@ -102,9 +102,9 @@ namespace samples {
         GetWindowRect(hwnd, &rect);
 
         Win32Application::app = app;
-        const auto backend = backendSelectorDialog(hInstance, title);
-            // const auto backend = vireo::Backends::VULKAN,
-            // const auto backend = vireo::Backends::DIRECTX,
+        // const auto backend = backendSelectorDialog(hInstance, title);
+        const auto backend = vireo::Backend::VULKAN;
+        // const auto backend = vireo::Backend::DIRECTX;
         if (backend == vireo::Backend::UNDEFINED) {
             return 0;
         }

@@ -1,5 +1,5 @@
-# Vireo RAL Samples
+# Vireo RHI Samples
 
-Samples for the Vireo Rendering Abstraction Layer.
+Samples for the Vireo Rendering Hardware Interface.
 
-https://github.com/HenriMichelon/vireo_ral
+https://github.com/HenriMichelon/vireo_rhi

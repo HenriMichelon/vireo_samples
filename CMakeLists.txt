@@ -39,7 +39,7 @@ include(cmake/libraries.cmake)
 #######################################################
 add_subdirectory(${VIREO_PROJECT_DIR} external_lib_build)
 set(VIREO_INCLUDE_DIR ${VIREO_PROJECT_DIR}/include)
-set(VIREO_TARGET "vireo_ral")
+set(VIREO_TARGET "vireo_rhi")
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -123,3 +123,8 @@ build_target(msaa ${MSAA_SRC} ${MSAA_MODULES})
 set(CUBE_SRC ${SRC_DIR}/samples/cube/CubeApp.cpp)
 set(CUBE_MODULES ${SRC_DIR}/samples/cube/CubeApp.ixx)
 build_target(cube ${CUBE_SRC} ${CUBE_MODULES})
+
+#######################################################
+set(SKYBOX_SRC ${SRC_DIR}/samples/skybox/SkyboxApp.cpp)
+set(SKYBOX_MODULES ${SRC_DIR}/samples/skybox/SkyboxApp.ixx)
+build_target(skybox ${SKYBOX_SRC} ${SKYBOX_MODULES})
