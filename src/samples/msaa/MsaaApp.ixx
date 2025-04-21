@@ -44,7 +44,7 @@ export namespace samples {
         };
         vector<FrameData> framesData;
 
-        static constexpr auto pipelineConfig = vireo::GraphicPipeline::Configuration {
+        static constexpr auto pipelineConfig = vireo::GraphicPipelineConfiguration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .msaa = vireo::MSAA::X8
         };

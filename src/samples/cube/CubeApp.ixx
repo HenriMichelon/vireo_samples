@@ -60,7 +60,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
 
-        static constexpr auto pipelineConfig = vireo::GraphicPipeline::Configuration {
+        static constexpr auto pipelineConfig = vireo::GraphicPipelineConfiguration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .msaa = vireo::MSAA::X8,
             .cullMode = vireo::CullMode::BACK,
