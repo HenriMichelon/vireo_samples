@@ -45,19 +45,23 @@ export namespace samples {
             mat4 transform{1.0f};
         };
 
+        struct PostProcessingParams {
+            ivec2 imageSize{};
+            float time;
+        };
+
         struct FrameData {
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
-            shared_ptr<vireo::RenderTarget>     msaaBuffer;
+            shared_ptr<vireo::RenderTarget>     colorBuffer;
+            shared_ptr<vireo::RenderTarget>     msaaColorBuffer;
             shared_ptr<vireo::RenderTarget>     depthBuffer;
             shared_ptr<vireo::RenderTarget>     msaaDepthBuffer;
-        };
 
-        const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
-            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3)}
+            shared_ptr<vireo::Image>            postProcessingImage;
+            shared_ptr<vireo::DescriptorSet>    postProcessingDescriptorSet;
         };
 
         static constexpr auto AXIS_X = vec3(1.0f, 0.0f, 0.0f);
@@ -65,9 +69,24 @@ export namespace samples {
         static constexpr auto AXIS_Z = vec3(0.0f, 0.0f, 1.0f);
         static constexpr auto up = AXIS_Y;
 
+        // Global data
+        vireo::RenderingConfiguration renderingConfig {
+            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+        };
+        vector<FrameData>              framesData;
+        float                          cameraYRotationAngle{0.0f};
+        vec3                           cameraPos{0.0f, 0.0f, 2.0f};
+        vec3                           cameraTarget{0.0f, 0.0f, 0.0f};
+        shared_ptr<vireo::SwapChain>   swapChain;
+        shared_ptr<vireo::SubmitQueue> graphicQueue;
+
+        // Cube rendering data
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
-
+        const vector<vireo::VertexAttributeDesc> vertexAttributes{
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
+            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3)}
+        };
         static constexpr auto pipelineConfig = vireo::GraphicPipelineConfiguration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .msaa = vireo::MSAA::X8,
@@ -75,26 +94,16 @@ export namespace samples {
             .depthTestEnable = true,
             .depthWriteEnable = true,
         };
-        vireo::RenderingConfiguration renderingConfig {
-            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
-        };
-
-        Global            global{};
-        Model             model{};
-        vector<FrameData> framesData;
-        float             cameraYRotationAngle{0.0f};
-        vec3              cameraPos{0.0f, 0.0f, 2.0f};
-        vec3              cameraTarget{0.0f, 0.0f, 0.0f};
-
+        Global                              global{};
+        Model                               model{};
         shared_ptr<vireo::Buffer>           vertexBuffer;
         shared_ptr<vireo::Buffer>           indexBuffer;
         shared_ptr<vireo::Buffer>           globalBuffer;
         shared_ptr<vireo::Buffer>           modelBuffer;
         shared_ptr<vireo::Pipeline>         pipeline;
-        shared_ptr<vireo::SwapChain>        swapChain;
-        shared_ptr<vireo::SubmitQueue>      graphicQueue;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
 
+        // Skybox rendering data
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_SAMPLER{0};
@@ -119,6 +128,17 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout> skyboxSamplerDescriptorLayout;
         shared_ptr<vireo::DescriptorSet>    skyboxSamplerDescriptorSet;
 
+        // Post-processing data
+        static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_PARAMS{0};
+        static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_INPUT{1};
+        static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_OUTPUT{2};
+        PostProcessingParams                postprocessingParams{};
+        shared_ptr<vireo::Buffer>           postprocessingParamsBuffer;
+        shared_ptr<vireo::Pipeline>         postprocessingPipeline;
+        shared_ptr<vireo::DescriptorLayout> postprocessingDescriptorLayout;
+        shared_ptr<vireo::DescriptorSet>    postprocessingDescriptorSet;
+
+        // Models data
         vector<Vertex> cubeVertices = {
             { { -0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f } },
             { {  0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f } },
@@ -165,13 +185,21 @@ export namespace samples {
              -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f,
              1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
 
-        shared_ptr<vireo::Image> CubeApp::loadCubemap(const string &filepath, vireo::ImageFormat imageFormat) const;
+        shared_ptr<vireo::Image> CubeApp::loadCubemap(
+            const shared_ptr<vireo::CommandList>& cmdList,
+            const string &filepath,
+            vireo::ImageFormat imageFormat) const;
+
         static byte* CubeApp::loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size);
-        static byte *CubeApp::extractImage(const byte *source,
-                                int   x, int y,
-                                int   srcWidth,
-                                int   w,  int h,
-                                int   channels);
+
+        static byte *CubeApp::extractImage(
+            const byte *source,
+            int   x, int y,
+            int   srcWidth,
+            int   w,  int h,
+            int   channels);
+
+        static float CubeApp::getCurrentTimeMilliseconds();
 
     };
 }

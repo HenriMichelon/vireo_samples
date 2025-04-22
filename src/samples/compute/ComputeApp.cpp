@@ -79,7 +79,7 @@ namespace samples {
             frame.image = vireo->createReadWriteImage(
                 vireo::ImageFormat::R8G8B8A8_UNORM,
                 params.imageSize.x, params.imageSize.y);
-            frame.descriptorSet->update(BINDING_IMAGE, frame.image, true);
+            frame.descriptorSet->update(BINDING_IMAGE, frame.image);
             frame.commandList->begin();
             frame.commandList->barrier(frame.image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_SRC);
             frame.commandList->end();
