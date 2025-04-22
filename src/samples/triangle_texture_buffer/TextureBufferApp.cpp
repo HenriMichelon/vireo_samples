@@ -25,7 +25,6 @@ namespace samples {
             vireo::BufferType::VERTEX,
             sizeof(Vertex),
             triangleVertices.size(),
-            1,
             L"TriangleVertexBuffer");
         textures.push_back(vireo->createImage(
             vireo::ImageFormat::R8G8B8A8_SRGB,
@@ -43,7 +42,7 @@ namespace samples {
         globalUboBuffer = vireo->createBuffer(
             vireo::BufferType::UNIFORM,
             sizeof(GlobalUBO),
-            1, 256,
+            1,
             L"UBO1");
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);

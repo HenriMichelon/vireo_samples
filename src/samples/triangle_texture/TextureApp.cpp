@@ -25,7 +25,6 @@ namespace samples {
             vireo::BufferType::VERTEX,
             sizeof(Vertex),
             triangleVertices.size(),
-            1,
             L"TriangleVertexBuffer");
         texture = vireo->createImage(
             vireo::ImageFormat::R8G8B8A8_SRGB,

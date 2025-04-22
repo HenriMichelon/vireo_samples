@@ -5,11 +5,13 @@
 * https://opensource.org/licenses/MIT
 */
 module;
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Macros.h"
 module samples.hellocube;
 
-APP(make_shared<samples::CubeApp>(), L"Hello Cube", 0, 0);
+APP(make_shared<samples::CubeApp>(), L"Hello Cube", 1280, 720);
 
 namespace samples {
 
@@ -32,7 +34,6 @@ namespace samples {
         indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX,sizeof(uint32_t),cubeIndices.size());
 
         skyboxVertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(float) * 3,skyboxVertices.size() / 3);
-        skyboxCubeMap = vireo->createImage(vireo::ImageFormat::R8G8B8A8_SRGB, 1024, 1024, 6);
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
@@ -40,6 +41,7 @@ namespace samples {
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
         uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
         uploadCommandList->upload(skyboxVertexBuffer, &skyboxVertices[0]);
+        skyboxCubeMap = loadCubemap("res/StandardCubeMap.jpg", vireo::ImageFormat::R8G8B8A8_SRGB, uploadCommandList);
         uploadCommandList->end();
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
@@ -183,4 +185,108 @@ namespace samples {
         modelBuffer->unmap();
     }
 
+    shared_ptr<vireo::Image> CubeApp::loadCubemap(
+        const string &filepath,
+        const vireo::ImageFormat imageFormat,
+        const shared_ptr<vireo::CommandList>&cmdTransfer) {
+        uint32_t texWidth, texHeight;
+        uint64_t imageSize;
+        auto *pixels = loadRGBAImage(filepath, texWidth, texHeight, imageSize);
+        if (!pixels) { throw runtime_error("failed to load texture image" + filepath); }
+
+        vector<byte*> data;
+        const auto imgWidth  = texWidth / 4;
+        const auto imgHeight = texHeight / 3;
+        // right
+        data.push_back(extractImage(pixels,
+                                    2 * imgWidth,
+                                    1 * imgHeight,
+                                    texWidth,
+                                    imgWidth,
+                                    imgHeight,
+                                    4));
+        // left
+        data.push_back(extractImage(pixels,
+                                    0 * imgWidth,
+                                    1 * imgHeight,
+                                    texWidth,
+                                    imgWidth,
+                                    imgHeight,
+                                    4));
+        // top
+        data.push_back(extractImage(pixels,
+                                    1 * imgWidth,
+                                    0 * imgHeight,
+                                    texWidth,
+                                    imgWidth,
+                                    imgHeight,
+                                    4));
+        // bottom
+        data.push_back(extractImage(pixels,
+                                    1 * imgWidth,
+                                    2 * imgHeight,
+                                    texWidth,
+                                    imgWidth,
+                                    imgHeight,
+                                    4));
+        // front
+        data.push_back(extractImage(pixels,
+                                    1 * imgWidth,
+                                    1 * imgHeight,
+                                    texWidth,
+                                    imgWidth,
+                                    imgHeight,
+                                    4));
+        // back
+        data.push_back(extractImage(pixels,
+                                    3 * imgWidth,
+                                    1 * imgHeight,
+                                    texWidth,
+                                    imgWidth,
+                                    imgHeight,
+                                    4));
+        const auto image = vireo->createImage(
+                                     imageFormat,
+                                     imgWidth, imgHeight,
+                                     6);
+        cmdTransfer->upload(image, data.data());
+        for (int i = 0; i < 6; i++) {
+            delete[] data[i];
+        }
+        stbi_image_free(pixels);
+        return image;
+    }
+
+    byte* CubeApp::loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size) {
+        FILE* fp = fopen(filepath.c_str(), "rb");
+        if (fp == nullptr) throw runtime_error("Error: Could not open file " + filepath);
+
+        int texWidth, texHeight, texChannels;
+        unsigned char* imageData = stbi_load_from_file  (
+            fp,
+            &texWidth, &texHeight,
+            &texChannels, STBI_rgb_alpha);
+        if (!imageData) throw runtime_error("Error loading image : " + string{stbi_failure_reason()});
+        width = static_cast<uint32_t>(texWidth);
+        height = static_cast<uint32_t>(texHeight);
+        size = width * height * STBI_rgb_alpha;
+        return reinterpret_cast<byte*>(imageData);
+    }
+
+    byte *CubeApp::extractImage(const byte *source,
+                                const int   x, const int y,
+                                const int   srcWidth,
+                                const int   w, const int h,
+                                const int   channels) {
+        const auto extractedImage = new byte[w * h * channels];
+        for (uint32_t row = 0; row < h; ++row) {
+            for (uint32_t col = 0; col < w; ++col) {
+                for (uint32_t c = 0; c < channels; ++c) {
+                    extractedImage[(row * w + col) * channels + c] = source[((y + row) * srcWidth + (x + col)) *
+                        channels + c];
+                }
+            }
+        }
+        return extractedImage;
+    }
 }
