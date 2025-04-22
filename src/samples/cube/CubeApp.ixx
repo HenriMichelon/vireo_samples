@@ -84,6 +84,9 @@ export namespace samples {
         shared_ptr<vireo::SubmitQueue>      graphicQueue;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
 
+        static constexpr vireo::DescriptorIndex SKYBOX_BINDING_GLOBAL{0};
+        static constexpr vireo::DescriptorIndex SKYBOX_BINDING_CUBEMAP{1};
+        static constexpr vireo::DescriptorIndex SKYBOX_BINDING_SAMPLER{0};
         static constexpr auto skyboxPipelineConfig = vireo::GraphicPipelineConfiguration {
             .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .msaa = vireo::MSAA::X8,
@@ -95,12 +98,15 @@ export namespace samples {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
         };
         Global                              skyboxGlobal{};
+        shared_ptr<vireo::Sampler>          skyboxSampler;
         shared_ptr<vireo::Buffer>           skyboxGlobalBuffer;
         shared_ptr<vireo::Buffer>           skyboxVertexBuffer;
         shared_ptr<vireo::Image>            skyboxCubeMap;
         shared_ptr<vireo::Pipeline>         skyboxPipeline;
         shared_ptr<vireo::DescriptorLayout> skyboxDescriptorLayout;
         shared_ptr<vireo::DescriptorSet>    skyboxDescriptorSet;
+        shared_ptr<vireo::DescriptorLayout> skyboxSamplerDescriptorLayout;
+        shared_ptr<vireo::DescriptorSet>    skyboxSamplerDescriptorSet;
 
         vector<Vertex> cubeVertices = {
             { { -0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f } },
@@ -148,10 +154,7 @@ export namespace samples {
              -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f,
              1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
 
-        shared_ptr<vireo::Image> CubeApp::loadCubemap(
-            const string &filepath,
-            vireo::ImageFormat imageFormat,
-            const shared_ptr<vireo::CommandList>& cmdTransfer) const;
+        shared_ptr<vireo::Image> CubeApp::loadCubemap(const string &filepath, vireo::ImageFormat imageFormat) const;
         static byte* CubeApp::loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size);
         static byte *CubeApp::extractImage(const byte *source,
                                 int   x, int y,

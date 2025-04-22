@@ -19,6 +19,9 @@ struct Global {
 }
 
 ConstantBuffer<Global> global : register(b0);
+TextureCube<float4> cubemap   : register(t1);
+SamplerState sampler          : register(s0, space1);
+
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;
@@ -29,5 +32,6 @@ VertexOutput vertexMain(VertexInput input) {
 }
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
-    return float4(input.uv.x, input.uv.y, input.uv.z, 1.0);
+//     return float4(input.uv.x, input.uv.y, input.uv.z, 1.0);
+    return cubemap.Sample(sampler, input.uv);
 }

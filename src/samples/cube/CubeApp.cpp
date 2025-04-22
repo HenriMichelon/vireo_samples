@@ -34,6 +34,13 @@ namespace samples {
         indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX,sizeof(uint32_t),cubeIndices.size());
 
         skyboxVertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(float) * 3,skyboxVertices.size() / 3);
+        skyboxCubeMap = loadCubemap("res/StandardCubeMap.jpg", vireo::ImageFormat::R8G8B8A8_SRGB);
+        skyboxSampler = vireo->createSampler(
+            vireo::Filter::LINEAR,
+            vireo::Filter::LINEAR,
+            vireo::AddressMode::CLAMP_TO_BORDER,
+            vireo::AddressMode::CLAMP_TO_BORDER,
+            vireo::AddressMode::CLAMP_TO_BORDER);
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
@@ -41,7 +48,6 @@ namespace samples {
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
         uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
         uploadCommandList->upload(skyboxVertexBuffer, &skyboxVertices[0]);
-        skyboxCubeMap = loadCubemap("res/StandardCubeMap.jpg", vireo::ImageFormat::R8G8B8A8_SRGB, uploadCommandList);
         uploadCommandList->end();
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
@@ -53,7 +59,7 @@ namespace samples {
         globalBuffer->write(&global);
         globalBuffer->unmap();
 
-        skyboxGlobal.view = mat4(mat3(global.view));
+        skyboxGlobal.view = mat4(mat3(global.view)); // only keep the rotation
         skyboxGlobal.projection = global.projection;
         skyboxGlobalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
         skyboxGlobalBuffer->map();
@@ -69,8 +75,12 @@ namespace samples {
         descriptorLayout->build();
 
         skyboxDescriptorLayout = vireo->createDescriptorLayout();
-        skyboxDescriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
+        skyboxDescriptorLayout->add(SKYBOX_BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
+        skyboxDescriptorLayout->add(SKYBOX_BINDING_CUBEMAP, vireo::DescriptorType::SAMPLED_IMAGE);
         skyboxDescriptorLayout->build();
+        skyboxSamplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
+        skyboxSamplerDescriptorLayout->add(SKYBOX_BINDING_SAMPLER, vireo::DescriptorType::SAMPLER);
+        skyboxSamplerDescriptorLayout->build();
 
         pipeline = vireo->createGraphicPipeline(
             vireo->createPipelineResources({ descriptorLayout }),
@@ -80,7 +90,7 @@ namespace samples {
             pipelineConfig);
 
         skyboxPipeline = vireo->createGraphicPipeline(
-            vireo->createPipelineResources({ skyboxDescriptorLayout }),
+            vireo->createPipelineResources({ skyboxDescriptorLayout, skyboxSamplerDescriptorLayout }),
             vireo->createVertexLayout(sizeof(float) * 3, skyboxVertexAttributes),
             vireo->createShaderModule("shaders/skybox.vert"),
             vireo->createShaderModule("shaders/skybox.frag"),
@@ -111,7 +121,10 @@ namespace samples {
         }
 
         skyboxDescriptorSet = vireo->createDescriptorSet(skyboxDescriptorLayout);
-        skyboxDescriptorSet->update(BINDING_GLOBAL, skyboxGlobalBuffer);
+        skyboxDescriptorSet->update(SKYBOX_BINDING_GLOBAL, skyboxGlobalBuffer);
+        skyboxDescriptorSet->update(SKYBOX_BINDING_CUBEMAP, skyboxCubeMap);
+        skyboxSamplerDescriptorSet = vireo->createDescriptorSet(skyboxSamplerDescriptorLayout);
+        skyboxSamplerDescriptorSet->update(SKYBOX_BINDING_SAMPLER, skyboxSampler);
 
         transferQueue->waitIdle();
         uploadCommandList->cleanup();
@@ -144,7 +157,7 @@ namespace samples {
 
         cmdList->bindPipeline(skyboxPipeline);
         cmdList->bindVertexBuffer(skyboxVertexBuffer);
-        cmdList->bindDescriptors(skyboxPipeline, {skyboxDescriptorSet});
+        cmdList->bindDescriptors(skyboxPipeline, {skyboxDescriptorSet, skyboxSamplerDescriptorSet});
         cmdList->draw(skyboxVertices.size() / 3);
 
         cmdList->endRendering();
@@ -187,8 +200,7 @@ namespace samples {
 
     shared_ptr<vireo::Image> CubeApp::loadCubemap(
         const string &filepath,
-        const vireo::ImageFormat imageFormat,
-        const shared_ptr<vireo::CommandList>&cmdTransfer) const {
+        const vireo::ImageFormat imageFormat) const {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         auto *pixels = loadRGBAImage(filepath, texWidth, texHeight, imageSize);
@@ -248,8 +260,18 @@ namespace samples {
         const auto image = vireo->createImage(
                                      imageFormat,
                                      imgWidth, imgHeight,
-                                     6);
-        cmdTransfer->upload(image, data);
+                                     6,
+                                     L"Cubemap");
+        const auto cmdAlloc = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
+        auto cmdList = cmdAlloc->createCommandList();
+        cmdList->begin();
+        cmdList->barrier(image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
+        cmdList->upload(image, data);
+        cmdList->barrier(image, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
+        cmdList->end();
+        graphicQueue->submit({cmdList});
+        graphicQueue->waitIdle();
+        cmdList->cleanup();
         for (int i = 0; i < 6; i++) {
             delete[] static_cast<byte*>(data[i]);
         }
@@ -273,7 +295,7 @@ namespace samples {
         return reinterpret_cast<byte*>(imageData);
     }
 
-    byte *CubeApp::extractImage(const byte *source,
+    byte *CubeApp::extractImage(const byte* source,
                                 const int   x, const int y,
                                 const int   srcWidth,
                                 const int   w, const int h,
