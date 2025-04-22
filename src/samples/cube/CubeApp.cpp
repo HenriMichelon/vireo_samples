@@ -22,6 +22,43 @@ namespace samples {
         modelBuffer->write(&model, sizeof(Model));
     }
 
+    void CubeApp::onKeyDown(const uint32_t key) {
+        vec3 axis;
+        auto angle = radians(2.0f);
+        switch (static_cast<KeyCodes>(key)) {
+        case KeyCodes::LEFT:
+            axis = AXIS_Y;
+            break;
+        case KeyCodes::RIGHT:
+            axis = AXIS_Y;
+            angle *= -1.0f;
+            break;
+        case KeyCodes::UP:
+            if (cameraYRotationAngle <= radians(-60.f)) { return; }
+            axis = AXIS_X;
+            angle *= -1.0f;
+            cameraYRotationAngle += angle;
+            break;
+        case KeyCodes::DOWN:
+            if (cameraYRotationAngle >= radians(60.0f)) { return; }
+            axis = AXIS_X;
+            cameraYRotationAngle += angle;
+            break;
+        default:
+            return;
+        }
+        const auto viewDir = cameraTarget - cameraPos;
+        const vec3 rotatedDir = rotate(mat4{1.0f}, angle, axis) * vec4(viewDir, 0.0f);
+        cameraTarget = cameraPos + rotatedDir;
+
+        global.view = lookAt(cameraPos, cameraTarget, AXIS_Y);
+        skyboxGlobal.view = mat4(mat3(global.view));
+
+        graphicQueue->waitIdle();
+        globalBuffer->write(&global);
+        skyboxGlobalBuffer->write(&skyboxGlobal);
+    }
+
     void CubeApp::onInit() {
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(
@@ -57,14 +94,12 @@ namespace samples {
         globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
         globalBuffer->map();
         globalBuffer->write(&global);
-        globalBuffer->unmap();
 
         skyboxGlobal.view = mat4(mat3(global.view)); // only keep the rotation
         skyboxGlobal.projection = global.projection;
         skyboxGlobalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
         skyboxGlobalBuffer->map();
         skyboxGlobalBuffer->write(&skyboxGlobal);
-        skyboxGlobalBuffer->unmap();
 
         modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
         modelBuffer->map();
@@ -196,6 +231,8 @@ namespace samples {
         graphicQueue->waitIdle();
         swapChain->waitIdle();
         modelBuffer->unmap();
+        globalBuffer->unmap();
+        skyboxGlobalBuffer->unmap();
     }
 
     shared_ptr<vireo::Image> CubeApp::loadCubemap(

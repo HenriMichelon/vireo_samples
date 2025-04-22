@@ -19,8 +19,18 @@ export namespace samples {
         void onResize() override;
         void onDestroy() override;
         void onUpdate() override;
+        void onKeyDown(uint32_t key) override;
 
     private:
+#ifdef _WIN32
+        enum class KeyCodes : uint32_t {
+           LEFT     = 37,
+           UP       = 38,
+           RIGHT    = 39,
+           DOWN     = 40,
+        };
+#endif
+
         struct Vertex {
             vec3 pos;
             vec3 color;
@@ -50,8 +60,6 @@ export namespace samples {
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3)}
         };
 
-        static constexpr auto cameraPos = vec3(0.0f, 0.0f, 2.0f);
-        static constexpr auto cameraTarget = vec3(0.0f, 0.0f, 0.0f);
         static constexpr auto AXIS_X = vec3(1.0f, 0.0f, 0.0f);
         static constexpr auto AXIS_Y = vec3(0.0f, 1.0f, 0.0f);
         static constexpr auto AXIS_Z = vec3(0.0f, 0.0f, 1.0f);
@@ -71,9 +79,12 @@ export namespace samples {
             .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
         };
 
-        Global                              global{};
-        Model                               model{};
-        vector<FrameData>                   framesData;
+        Global            global{};
+        Model             model{};
+        vector<FrameData> framesData;
+        float             cameraYRotationAngle{0.0f};
+        vec3              cameraPos{0.0f, 0.0f, 2.0f};
+        vec3              cameraTarget{0.0f, 0.0f, 0.0f};
 
         shared_ptr<vireo::Buffer>           vertexBuffer;
         shared_ptr<vireo::Buffer>           indexBuffer;
