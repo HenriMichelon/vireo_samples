@@ -188,13 +188,13 @@ namespace samples {
     shared_ptr<vireo::Image> CubeApp::loadCubemap(
         const string &filepath,
         const vireo::ImageFormat imageFormat,
-        const shared_ptr<vireo::CommandList>&cmdTransfer) {
+        const shared_ptr<vireo::CommandList>&cmdTransfer) const {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         auto *pixels = loadRGBAImage(filepath, texWidth, texHeight, imageSize);
         if (!pixels) { throw runtime_error("failed to load texture image" + filepath); }
 
-        vector<byte*> data;
+        vector<void*> data;
         const auto imgWidth  = texWidth / 4;
         const auto imgHeight = texHeight / 3;
         // right
@@ -249,9 +249,9 @@ namespace samples {
                                      imageFormat,
                                      imgWidth, imgHeight,
                                      6);
-        cmdTransfer->upload(image, data.data());
+        cmdTransfer->upload(image, data);
         for (int i = 0; i < 6; i++) {
-            delete[] data[i];
+            delete[] static_cast<byte*>(data[i]);
         }
         stbi_image_free(pixels);
         return image;

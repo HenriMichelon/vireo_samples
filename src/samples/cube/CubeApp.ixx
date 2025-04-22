@@ -151,7 +151,7 @@ export namespace samples {
         shared_ptr<vireo::Image> CubeApp::loadCubemap(
             const string &filepath,
             vireo::ImageFormat imageFormat,
-            const shared_ptr<vireo::CommandList>& cmdTransfer);
+            const shared_ptr<vireo::CommandList>& cmdTransfer) const;
         static byte* CubeApp::loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size);
         static byte *CubeApp::extractImage(const byte *source,
                                 int   x, int y,
