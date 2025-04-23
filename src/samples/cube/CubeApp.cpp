@@ -211,12 +211,15 @@ namespace samples {
         cmdList->barrier(frame.msaaDepthBuffer, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL, vireo::ResourceState::UNDEFINED);
         cmdList->barrier(frame.depthBuffer, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL, vireo::ResourceState::UNDEFINED);
         cmdList->barrier(frame.msaaColorBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);
-        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::COPY_SRC);
+        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::COMPUTE_READ);
 
-        // cmdList->bindPipeline(postprocessingPipeline);
-        // cmdList->bindDescriptors(postprocessingPipeline, {frame.postProcessingDescriptorSet, skyboxSamplerDescriptorSet});
-        // cmdList->barrier(frame.postProcessingImage, vireo::ResourceState::UNDEFINED, vireo::ResourceState::DISPATCH_TARGET);
-        // cmdList->dispatch((frame.postProcessingImage->getWidth() + 7)/8, (frame.postProcessingImage->getHeight() + 7)/8, 1);
+        cmdList->bindPipeline(postprocessingPipeline);
+        cmdList->bindDescriptors(postprocessingPipeline, {frame.postProcessingDescriptorSet, skyboxSamplerDescriptorSet});
+        cmdList->barrier(frame.postProcessingImage, vireo::ResourceState::UNDEFINED, vireo::ResourceState::DISPATCH_TARGET);
+        cmdList->dispatch((frame.postProcessingImage->getWidth() + 7)/8, (frame.postProcessingImage->getHeight() + 7)/8, 1);
+        cmdList->barrier(frame.postProcessingImage, vireo::ResourceState::DISPATCH_TARGET, vireo::ResourceState::UNDEFINED);
+        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::COMPUTE_READ, vireo::ResourceState::COPY_SRC);
+
         // cmdList->barrier(frame.colorBuffer, vireo::ResourceState::COMPUTE_READ, vireo::ResourceState::UNDEFINED);
         // cmdList->barrier(frame.postProcessingImage, vireo::ResourceState::DISPATCH_TARGET, vireo::ResourceState::COPY_SRC);
         // cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
