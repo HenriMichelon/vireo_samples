@@ -28,6 +28,7 @@ export namespace samples {
            UP       = 38,
            RIGHT    = 39,
            DOWN     = 40,
+           P        = 80,
         };
 #endif
 
@@ -60,7 +61,7 @@ export namespace samples {
             shared_ptr<vireo::RenderTarget>     depthBuffer;
             shared_ptr<vireo::RenderTarget>     msaaDepthBuffer;
 
-            shared_ptr<vireo::Image>            postProcessingImage;
+            shared_ptr<vireo::RenderTarget>     postProcessingColorBuffer;
             shared_ptr<vireo::DescriptorSet>    postProcessingDescriptorSet;
         };
 
@@ -70,13 +71,11 @@ export namespace samples {
         static constexpr auto up = AXIS_Y;
 
         // Global data
-        vireo::RenderingConfiguration renderingConfig {
-            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
-        };
-        vector<FrameData>              framesData;
+        bool                           applyPostProcessing{false};
         float                          cameraYRotationAngle{0.0f};
         vec3                           cameraPos{0.0f, 0.0f, 2.0f};
         vec3                           cameraTarget{0.0f, 0.0f, 0.0f};
+        vector<FrameData>              framesData;
         shared_ptr<vireo::SwapChain>   swapChain;
         shared_ptr<vireo::SubmitQueue> graphicQueue;
 
@@ -93,6 +92,9 @@ export namespace samples {
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
             .depthWriteEnable = true,
+        };
+        vireo::RenderingConfiguration renderingConfig {
+            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
         };
         Global                              global{};
         Model                               model{};
@@ -131,7 +133,13 @@ export namespace samples {
         // Post-processing data
         static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_PARAMS{0};
         static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_INPUT{1};
-        static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_OUTPUT{2};
+        static constexpr auto postprocessingPipelineConfig = vireo::GraphicPipelineConfiguration {
+            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
+        };
+        const vector<vireo::VertexAttributeDesc> postprocessingAttributes{};
+        vireo::RenderingConfiguration postprocessingRenderingConfig {
+            .clearColor = false
+        };
         PostProcessingParams                postprocessingParams{};
         shared_ptr<vireo::Buffer>           postprocessingParamsBuffer;
         shared_ptr<vireo::Pipeline>         postprocessingPipeline;
