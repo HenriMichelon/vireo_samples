@@ -48,4 +48,4 @@ The samples demonstrate the following features, in order of complexity:
   - Depth buffers and depth testing
   - Cubemaps
   - MSAA for color and depth buffers
-  - Slang example for an MVP vertex shader and for a skybox
+  - Slang example for an MVP vertex shader, a skybox and a post-processing effect
