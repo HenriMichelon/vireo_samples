@@ -21,7 +21,7 @@ namespace samples {
         model.transform = glm::rotate(model.transform, angle, AXIS_Y);
         modelBuffer->write(&model, sizeof(Model));
 
-        postprocessingParams.time = getCurrentTimeMilliseconds() / 1000.0f;
+        postprocessingParams.time = getCurrentTimeMilliseconds();
         postprocessingParamsBuffer->write(&postprocessingParams);
     }
 
@@ -31,7 +31,7 @@ namespace samples {
             applyPostProcessing = !applyPostProcessing;
             return;
         }
-        cout << "key down: " << key << endl;
+        // cout << "key down: " << key << endl;
         vec3 axis;
         auto angle = radians(2.0f);
         switch (keyCode) {
@@ -150,7 +150,7 @@ namespace samples {
             vireo->createPipelineResources({ postprocessingDescriptorLayout, skyboxSamplerDescriptorLayout }),
             vireo->createVertexLayout(0, postprocessingAttributes),
             vireo->createShaderModule("shaders/quad.vert"),
-            vireo->createShaderModule("shaders/pixelisation.frag"),
+            vireo->createShaderModule("shaders/voronoi.frag"),
             postprocessingPipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
@@ -399,9 +399,7 @@ namespace samples {
 
     float CubeApp::getCurrentTimeMilliseconds() {
         using namespace std::chrono;
-        static auto startTime = steady_clock::now();
-        const duration<float, std::milli> elapsed = steady_clock::now() - startTime;
-        return elapsed.count();
+        return static_cast<float>(duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count());
     }
 
 }
