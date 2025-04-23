@@ -71,7 +71,7 @@ export namespace samples {
         static constexpr auto up = AXIS_Y;
 
         // Global data
-        bool                           applyPostProcessing{false};
+        bool                           applyPostProcessing{true};
         float                          cameraYRotationAngle{0.0f};
         vec3                           cameraPos{0.0f, 0.0f, 2.0f};
         vec3                           cameraTarget{0.0f, 0.0f, 0.0f};
