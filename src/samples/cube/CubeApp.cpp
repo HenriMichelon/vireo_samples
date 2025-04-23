@@ -390,13 +390,13 @@ namespace samples {
         cmdList->barrier(image, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
 
         for (int i = 0; i < 6; i++) {
-            delete[] static_cast<byte*>(data[i]);
+            delete[] static_cast<std::byte*>(data[i]);
         }
         stbi_image_free(pixels);
         return image;
     }
 
-    byte* CubeApp::loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size) {
+    std::byte* CubeApp::loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size) {
         FILE* fp = fopen(filepath.c_str(), "rb");
         if (fp == nullptr) throw runtime_error("Error: Could not open file " + filepath);
 
@@ -410,15 +410,15 @@ namespace samples {
         width = static_cast<uint32_t>(texWidth);
         height = static_cast<uint32_t>(texHeight);
         size = width * height * STBI_rgb_alpha;
-        return reinterpret_cast<byte*>(imageData);
+        return reinterpret_cast<std::byte*>(imageData);
     }
 
-    byte *CubeApp::extractImage(const byte* source,
+    std::byte *CubeApp::extractImage(const std::byte* source,
                                 const int   x, const int y,
                                 const int   srcWidth,
                                 const int   w, const int h,
                                 const int   channels) {
-        const auto extractedImage = new byte[w * h * channels];
+        const auto extractedImage = new std::byte[w * h * channels];
         for (uint32_t row = 0; row < h; ++row) {
             for (uint32_t col = 0; col < w; ++col) {
                 for (uint32_t c = 0; c < channels; ++c) {

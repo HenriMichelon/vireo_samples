@@ -193,21 +193,21 @@ export namespace samples {
              -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f,
              1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
 
-        shared_ptr<vireo::Image> CubeApp::loadCubemap(
+        shared_ptr<vireo::Image> loadCubemap(
             const shared_ptr<vireo::CommandList>& cmdList,
             const string &filepath,
             vireo::ImageFormat imageFormat) const;
 
-        static byte* CubeApp::loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size);
+        static std::byte* loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size);
 
-        static byte *CubeApp::extractImage(
-            const byte *source,
+        static std::byte *extractImage(
+            const std::byte *source,
             int   x, int y,
             int   srcWidth,
             int   w,  int h,
             int   channels);
 
-        static float CubeApp::getCurrentTimeMilliseconds();
+        static float getCurrentTimeMilliseconds();
 
     };
 }
