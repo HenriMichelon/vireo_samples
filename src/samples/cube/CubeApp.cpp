@@ -187,6 +187,7 @@ namespace samples {
         cmdList->barrier(frame.msaaColorBuffer, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->barrier(frame.depthBuffer, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
         cmdList->barrier(frame.msaaDepthBuffer, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
+
         renderingConfig.colorRenderTarget = frame.colorBuffer;
         renderingConfig.multisampledColorRenderTarget = frame.msaaColorBuffer;
         renderingConfig.depthRenderTarget = frame.depthBuffer;
@@ -207,23 +208,24 @@ namespace samples {
         cmdList->draw(skyboxVertices.size() / 3);
         cmdList->endRendering();
 
-        cmdList->barrier(frame.msaaColorBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);
-        cmdList->barrier(frame.depthBuffer, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL, vireo::ResourceState::UNDEFINED);
         cmdList->barrier(frame.msaaDepthBuffer, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL, vireo::ResourceState::UNDEFINED);
-        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::COMPUTE_READ);
+        cmdList->barrier(frame.depthBuffer, vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL, vireo::ResourceState::UNDEFINED);
+        cmdList->barrier(frame.msaaColorBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);
+        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::COPY_SRC);
 
-        cmdList->bindPipeline(postprocessingPipeline);
-        cmdList->bindDescriptors(postprocessingPipeline, {frame.postProcessingDescriptorSet, skyboxSamplerDescriptorSet});
-        cmdList->barrier(frame.postProcessingImage, vireo::ResourceState::UNDEFINED, vireo::ResourceState::DISPATCH_TARGET);
-        cmdList->dispatch((frame.postProcessingImage->getWidth() + 7)/8, (frame.postProcessingImage->getHeight() + 7)/8, 1);
-
-        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::COMPUTE_READ, vireo::ResourceState::UNDEFINED);
-        cmdList->barrier(frame.postProcessingImage, vireo::ResourceState::DISPATCH_TARGET, vireo::ResourceState::COPY_SRC);
+        // cmdList->bindPipeline(postprocessingPipeline);
+        // cmdList->bindDescriptors(postprocessingPipeline, {frame.postProcessingDescriptorSet, skyboxSamplerDescriptorSet});
+        // cmdList->barrier(frame.postProcessingImage, vireo::ResourceState::UNDEFINED, vireo::ResourceState::DISPATCH_TARGET);
+        // cmdList->dispatch((frame.postProcessingImage->getWidth() + 7)/8, (frame.postProcessingImage->getHeight() + 7)/8, 1);
+        // cmdList->barrier(frame.colorBuffer, vireo::ResourceState::COMPUTE_READ, vireo::ResourceState::UNDEFINED);
+        // cmdList->barrier(frame.postProcessingImage, vireo::ResourceState::DISPATCH_TARGET, vireo::ResourceState::COPY_SRC);
+        // cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
+        // cmdList->copy(frame.postProcessingImage, swapChain);
 
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
-        cmdList->copy(frame.postProcessingImage, swapChain);
+        cmdList->copy(frame.colorBuffer, swapChain);
         cmdList->barrier(swapChain, vireo::ResourceState::COPY_DST, vireo::ResourceState::PRESENT);
-
+        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::COPY_SRC, vireo::ResourceState::UNDEFINED);
         cmdList->end();
 
         graphicQueue->submit(frame.inFlightFence, swapChain, {cmdList});
