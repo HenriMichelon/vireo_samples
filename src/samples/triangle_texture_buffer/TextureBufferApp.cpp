@@ -13,7 +13,7 @@ namespace samples {
     void TextureBufferApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormat, graphicSubmitQueue, vireo::PresentMode::VSYNC);
-        renderingConfig.swapChain = swapChain;
+        // renderingConfig.swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
@@ -101,6 +101,7 @@ namespace samples {
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
 
             framesData[i].inFlightFence =vireo->createFence();
+            framesData[i].colorBuffer = vireo->createRenderTarget(swapChain);
         }
 
         transferQueue->waitIdle();
@@ -135,7 +136,8 @@ namespace samples {
 
         const auto& cmdList = frame.commandList;
         cmdList->begin();
-        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+        renderingConfig.colorRenderTarget = frame.colorBuffer;
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
@@ -152,7 +154,11 @@ namespace samples {
         cmdList->draw(triangleVertices.size(), 2);
 
         cmdList->endRendering();
-        cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
+        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::COPY_SRC);
+        cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
+        cmdList->copy(frame.colorBuffer, swapChain);
+        cmdList->barrier(swapChain, vireo::ResourceState::COPY_DST, vireo::ResourceState::PRESENT);
+        cmdList->barrier(frame.colorBuffer, vireo::ResourceState::COPY_SRC, vireo::ResourceState::UNDEFINED);
         cmdList->end();
 
         graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});

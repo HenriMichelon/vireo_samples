@@ -35,5 +35,5 @@ VertexOutput vertexMain(VertexInput input) {
 }
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
-    return float4(input.uv.x, input.uv.y, 0.0, 1.0)+ float4(pushConstants.color + input.color, 1.0);
+    return float4(input.uv.x, input.uv.y, 0.0, 0.0)+ float4(pushConstants.color + input.color, 0.2);
 }

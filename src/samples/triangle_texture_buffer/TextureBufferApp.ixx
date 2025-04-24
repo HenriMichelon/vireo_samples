@@ -69,6 +69,7 @@ export namespace samples {
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
             shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
             shared_ptr<vireo::Fence>            inFlightFence;
+            shared_ptr<vireo::RenderTarget>     colorBuffer;
         };
         vector<FrameData> framesData;
 
@@ -78,8 +79,17 @@ export namespace samples {
         shared_ptr<vireo::SwapChain>             swapChain;
 
         static constexpr auto pipelineConfig = vireo::GraphicPipelineConfiguration {
-            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
-            .colorBlendEnable = true,
+            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_UNORM,
+            .colorBlendDesc = {
+                .blendEnable           = true,
+                .srcColorBlendFactor   = vireo::BlendFactor::SRC_ALPHA,
+                .dstColorBlendFactor   = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
+                .colorBlendOp          = vireo::BlendOp::ADD,
+                .srcAlphaBlendFactor   = vireo::BlendFactor::ONE,
+                .dstAlphaBlendFactor   = vireo::BlendFactor::ZERO,
+                .alphaBlendOp          = vireo::BlendOp::ADD,
+                .colorWriteMask        = vireo::ColorWriteMask::ALL,
+            }
         };
         vireo::RenderingConfiguration renderingConfig {
             .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
