@@ -57,9 +57,8 @@ export namespace samples {
         GlobalUBO     globalUbo{};
         PushConstants pushConstants{};
 
-        shared_ptr<vireo::Buffer> vertexBuffer;
-        shared_ptr<vireo::Buffer> globalUboBuffer;
-
+        shared_ptr<vireo::Buffer>          vertexBuffer;
+        shared_ptr<vireo::Buffer>          globalUboBuffer;
         vector<shared_ptr<vireo::Image>>   textures;
         vector<shared_ptr<vireo::Sampler>> samplers;
 
@@ -69,26 +68,18 @@ export namespace samples {
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
             shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
             shared_ptr<vireo::Fence>            inFlightFence;
-            shared_ptr<vireo::RenderTarget>     colorBuffer;
         };
-        vector<FrameData> framesData;
 
-        shared_ptr<vireo::DescriptorLayout>      descriptorLayout;
-        shared_ptr<vireo::DescriptorLayout>      samplersDescriptorLayout;
-        shared_ptr<vireo::SubmitQueue>           graphicSubmitQueue;
-        shared_ptr<vireo::SwapChain>             swapChain;
+        vector<FrameData>                   framesData;
+        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
+        shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
+        shared_ptr<vireo::SwapChain>        swapChain;
 
         static constexpr auto pipelineConfig = vireo::GraphicPipelineConfiguration {
-            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_UNORM,
+            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
             .colorBlendDesc = {
-                .blendEnable           = true,
-                .srcColorBlendFactor   = vireo::BlendFactor::SRC_ALPHA,
-                .dstColorBlendFactor   = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
-                .colorBlendOp          = vireo::BlendOp::ADD,
-                .srcAlphaBlendFactor   = vireo::BlendFactor::ONE,
-                .dstAlphaBlendFactor   = vireo::BlendFactor::ZERO,
-                .alphaBlendOp          = vireo::BlendOp::ADD,
-                .colorWriteMask        = vireo::ColorWriteMask::ALL,
+                .blendEnable = true,
             }
         };
         vireo::RenderingConfiguration renderingConfig {
