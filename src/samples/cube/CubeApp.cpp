@@ -71,6 +71,7 @@ namespace samples {
         swapChain = vireo->createSwapChain(
             pipelineConfig.colorRenderFormat,
             graphicQueue,
+            windowHandle,
             vireo::PresentMode::VSYNC);
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());

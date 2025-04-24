@@ -15,7 +15,8 @@ export namespace samples {
         virtual ~Application() = default;
 
         void init(const vireo::Backend backend, void* windowHandle) {
-            vireo = vireo::Vireo::create(backend, windowHandle);
+            this->windowHandle = windowHandle;
+            vireo = vireo::Vireo::create(backend);
         }
 
         virtual void onInit() = 0;
@@ -33,6 +34,7 @@ export namespace samples {
         virtual void onKeyUp(uint32_t key) {}
 
     protected:
+        void* windowHandle{nullptr};
         unique_ptr<vireo::Vireo> vireo;
     };
 }

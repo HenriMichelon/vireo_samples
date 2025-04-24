@@ -12,7 +12,7 @@ namespace samples {
 
     void ComputeApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
-        swapChain = vireo->createSwapChain(vireo::ImageFormat::R8G8B8A8_SRGB, graphicSubmitQueue, vireo::PresentMode::IMMEDIATE);
+        swapChain = vireo->createSwapChain(vireo::ImageFormat::R8G8B8A8_SRGB, graphicSubmitQueue, windowHandle, vireo::PresentMode::IMMEDIATE);
         paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params));
         paramsBuffer->map();
 

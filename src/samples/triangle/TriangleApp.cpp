@@ -12,7 +12,7 @@ namespace samples {
 
     void TriangleApp::onInit() {
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
-        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, graphicQueue, vireo::PresentMode::IMMEDIATE);
+        swapChain = vireo->createSwapChain(defaultPipelineConfig.colorRenderFormat, graphicQueue, windowHandle, vireo::PresentMode::IMMEDIATE);
         renderingConfig.swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
