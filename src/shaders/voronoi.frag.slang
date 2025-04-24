@@ -19,24 +19,12 @@ ConstantBuffer<Params> params  : register(b0);
 Texture2D inputImage           : register(t1);
 SamplerState sampler           : register(s0, space1);
 
-// float random(float2 uv, float time) {
-//     float seed = dot(uv, float2(12.9898, 78.233)) + time * 0.001;
-//     return frac(sin(seed) * 43758.5453);
-// }
-
-float hash21(float2 p) {
-    p = frac(p * float2(123.34, 456.21));
-    p += dot(p, p + 45.32);
-    return frac(p.x * p.y);
-}
-
 float2 hash22(float2 p) {
     float n = sin(dot(p, float2(41, 289)));
     return frac(float2(sin(n * 12.9898), cos(n * 78.233)));
 }
 
-float hash1(float2 p)
-{
+float hash1(float2 p) {
     return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
 }
 
@@ -47,10 +35,8 @@ float voronoi(float2 uv, float time)
 
     float minDist = 1.0;
 
-    for (int y = -1; y <= 1; ++y)
-    {
-        for (int x = -1; x <= 1; ++x)
-        {
+    for (int y = -1; y <= 1; ++y) {
+        for (int x = -1; x <= 1; ++x) {
             float2 offset = float2(x, y);
             float2 cell = g + offset;
 

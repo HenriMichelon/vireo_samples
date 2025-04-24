@@ -5,10 +5,8 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Macros.h"
+#include "Libraries.h"
 module samples.hellotriangle;
-
-APP(make_shared<samples::TriangleApp>(), L"Hello Triangle", 1280, 720);
 
 namespace samples {
 

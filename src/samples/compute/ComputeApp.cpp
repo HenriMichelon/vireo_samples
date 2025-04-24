@@ -5,10 +5,8 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Macros.h"
+#include "Libraries.h"
 module samples.compute;
-
-APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 1280, 720);
 
 namespace samples {
 

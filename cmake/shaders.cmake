@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2025-present Henri Michelon
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+#
 ##### Compile Slang sources files into DXIL & SPIR-V
 
 # Use the Vulkan SDK version of the slangc executable

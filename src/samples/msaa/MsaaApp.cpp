@@ -5,10 +5,8 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Macros.h"
+#include "Libraries.h"
 module samples.hellomsaa;
-
-APP(make_shared<samples::MsaaApp>(), L"Hello MSAA", 0, 0);
 
 namespace samples {
 

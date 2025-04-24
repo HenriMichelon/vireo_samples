@@ -11,8 +11,6 @@ module;
 #include "Macros.h"
 module samples.hellocube;
 
-APP(make_shared<samples::CubeApp>(), L"Hello Cube", 1280, 720);
-
 namespace samples {
 
     void CubeApp::onUpdate() {
