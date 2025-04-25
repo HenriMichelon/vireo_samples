@@ -191,8 +191,8 @@ namespace samples {
         const auto& cmdList = frame.commandList;
         cmdList->begin();
 
-        renderingConfig.colorRenderTarget = frame.colorBuffer;
-        renderingConfig.multisampledColorRenderTarget = frame.msaaColorBuffer;
+        renderingConfig.colorRenderTargets[0].renderTarget = frame.colorBuffer;
+        renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaColorBuffer;
         renderingConfig.depthRenderTarget = frame.depthBuffer;
         renderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
         cmdList->barrier(
@@ -231,7 +231,7 @@ namespace samples {
         shared_ptr<vireo::RenderTarget> colorRenderTarget;
         if (applyPostProcessing) {
             colorRenderTarget = frame.postProcessingColorBuffer;
-            postprocessingRenderingConfig.colorRenderTarget = frame.postProcessingColorBuffer;
+            postprocessingRenderingConfig.colorRenderTargets[0].renderTarget = frame.postProcessingColorBuffer;
             cmdList->barrier(
                 frame.colorBuffer,
                 vireo::ResourceState::RENDER_TARGET_COLOR,
@@ -287,8 +287,13 @@ namespace samples {
         postprocessingParams.imageSize.x = extent.width;
         postprocessingParams.imageSize.y = extent.height;
         for (auto& frame : framesData) {
-            frame.colorBuffer = vireo->createRenderTarget(swapChain, renderingConfig.clearColorValue);
-            frame.msaaColorBuffer = vireo->createRenderTarget(swapChain, renderingConfig.clearColorValue, pipelineConfig.msaa);
+            frame.colorBuffer = vireo->createRenderTarget(
+                swapChain,
+                renderingConfig.colorRenderTargets[0].clearColorValue);
+            frame.msaaColorBuffer = vireo->createRenderTarget(
+                swapChain,
+                renderingConfig.colorRenderTargets[0].clearColorValue,
+                pipelineConfig.msaa);
             frame.depthBuffer = vireo->createRenderTarget(
                 vireo::ImageFormat::D32_SFLOAT,
                 extent.width,

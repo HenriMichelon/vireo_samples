@@ -95,7 +95,9 @@ export namespace samples {
             .depthWriteEnable = true,
         };
         vireo::RenderingConfiguration renderingConfig {
-            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            .colorRenderTargets = {{
+                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            }}
         };
         Global                              global{};
         Model                               model{};
@@ -141,7 +143,9 @@ export namespace samples {
         };
         const vector<vireo::VertexAttributeDesc> postprocessingAttributes{};
         vireo::RenderingConfiguration postprocessingRenderingConfig {
-            .clearColor = false
+            .colorRenderTargets = {{
+                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            }}
         };
         PostProcessingParams                postprocessingParams{};
         shared_ptr<vireo::Buffer>           postprocessingParamsBuffer;

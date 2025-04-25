@@ -50,7 +50,9 @@ export namespace samples {
             .msaa = vireo::MSAA::X8
         };
         vireo::RenderingConfiguration renderingConfig {
-            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            .colorRenderTargets = {{
+                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            }}
         };
 
         shared_ptr<vireo::Pipeline>    pipeline;

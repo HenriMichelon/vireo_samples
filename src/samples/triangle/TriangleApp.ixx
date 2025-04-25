@@ -48,7 +48,9 @@ export namespace samples {
             .colorBlendDesc = {{}}
         };
         vireo::RenderingConfiguration renderingConfig {
-            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            .colorRenderTargets = {{
+                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            }}
         };
         shared_ptr<vireo::Pipeline>    defaultPipeline;
         shared_ptr<vireo::SwapChain>   swapChain;

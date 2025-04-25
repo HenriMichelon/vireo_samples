@@ -17,7 +17,7 @@ namespace samples {
             graphicSubmitQueue,
             windowHandle,
             vireo::PresentMode::IMMEDIATE);
-        renderingConfig.swapChain = swapChain;
+        renderingConfig.colorRenderTargets[0].swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
@@ -45,7 +45,6 @@ namespace samples {
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence();
-            frame.msaaRenderTarget = vireo->createRenderTarget(swapChain, renderingConfig.clearColorValue, pipelineConfig.msaa);
         }
 
         transferQueue->waitIdle();
@@ -61,7 +60,7 @@ namespace samples {
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
-        renderingConfig.multisampledColorRenderTarget = frame.msaaRenderTarget;
+        renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaRenderTarget;
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewports(1, {swapChain->getExtent()});
         cmdList->setScissors(1, {swapChain->getExtent()});
@@ -84,7 +83,10 @@ namespace samples {
     void MsaaApp::onResize() {
         swapChain->recreate();
         for (auto& frame : framesData) {
-            frame.msaaRenderTarget = vireo->createRenderTarget(swapChain, renderingConfig.clearColorValue, pipelineConfig.msaa);
+            frame.msaaRenderTarget = vireo->createRenderTarget(
+                swapChain,
+                renderingConfig.colorRenderTargets[0].clearColorValue,
+                pipelineConfig.msaa);
         }
     }
 

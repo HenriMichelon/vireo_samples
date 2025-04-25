@@ -81,7 +81,9 @@ export namespace samples {
             .colorBlendDesc = {{ .blendEnable = true }}
         };
         vireo::RenderingConfiguration renderingConfig {
-            .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            .colorRenderTargets = {{
+                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+            }}
         };
         map<string, shared_ptr<vireo::PipelineResources>> pipelinesResources;
         map<string, shared_ptr<vireo::Pipeline>>          pipelines;
