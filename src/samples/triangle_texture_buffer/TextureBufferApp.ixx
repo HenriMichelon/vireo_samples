@@ -88,6 +88,6 @@ export namespace samples {
         map<string, shared_ptr<vireo::PipelineResources>> pipelinesResources;
         map<string, shared_ptr<vireo::Pipeline>>          pipelines;
 
-        static vector<unsigned char> generateTextureData(uint32_t width, uint32_t height);
+        static void generateTextureData(const shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
     };
 }

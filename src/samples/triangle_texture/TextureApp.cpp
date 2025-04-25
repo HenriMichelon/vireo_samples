@@ -5,6 +5,9 @@
 * https://opensource.org/licenses/MIT
 */
 module;
+#include <sys/stat.h>
+
+
 #include "Libraries.h"
 module samples.hellotexture;
 
@@ -42,12 +45,18 @@ namespace samples {
             false,
             vireo::MipMapMode::NEAREST);
 
+        const auto stagingBuffer = vireo->createBuffer(
+            vireo::BufferType::TRANSFER,
+            texture->getImageSize()
+        );
+        generateTextureData(stagingBuffer, texture->getWidth(), texture->getHeight());
+
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
         uploadCommandList->barrier(texture, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
-        uploadCommandList->upload(texture, generateTextureData(texture->getWidth(), texture->getHeight()).data());
+        uploadCommandList->copy(stagingBuffer, texture);
         uploadCommandList->end();
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
@@ -128,14 +137,16 @@ namespace samples {
 
     // Generate a simple black and white checkerboard texture.
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
-    vector<unsigned char> TextureApp::generateTextureData(const uint32_t width, const uint32_t height) {
+    void TextureApp::generateTextureData(
+        const shared_ptr<vireo::Buffer>&destination,
+        const uint32_t width,
+        const uint32_t height) {
         const auto rowPitch = width * 4;
         const auto cellPitch = rowPitch >> 3;        // The width of a cell in the checkboard texture.
         const auto cellHeight = width >> 3;    // The height of a cell in the checkerboard texture.
         const auto textureSize = rowPitch * height;
-
-        vector<unsigned char> data(textureSize);
-        unsigned char* pData = &data[0];
+        destination->map();
+        const auto pData = static_cast<unsigned char*>(destination->getMappedAddress());
 
         for (int n = 0; n < textureSize; n += 4) {
             const auto x = n % rowPitch;
@@ -156,7 +167,7 @@ namespace samples {
                 pData[n + 3] = 0xff;    // A
             }
         }
-        return data;
+        destination->unmap();
     }
 
 }
