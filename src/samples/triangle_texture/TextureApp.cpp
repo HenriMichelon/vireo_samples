@@ -127,7 +127,7 @@ namespace samples {
 
         graphicQueue->submit(frame.inFlightFence, swapChain, {cmdList});
         swapChain->present();
-        swapChain->nextSwapChain();
+        swapChain->nextFrameIndex();
     }
 
     void TextureApp::onDestroy() {

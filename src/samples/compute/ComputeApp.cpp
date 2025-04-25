@@ -63,7 +63,7 @@ namespace samples {
 
         graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {frame.commandList});
         swapChain->present();
-        swapChain->nextSwapChain();
+        swapChain->nextFrameIndex();
     }
 
     void ComputeApp::onResize() {

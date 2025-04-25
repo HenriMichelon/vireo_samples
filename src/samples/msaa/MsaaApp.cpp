@@ -77,7 +77,7 @@ namespace samples {
         graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});
 
         swapChain->present();
-        swapChain->nextSwapChain();
+        swapChain->nextFrameIndex();
     }
 
     void MsaaApp::onResize() {
