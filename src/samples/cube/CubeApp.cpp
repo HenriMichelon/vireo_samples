@@ -386,11 +386,12 @@ namespace samples {
         const auto image = vireo->createImage(
                                      imageFormat,
                                      imgWidth, imgHeight,
+                                     1,
                                      6,
                                      L"Cubemap");
 
         cmdList->barrier(image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
-        cmdList->upload(image, data);
+        cmdList->uploadArray(image, data);
         cmdList->barrier(image, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
 
         for (int i = 0; i < 6; i++) {

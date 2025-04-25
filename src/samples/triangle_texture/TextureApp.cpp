@@ -30,7 +30,7 @@ namespace samples {
             L"TriangleVertexBuffer");
         texture = vireo->createImage(
             vireo::ImageFormat::R8G8B8A8_SRGB,
-            512, 512, 1,
+            512, 512, 1, 1,
             L"CheckerBoardTexture");
         sampler = vireo->createSampler(
             vireo::Filter::NEAREST,
