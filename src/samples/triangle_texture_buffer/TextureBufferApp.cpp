@@ -12,7 +12,11 @@ namespace samples {
 
     void TextureBufferApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
-        swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormat, graphicSubmitQueue, windowHandle, vireo::PresentMode::VSYNC);
+        swapChain = vireo->createSwapChain(
+            pipelineConfig.colorRenderFormats[0],
+            graphicSubmitQueue,
+            windowHandle,
+            vireo::PresentMode::VSYNC);
         renderingConfig.swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {

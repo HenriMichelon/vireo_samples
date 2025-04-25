@@ -69,7 +69,7 @@ namespace samples {
     void CubeApp::onInit() {
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(
-            pipelineConfig.colorRenderFormat,
+            pipelineConfig.colorRenderFormats[0],
             graphicQueue,
             windowHandle,
             vireo::PresentMode::VSYNC);

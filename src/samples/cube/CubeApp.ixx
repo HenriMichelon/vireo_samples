@@ -86,8 +86,9 @@ export namespace samples {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3)}
         };
-        static constexpr auto pipelineConfig = vireo::GraphicPipelineConfiguration {
-            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
+        const vireo::GraphicPipelineConfiguration pipelineConfig {
+            .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
+            .colorBlendDesc = {{}},
             .msaa = vireo::MSAA::X8,
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
@@ -109,8 +110,9 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_SAMPLER{0};
-        static constexpr auto skyboxPipelineConfig = vireo::GraphicPipelineConfiguration {
-            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
+        const vireo::GraphicPipelineConfiguration skyboxPipelineConfig {
+            .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
+            .colorBlendDesc = {{}},
             .msaa = vireo::MSAA::X8,
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
@@ -133,8 +135,9 @@ export namespace samples {
         // Post-processing data
         static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_PARAMS{0};
         static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_INPUT{1};
-        static constexpr auto postprocessingPipelineConfig = vireo::GraphicPipelineConfiguration {
-            .colorRenderFormat = vireo::ImageFormat::R8G8B8A8_SRGB,
+        const vireo::GraphicPipelineConfiguration postprocessingPipelineConfig {
+            .colorRenderFormats = { vireo::ImageFormat::R8G8B8A8_SRGB },
+            .colorBlendDesc = {{}}
         };
         const vector<vireo::VertexAttributeDesc> postprocessingAttributes{};
         vireo::RenderingConfiguration postprocessingRenderingConfig {

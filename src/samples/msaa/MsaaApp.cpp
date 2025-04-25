@@ -12,7 +12,11 @@ namespace samples {
 
     void MsaaApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
-        swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormat, graphicSubmitQueue, windowHandle, vireo::PresentMode::IMMEDIATE);
+        swapChain = vireo->createSwapChain(
+            pipelineConfig.colorRenderFormats.front(),
+            graphicSubmitQueue,
+            windowHandle,
+            vireo::PresentMode::IMMEDIATE);
         renderingConfig.swapChain = swapChain;
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
