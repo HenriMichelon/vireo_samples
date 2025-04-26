@@ -55,13 +55,12 @@ namespace samples {
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
         frame.commandAllocator->reset();
-
         const auto& cmdList = frame.commandList;
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewports(1, {swapChain->getExtent()});
-        cmdList->setScissors(1, {swapChain->getExtent()});
+        cmdList->setViewport(swapChain->getExtent());
+        cmdList->setScissors(swapChain->getExtent());
 
         cmdList->bindPipeline(defaultPipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
@@ -73,7 +72,7 @@ namespace samples {
 
         graphicQueue->submit(frame.inFlightFence, swapChain, {cmdList});
         swapChain->present();
-        swapChain->nextSwapChain();
+        swapChain->nextFrameIndex();
     }
 
     void TriangleApp::onResize() {

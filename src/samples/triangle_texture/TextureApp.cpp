@@ -113,8 +113,8 @@ namespace samples {
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewports(1, {swapChain->getExtent()});
-        cmdList->setScissors(1, {swapChain->getExtent()});
+        cmdList->setViewport(swapChain->getExtent());
+        cmdList->setScissors(swapChain->getExtent());
 
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, frame.samplersDescriptorSet});

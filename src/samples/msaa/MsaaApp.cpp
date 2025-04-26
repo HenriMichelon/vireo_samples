@@ -62,8 +62,8 @@ namespace samples {
         cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
         renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaRenderTarget;
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewports(1, {swapChain->getExtent()});
-        cmdList->setScissors(1, {swapChain->getExtent()});
+        cmdList->setViewports({swapChain->getExtent()});
+        cmdList->setScissors({swapChain->getExtent()});
 
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
