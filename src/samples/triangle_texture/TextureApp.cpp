@@ -100,7 +100,6 @@ namespace samples {
         framesData[0].commandList->end();
         graphicQueue->submit({framesData[0].commandList});
         graphicQueue->waitIdle();
-        uploadCommandList->cleanup();
     }
 
     void TextureApp::onRender() {

@@ -48,7 +48,6 @@ namespace samples {
         }
 
         transferQueue->waitIdle();
-        uploadCommandList->cleanup();
     }
 
     void MsaaApp::onRender() {

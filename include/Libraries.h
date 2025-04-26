@@ -1,10 +1,11 @@
 #pragma once
 
+#include <cstdint>
+#include <cstddef>
+
 import std;
 import glm;
 import vireo;
 
 using namespace std;
 using namespace glm;
-
-#include <cstdint>

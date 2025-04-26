@@ -47,7 +47,6 @@ namespace samples {
         }
 
         transferQueue->waitIdle();
-        uploadCommandList->cleanup();
     }
 
     void TriangleApp::onRender() {

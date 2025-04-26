@@ -179,7 +179,6 @@ namespace samples {
         skyboxSamplerDescriptorSet->update(SKYBOX_BINDING_SAMPLER, skyboxSampler);
 
         transferQueue->waitIdle();
-        uploadCommandList->cleanup();
     }
 
     void CubeApp::onRender() {

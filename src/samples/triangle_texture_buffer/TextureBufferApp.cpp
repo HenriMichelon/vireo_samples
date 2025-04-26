@@ -119,7 +119,6 @@ namespace samples {
         framesData[0].commandList->end();
         graphicSubmitQueue->submit({framesData[0].commandList});
         graphicSubmitQueue->waitIdle();
-        uploadCommandList->cleanup();
     }
 
     void TextureBufferApp::onUpdate() {
