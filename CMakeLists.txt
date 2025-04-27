@@ -15,6 +15,7 @@ include(.env.cmake)
 if (NOT DEFINED VIREO_PROJECT_DIR)
     message(FATAL_ERROR "Please set VIREO_PROJECT_DIR in the .env.cmake file")
 endif()
+set(DIRECTX_BACKEND ON)
 
 #######################################################
 set(CMAKE_CXX_STANDARD 23)
