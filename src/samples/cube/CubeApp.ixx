@@ -83,8 +83,8 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
-            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3)}
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
+            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
         };
         const vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
@@ -92,12 +92,14 @@ export namespace samples {
             .msaa = vireo::MSAA::X8,
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
-            .depthWriteEnable = true,
+            .depthWriteEnable = false,
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{
-                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
-            }}
+                .clearColor = true,
+                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f},
+            }},
+            .discardDepthAfterRender = true,
         };
         Global                              global{};
         Model                               model{};
@@ -108,20 +110,35 @@ export namespace samples {
         shared_ptr<vireo::Pipeline>         pipeline;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
 
+        // Depth pre-pass rendering data
+        const vector<vireo::VertexAttributeDesc> depthPrepassVertexAttributes{
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
+        };
+        const vireo::GraphicPipelineConfiguration depthPrepassPipelineConfig {
+            .msaa = pipelineConfig.msaa,
+            .cullMode = pipelineConfig.cullMode,
+            .depthTestEnable = true,
+            .depthWriteEnable = true,
+        };
+        vireo::RenderingConfiguration depthPrepassRenderingConfig {
+            .clearDepth = true,
+        };
+        shared_ptr<vireo::Pipeline> depthPrepassPipeline;
+
         // Skybox rendering data
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_SAMPLER{0};
         const vireo::GraphicPipelineConfiguration skyboxPipelineConfig {
-            .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
+            .colorRenderFormats = {pipelineConfig.colorRenderFormats[0]},
             .colorBlendDesc = {{}},
-            .msaa = vireo::MSAA::X8,
+            .msaa = pipelineConfig.msaa,
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
             .depthWriteEnable = false,
         };
         const vector<vireo::VertexAttributeDesc> skyboxVertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0 },
         };
         Global                              skyboxGlobal{};
         shared_ptr<vireo::Sampler>          skyboxSampler;
@@ -138,14 +155,12 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_PARAMS{0};
         static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_INPUT{1};
         const vireo::GraphicPipelineConfiguration postprocessingPipelineConfig {
-            .colorRenderFormats = { vireo::ImageFormat::R8G8B8A8_SRGB },
+            .colorRenderFormats = {pipelineConfig.colorRenderFormats[0]},
             .colorBlendDesc = {{}}
         };
         const vector<vireo::VertexAttributeDesc> postprocessingAttributes{};
         vireo::RenderingConfiguration postprocessingRenderingConfig {
-            .colorRenderTargets = {{
-                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
-            }}
+            .colorRenderTargets = {{}}
         };
         PostProcessingParams                postprocessingParams{};
         shared_ptr<vireo::Buffer>           postprocessingParamsBuffer;

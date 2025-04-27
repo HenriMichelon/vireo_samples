@@ -138,6 +138,13 @@ namespace samples {
             vireo->createShaderModule("shaders/cube_color_mvp.frag"),
             pipelineConfig);
 
+        depthPrepassPipeline = vireo->createGraphicPipeline(
+            vireo->createPipelineResources({ descriptorLayout }),
+            vireo->createVertexLayout(sizeof(Vertex), depthPrepassVertexAttributes),
+            vireo->createShaderModule("shaders/depth_prepass.vert"),
+            nullptr,
+            depthPrepassPipelineConfig);
+
         skyboxPipeline = vireo->createGraphicPipeline(
             vireo->createPipelineResources({ skyboxDescriptorLayout, skyboxSamplerDescriptorLayout }),
             vireo->createVertexLayout(sizeof(float) * 3, skyboxVertexAttributes),
@@ -190,6 +197,26 @@ namespace samples {
         const auto& cmdList = frame.commandList;
         cmdList->begin();
 
+        depthPrepassRenderingConfig.depthRenderTarget = frame.depthBuffer;
+        depthPrepassRenderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
+        cmdList->barrier(
+            {frame.depthBuffer, frame.msaaDepthBuffer},
+            vireo::ResourceState::UNDEFINED,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
+        cmdList->beginRendering(depthPrepassRenderingConfig);
+        cmdList->setViewport(swapChain->getExtent());
+        cmdList->setScissors(swapChain->getExtent());
+        cmdList->bindPipeline(depthPrepassPipeline);
+        cmdList->bindVertexBuffer(vertexBuffer);
+        cmdList->bindIndexBuffer(indexBuffer);
+        cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
+        cmdList->drawIndexed(cubeIndices.size());
+        cmdList->endRendering();
+        cmdList->barrier(
+            {frame.depthBuffer, frame.msaaDepthBuffer},
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
+
         renderingConfig.colorRenderTargets[0].renderTarget = frame.colorBuffer;
         renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaColorBuffer;
         renderingConfig.depthRenderTarget = frame.depthBuffer;
@@ -198,10 +225,6 @@ namespace samples {
             {frame.colorBuffer, frame.msaaColorBuffer},
             vireo::ResourceState::UNDEFINED,
             vireo::ResourceState::RENDER_TARGET_COLOR);
-        cmdList->barrier(
-            {frame.depthBuffer, frame.msaaDepthBuffer},
-            vireo::ResourceState::UNDEFINED,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(swapChain->getExtent());
         cmdList->setScissors(swapChain->getExtent());
@@ -220,7 +243,7 @@ namespace samples {
         cmdList->endRendering();
         cmdList->barrier(
             { frame.msaaDepthBuffer, frame.depthBuffer },
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
             vireo::ResourceState::UNDEFINED);
         cmdList->barrier(
             frame.msaaColorBuffer,
