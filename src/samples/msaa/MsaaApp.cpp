@@ -84,7 +84,7 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.msaaRenderTarget = vireo->createRenderTarget(
                 swapChain,
-                renderingConfig.colorRenderTargets[0].clearColorValue,
+                renderingConfig.colorRenderTargets[0].clearValue,
                 pipelineConfig.msaa);
         }
     }

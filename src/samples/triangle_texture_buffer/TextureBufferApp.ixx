@@ -82,8 +82,8 @@ export namespace samples {
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{
-                .clearColor = true,
-                .clearColorValue = {0.0f, 0.2f, 0.4f, 1.0f}
+                .clear = true,
+                .clearValue = {0.0f, 0.2f, 0.4f, 1.0f}
             }}
         };
         map<string, shared_ptr<vireo::PipelineResources>> pipelinesResources;

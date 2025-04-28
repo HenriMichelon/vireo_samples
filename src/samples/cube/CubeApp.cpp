@@ -311,10 +311,10 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.colorBuffer = vireo->createRenderTarget(
                 swapChain,
-                renderingConfig.colorRenderTargets[0].clearColorValue);
+                renderingConfig.colorRenderTargets[0].clearValue);
             frame.msaaColorBuffer = vireo->createRenderTarget(
                 swapChain,
-                renderingConfig.colorRenderTargets[0].clearColorValue,
+                renderingConfig.colorRenderTargets[0].clearValue,
                 pipelineConfig.msaa);
             frame.depthBuffer = vireo->createRenderTarget(
                 vireo::ImageFormat::D32_SFLOAT,
