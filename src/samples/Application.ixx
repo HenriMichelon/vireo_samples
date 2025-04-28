@@ -35,6 +35,6 @@ export namespace samples {
 
     protected:
         void* windowHandle{nullptr};
-        unique_ptr<vireo::Vireo> vireo;
+        shared_ptr<vireo::Vireo> vireo;
     };
 }
