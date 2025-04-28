@@ -43,7 +43,7 @@ export namespace samples {
         };
         vector<FrameData> framesData;
 
-        const vireo::GraphicPipelineConfiguration pipelineConfig {
+        vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
             .colorBlendDesc = {{}}
         };

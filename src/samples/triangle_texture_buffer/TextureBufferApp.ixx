@@ -41,9 +41,9 @@ export namespace samples {
         };
 
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
-            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, sizeof(vec3)},
-            {"COLOR", vireo::AttributeFormat::R32G32B32_FLOAT, sizeof(vec3) + sizeof(vec2)}
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
+            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, offsetof(Vertex, uv)},
+            {"COLOR", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
         };
 
         float colorIncrement{1.0f};
@@ -76,7 +76,7 @@ export namespace samples {
         shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
         shared_ptr<vireo::SwapChain>        swapChain;
 
-        const vireo::GraphicPipelineConfiguration pipelineConfig {
+        vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
             .colorBlendDesc = {{ .blendEnable = true }}
         };
@@ -86,8 +86,7 @@ export namespace samples {
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f}
             }}
         };
-        map<string, shared_ptr<vireo::PipelineResources>> pipelinesResources;
-        map<string, shared_ptr<vireo::Pipeline>>          pipelines;
+        map<string, shared_ptr<vireo::Pipeline>> pipelines;
 
         static void generateTextureData(const shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
     };

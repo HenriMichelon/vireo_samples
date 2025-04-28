@@ -27,8 +27,8 @@ export namespace samples {
             vec2 uv;
         };
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
-            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, sizeof(vec3)},
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
+            {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, offsetof(Vertex, uv)},
         };
 
         vector<Vertex> triangleVertices{
@@ -50,7 +50,7 @@ export namespace samples {
         };
         vector<FrameData> framesData;
 
-        const vireo::GraphicPipelineConfiguration pipelineConfig {
+        vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
             .colorBlendDesc = {{}},
         };
@@ -65,7 +65,7 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
         shared_ptr<vireo::Pipeline>         pipeline;
         shared_ptr<vireo::SubmitQueue>      graphicQueue;
-        shared_ptr<vireo::SwapChain> swapChain;
+        shared_ptr<vireo::SwapChain>        swapChain;
 
         static void generateTextureData(const shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
     };

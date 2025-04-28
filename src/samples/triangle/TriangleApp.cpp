@@ -35,12 +35,11 @@ namespace samples {
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
 
-        defaultPipeline = vireo->createGraphicPipeline(
-            vireo->createPipelineResources({ }, {}),
-            vireo->createVertexLayout(sizeof(Vertex), vertexAttributes),
-            vireo->createShaderModule("shaders/triangle_color.vert"),
-            vireo->createShaderModule("shaders/triangle_color.frag"),
-            pipelineConfig);
+        pipelineConfig.resources = vireo->createPipelineResources();
+        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
+        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/triangle_color.vert");
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/triangle_color.frag");
+        defaultPipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
         for (uint32_t i = 0; i < framesData.size(); i++) {

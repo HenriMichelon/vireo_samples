@@ -22,6 +22,11 @@ export namespace samples {
         void onKeyDown(uint32_t key) override;
 
     private:
+        static constexpr auto AXIS_X = vec3{1.0f, 0.0f, 0.0f};
+        static constexpr auto AXIS_Y = vec3{0.0f, 1.0f, 0.0f};
+        static constexpr auto AXIS_Z = vec3{0.0f, 0.0f, 1.0f};
+        static constexpr auto up = AXIS_Y;
+
 #ifdef _WIN32
         enum class KeyCodes : uint32_t {
            LEFT     = 37,
@@ -56,8 +61,10 @@ export namespace samples {
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
+
             shared_ptr<vireo::RenderTarget>     colorBuffer;
             shared_ptr<vireo::RenderTarget>     msaaColorBuffer;
+
             shared_ptr<vireo::RenderTarget>     depthBuffer;
             shared_ptr<vireo::RenderTarget>     msaaDepthBuffer;
 
@@ -65,12 +72,7 @@ export namespace samples {
             shared_ptr<vireo::DescriptorSet>    postProcessingDescriptorSet;
         };
 
-        static constexpr auto AXIS_X = vec3(1.0f, 0.0f, 0.0f);
-        static constexpr auto AXIS_Y = vec3(0.0f, 1.0f, 0.0f);
-        static constexpr auto AXIS_Z = vec3(0.0f, 0.0f, 1.0f);
-        static constexpr auto up = AXIS_Y;
-
-        // Global data
+        // Common data
         bool                           applyPostProcessing{true};
         float                          cameraYRotationAngle{0.0f};
         vec3                           cameraPos{0.0f, 0.0f, 2.0f};
@@ -86,7 +88,7 @@ export namespace samples {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
         };
-        const vireo::GraphicPipelineConfiguration pipelineConfig {
+        vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
             .colorBlendDesc = {{}},
             .msaa = vireo::MSAA::X8,
@@ -114,7 +116,7 @@ export namespace samples {
         const vector<vireo::VertexAttributeDesc> depthPrepassVertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
         };
-        const vireo::GraphicPipelineConfiguration depthPrepassPipelineConfig {
+        vireo::GraphicPipelineConfiguration depthPrepassPipelineConfig {
             .msaa = pipelineConfig.msaa,
             .cullMode = pipelineConfig.cullMode,
             .depthTestEnable = true,
@@ -129,7 +131,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex SKYBOX_BINDING_SAMPLER{0};
-        const vireo::GraphicPipelineConfiguration skyboxPipelineConfig {
+        vireo::GraphicPipelineConfiguration skyboxPipelineConfig {
             .colorRenderFormats = {pipelineConfig.colorRenderFormats[0]},
             .colorBlendDesc = {{}},
             .msaa = pipelineConfig.msaa,
@@ -154,11 +156,10 @@ export namespace samples {
         // Post-processing data
         static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_PARAMS{0};
         static constexpr vireo::DescriptorIndex POSTPROCESSING_BINDING_INPUT{1};
-        const vireo::GraphicPipelineConfiguration postprocessingPipelineConfig {
+        vireo::GraphicPipelineConfiguration postprocessingPipelineConfig {
             .colorRenderFormats = {pipelineConfig.colorRenderFormats[0]},
             .colorBlendDesc = {{}}
         };
-        const vector<vireo::VertexAttributeDesc> postprocessingAttributes{};
         vireo::RenderingConfiguration postprocessingRenderingConfig {
             .colorRenderTargets = {{}}
         };

@@ -25,8 +25,8 @@ export namespace samples {
             vec3 color;
         };
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0},
-            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, 12}
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
+            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
         };
         vector<Vertex> triangleVertices{
             { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
@@ -44,13 +44,14 @@ export namespace samples {
         };
         vector<FrameData> framesData;
 
-        const vireo::GraphicPipelineConfiguration pipelineConfig {
+        vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
             .colorBlendDesc = {{}},
             .msaa = vireo::MSAA::X8
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{
+                .clear = true,
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f}
             }}
         };

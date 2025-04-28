@@ -69,16 +69,14 @@ namespace samples {
         samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplersDescriptorLayout->build();
 
-        pipeline = vireo->createGraphicPipeline(
-            vireo->createPipelineResources(
-                { descriptorLayout, samplersDescriptorLayout },
-                {},
-                L"default"),
-            vireo->createVertexLayout(sizeof(Vertex), vertexAttributes),
-            vireo->createShaderModule("shaders/triangle_texture.vert"),
-            vireo->createShaderModule("shaders/triangle_texture.frag"),
-            pipelineConfig,
-            L"default");
+        pipelineConfig.resources = vireo->createPipelineResources(
+            { descriptorLayout, samplersDescriptorLayout },
+            {},
+            L"Default");
+        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
+        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/triangle_texture.vert");
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/triangle_texture.frag");
+        pipeline = vireo->createGraphicPipeline(pipelineConfig, L"default");
 
         framesData.resize(swapChain->getFramesInFlight());
         for (uint32_t i = 0; i < framesData.size(); i++) {

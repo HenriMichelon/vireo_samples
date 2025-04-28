@@ -131,33 +131,27 @@ namespace samples {
         postprocessingDescriptorLayout->add(POSTPROCESSING_BINDING_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
         postprocessingDescriptorLayout->build();
 
-        pipeline = vireo->createGraphicPipeline(
-            vireo->createPipelineResources({ descriptorLayout }),
-            vireo->createVertexLayout(sizeof(Vertex), vertexAttributes),
-            vireo->createShaderModule("shaders/cube_color_mvp.vert"),
-            vireo->createShaderModule("shaders/cube_color_mvp.frag"),
-            pipelineConfig);
+        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
+        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
+        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
+        pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
-        depthPrepassPipeline = vireo->createGraphicPipeline(
-            vireo->createPipelineResources({ descriptorLayout }),
-            vireo->createVertexLayout(sizeof(Vertex), depthPrepassVertexAttributes),
-            vireo->createShaderModule("shaders/depth_prepass.vert"),
-            nullptr,
-            depthPrepassPipelineConfig);
+        depthPrepassPipelineConfig.resources = pipelineConfig.resources;
+        depthPrepassPipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), depthPrepassVertexAttributes);
+        depthPrepassPipelineConfig.vertexShader = vireo->createShaderModule("shaders/depth_prepass.vert");
+        depthPrepassPipeline = vireo->createGraphicPipeline(depthPrepassPipelineConfig);
 
-        skyboxPipeline = vireo->createGraphicPipeline(
-            vireo->createPipelineResources({ skyboxDescriptorLayout, skyboxSamplerDescriptorLayout }),
-            vireo->createVertexLayout(sizeof(float) * 3, skyboxVertexAttributes),
-            vireo->createShaderModule("shaders/skybox.vert"),
-            vireo->createShaderModule("shaders/skybox.frag"),
-            skyboxPipelineConfig);
+        skyboxPipelineConfig.resources = vireo->createPipelineResources({ skyboxDescriptorLayout, skyboxSamplerDescriptorLayout });
+        skyboxPipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(float) * 3, skyboxVertexAttributes);
+        skyboxPipelineConfig.vertexShader = vireo->createShaderModule("shaders/skybox.vert");
+        skyboxPipelineConfig.fragmentShader = vireo->createShaderModule("shaders/skybox.frag");
+        skyboxPipeline = vireo->createGraphicPipeline(skyboxPipelineConfig);
 
-        postprocessingPipeline = vireo->createGraphicPipeline(
-            vireo->createPipelineResources({ postprocessingDescriptorLayout, skyboxSamplerDescriptorLayout }),
-            vireo->createVertexLayout(0, postprocessingAttributes),
-            vireo->createShaderModule("shaders/quad.vert"),
-            vireo->createShaderModule("shaders/voronoi.frag"),
-            postprocessingPipelineConfig);
+        postprocessingPipelineConfig.resources = skyboxPipelineConfig.resources;
+        postprocessingPipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
+        postprocessingPipelineConfig.fragmentShader = vireo->createShaderModule("shaders/voronoi.frag");
+        postprocessingPipeline = vireo->createGraphicPipeline(postprocessingPipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
