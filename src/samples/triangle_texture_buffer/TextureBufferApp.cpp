@@ -93,7 +93,7 @@ namespace samples {
             frameData.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frameData.commandList = frameData.commandAllocator->createCommandList();
 
-            frameData.inFlightFence =vireo->createFence();
+            frameData.inFlightFence =vireo->createFence(true);
         }
 
         transferQueue->waitIdle();

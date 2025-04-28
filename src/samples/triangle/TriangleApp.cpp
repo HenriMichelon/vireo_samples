@@ -45,7 +45,7 @@ namespace samples {
         for (uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
-            framesData[i].inFlightFence =vireo->createFence();
+            framesData[i].inFlightFence =vireo->createFence(true);
         }
 
         transferQueue->waitIdle();

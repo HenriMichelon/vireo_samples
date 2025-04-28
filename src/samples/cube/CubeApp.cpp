@@ -67,7 +67,7 @@ namespace samples {
     }
 
     void CubeApp::onInit() {
-        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
+        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"MainQueue");
         swapChain = vireo->createSwapChain(
             pipelineConfig.colorRenderFormats[0],
             graphicQueue,
@@ -112,6 +112,7 @@ namespace samples {
 
         modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
         modelBuffer->map();
+        modelBuffer->write(&model, sizeof(Model));
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
@@ -157,7 +158,7 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
-            frame.inFlightFence =vireo->createFence();
+            frame.inFlightFence =vireo->createFence(true, L"InFlightFence");
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, globalBuffer);
             frame.descriptorSet->update(BINDING_MODEL, modelBuffer);
@@ -187,10 +188,9 @@ namespace samples {
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
         frame.commandAllocator->reset();
+        auto cmdList = frame.commandList;
 
-        const auto& cmdList = frame.commandList;
         cmdList->begin();
-
         depthPrepassRenderingConfig.depthRenderTarget = frame.depthBuffer;
         depthPrepassRenderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
         cmdList->barrier(
