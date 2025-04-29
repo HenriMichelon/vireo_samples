@@ -103,39 +103,53 @@ set(TRIANGLE_SRC
         ${SRC_DIR}/samples/triangle/TriangleApp.cpp
         ${SRC_DIR}/samples/triangle/TriangleAppMain.cpp)
 set(TRIANGLE_MODULES ${SRC_DIR}/samples/triangle/TriangleApp.ixx)
-build_target(triangle "${TRIANGLE_SRC}" ${TRIANGLE_MODULES})
+build_target(triangle "${TRIANGLE_SRC}" "${TRIANGLE_MODULES}")
 
 #######################################################
 set(TRIANGLE_TEXTURE_SRC
         ${SRC_DIR}/samples/triangle_texture/TextureApp.cpp
         ${SRC_DIR}/samples/triangle_texture/TextureAppMain.cpp)
 set(TRIANGLE_TEXTURE_MODULES ${SRC_DIR}/samples/triangle_texture/TextureApp.ixx)
-build_target(triangle_texture "${TRIANGLE_TEXTURE_SRC}" ${TRIANGLE_TEXTURE_MODULES})
+build_target(triangle_texture "${TRIANGLE_TEXTURE_SRC}" "${TRIANGLE_TEXTURE_MODULES}")
 
 #######################################################
 set(TRIANGLE_BUFFER_SRC
         ${SRC_DIR}/samples/triangle_texture_buffer/TextureBufferApp.cpp
         ${SRC_DIR}/samples/triangle_texture_buffer/TextureBufferAppMain.cpp)
 set(TRIANGLE_BUFFER_MODULES ${SRC_DIR}/samples/triangle_texture_buffer/TextureBufferApp.ixx)
-build_target(triangle_texture_buffer "${TRIANGLE_BUFFER_SRC}" ${TRIANGLE_BUFFER_MODULES})
+build_target(triangle_texture_buffer "${TRIANGLE_BUFFER_SRC}" "${TRIANGLE_BUFFER_MODULES}")
 
 #######################################################
 set(COMPUTE_BUFFER_SRC
         ${SRC_DIR}/samples/compute/ComputeApp.cpp
         ${SRC_DIR}/samples/compute/ComputeAppMain.cpp)
 set(COMPUTE_BUFFER_MODULES ${SRC_DIR}/samples/compute/ComputeApp.ixx)
-build_target(compute "${COMPUTE_BUFFER_SRC}" ${COMPUTE_BUFFER_MODULES})
+build_target(compute "${COMPUTE_BUFFER_SRC}" "${COMPUTE_BUFFER_MODULES}")
 
 #######################################################
 set(MSAA_SRC
         ${SRC_DIR}/samples/msaa/MsaaApp.cpp
         ${SRC_DIR}/samples/msaa/MsaaAppMain.cpp)
 set(MSAA_MODULES ${SRC_DIR}/samples/msaa/MsaaApp.ixx)
-build_target(msaa "${MSAA_SRC}" ${MSAA_MODULES})
+build_target(msaa "${MSAA_SRC}" "${MSAA_MODULES}")
 
 #######################################################
 set(CUBE_SRC
         ${SRC_DIR}/samples/cube/CubeApp.cpp
         ${SRC_DIR}/samples/cube/CubeAppMain.cpp)
 set(CUBE_MODULES ${SRC_DIR}/samples/cube/CubeApp.ixx)
-build_target(cube "${CUBE_SRC}" ${CUBE_MODULES})
+build_target(cube "${CUBE_SRC}" "${CUBE_MODULES}")
+
+#######################################################
+set(DEFERRED_SRC
+        ${SRC_DIR}/samples/deferred/DeferredApp.cpp
+        ${SRC_DIR}/samples/deferred/DeferredAppMain.cpp
+        ${SRC_DIR}/samples/deferred/Scene.cpp
+        ${SRC_DIR}/samples/deferred/DepthPrepass.cpp
+)
+set(DEFERRED_MODULES
+        ${SRC_DIR}/samples/deferred/DeferredApp.ixx
+        ${SRC_DIR}/samples/deferred/Scene.ixx
+        ${SRC_DIR}/samples/deferred/DepthPrepass.ixx
+)
+build_target(deferred "${DEFERRED_SRC}" "${DEFERRED_MODULES}")
