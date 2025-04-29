@@ -20,7 +20,6 @@ namespace samples {
 
         postprocessingParams.time = getCurrentTimeMilliseconds();
         postprocessingParamsBuffer->write(&postprocessingParams);
-
     }
 
     void CubeApp::onKeyDown(const uint32_t key) {
@@ -189,7 +188,7 @@ namespace samples {
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
 
-        frame.modelBuffer->write(&model, sizeof(Model));
+        frame.modelBuffer->write(&model);
         frame.globalBuffer->write(&global);
         frame.skyboxGlobalBuffer->write(&skyboxGlobal);
 
@@ -211,6 +210,10 @@ namespace samples {
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
         cmdList->drawIndexed(cubeIndices.size());
         cmdList->endRendering();
+        cmdList->barrier(
+            {frame.depthBuffer, frame.msaaDepthBuffer},
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
         cmdList->end();
         graphicQueue->submit(
             vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,
@@ -224,10 +227,6 @@ namespace samples {
         renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaColorBuffer;
         renderingConfig.depthRenderTarget = frame.depthBuffer;
         renderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
-        cmdList->barrier(
-            {frame.depthBuffer, frame.msaaDepthBuffer},
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
         cmdList->barrier(
             {frame.colorBuffer, frame.msaaColorBuffer},
             vireo::ResourceState::UNDEFINED,
