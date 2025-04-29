@@ -10,6 +10,8 @@ module;
 #include "Libraries.h"
 module samples.deferred.skybox;
 
+import samples.deferred.global;
+
 namespace samples {
 
     void Skybox::onUpdate(const Scene& scene) {
@@ -60,7 +62,7 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
-            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Scene::Global));
+            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalBuffer->map();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);

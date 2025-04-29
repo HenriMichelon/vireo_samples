@@ -8,6 +8,8 @@ module;
 #include "Libraries.h"
 module samples.deferred.postprocessing;
 
+import samples.deferred.global;
+
 namespace samples {
 
     void PostProcessing::onUpdate() {
@@ -95,7 +97,7 @@ namespace samples {
         params.imageSize.y = extent.height;
         for (auto& frame : framesData) {
             frame.colorBuffer = vireo->createRenderTarget(
-                vireo::ImageFormat::R8G8B8A8_UNORM,
+                RENDER_FORMAT,
                 extent.width,
                 extent.height);
         }

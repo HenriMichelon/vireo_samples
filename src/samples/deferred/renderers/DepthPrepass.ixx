@@ -9,6 +9,7 @@ module;
 export module samples.deferred.depthprepass;
 
 import samples.deferred.scene;
+import samples.deferred.global;
 
 export namespace samples {
 
@@ -41,7 +42,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
 
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Scene::Vertex, pos) },
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .cullMode = vireo::CullMode::BACK,

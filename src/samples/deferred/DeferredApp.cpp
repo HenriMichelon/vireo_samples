@@ -9,6 +9,8 @@ module;
 #include "Libraries.h"
 module samples.deferred;
 
+import samples.deferred.global;
+
 namespace samples {
 
     void DeferredApp::onUpdate() {
@@ -18,8 +20,8 @@ namespace samples {
     }
 
     void DeferredApp::onKeyDown(const uint32_t key) {
-        const auto keyCode = static_cast<Scene::KeyCodes>(key);
-        if (keyCode == Scene::KeyCodes::P) {
+        const auto keyCode = static_cast<KeyCodes>(key);
+        if (keyCode == KeyCodes::P) {
             applyPostProcessing = !applyPostProcessing;
             return;
         }
@@ -29,7 +31,7 @@ namespace samples {
     void DeferredApp::onInit() {
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"MainQueue");
         swapChain = vireo->createSwapChain(
-            vireo::ImageFormat::R8G8B8A8_UNORM,
+            RENDER_FORMAT,
             graphicQueue,
             windowHandle,
             vireo::PresentMode::VSYNC);

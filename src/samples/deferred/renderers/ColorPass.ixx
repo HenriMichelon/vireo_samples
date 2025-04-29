@@ -8,6 +8,7 @@ module;
 #include "Libraries.h"
 export module samples.deferred.colorpass;
 
+import samples.deferred.global;
 import samples.deferred.depthprepass;
 import samples.deferred.scene;
 
@@ -36,11 +37,11 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-                {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Scene::Vertex, pos) },
-                {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Scene::Vertex, color)}
+                {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
+                {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_UNORM},
+            .colorRenderFormats = {RENDER_FORMAT},
             .colorBlendDesc = {{}},
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,

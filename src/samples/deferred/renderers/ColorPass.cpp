@@ -8,6 +8,8 @@ module;
 #include "Libraries.h"
 module samples.deferred.colorpass;
 
+import samples.deferred.global;
+
 namespace samples {
 
     void ColorPass::onInit(
@@ -21,16 +23,16 @@ namespace samples {
         descriptorLayout->build();
 
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
-        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Scene::Vertex), vertexAttributes);
+        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
-            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Scene::Model));
+            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
             frame.modelBuffer->map();
-            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Scene::Global));
+            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalBuffer->map();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);

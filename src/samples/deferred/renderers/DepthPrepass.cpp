@@ -8,6 +8,8 @@ module;
 #include "Libraries.h"
 module samples.deferred.depthprepass;
 
+import samples.deferred.global;
+
 namespace samples {
 
     void DepthPrepass::onInit(
@@ -21,15 +23,15 @@ namespace samples {
         descriptorLayout->build();
 
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
-        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Scene::Vertex), vertexAttributes);
+        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/depth_prepass.vert");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
-            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Scene::Model));
+            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
             frame.modelBuffer->map();
-            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Scene::Global));
+            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalBuffer->map();
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();

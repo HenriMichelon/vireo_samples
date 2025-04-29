@@ -8,6 +8,8 @@ module;
 #include "Libraries.h"
 export module samples.deferred.postprocessing;
 
+import samples.deferred.global;
+
 export namespace samples {
 
     class PostProcessing {
@@ -41,7 +43,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_PARAMS{0};
         static constexpr vireo::DescriptorIndex BINDING_INPUT{1};
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_UNORM},
+            .colorRenderFormats = {RENDER_FORMAT},
             .colorBlendDesc = {{}}
         };
         vireo::RenderingConfiguration renderingConfig {

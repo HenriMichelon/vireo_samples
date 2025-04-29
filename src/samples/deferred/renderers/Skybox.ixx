@@ -8,6 +8,7 @@ module;
 #include "Libraries.h"
 export module samples.deferred.skybox;
 
+import samples.deferred.global;
 import samples.deferred.depthprepass;
 import samples.deferred.scene;
 
@@ -48,7 +49,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_UNORM},
+            .colorRenderFormats = {RENDER_FORMAT},
             .colorBlendDesc = {{}},
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
@@ -64,7 +65,7 @@ export namespace samples {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0 },
         };
 
-        Scene::Global                       skyboxGlobal{};
+        Global                              skyboxGlobal{};
         vector<FrameData>                   framesData;
         shared_ptr<vireo::Vireo>            vireo;
         shared_ptr<vireo::Buffer>           vertexBuffer;

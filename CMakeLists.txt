@@ -166,6 +166,7 @@ set(DEFERRED_SRC
 )
 set(DEFERRED_MODULES
         ${SRC_DIR}/samples/deferred/DeferredApp.ixx
+        ${SRC_DIR}/samples/deferred/Global.ixx
         ${SRC_DIR}/samples/deferred/Scene.ixx
         ${SRC_DIR}/samples/deferred/renderers/DepthPrepass.ixx
         ${SRC_DIR}/samples/deferred/renderers/Skybox.ixx
