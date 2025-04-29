@@ -211,12 +211,11 @@ namespace samples {
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
         cmdList->drawIndexed(cubeIndices.size());
         cmdList->endRendering();
-        cmdList->barrier(
-            {frame.depthBuffer, frame.msaaDepthBuffer},
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
         cmdList->end();
-        graphicQueue->submit(frame.depthSemaphore, {cmdList});
+        graphicQueue->submit(
+            vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,
+            frame.depthSemaphore,
+            {cmdList});
 
         frame.commandAllocator->reset();
         cmdList = frame.commandList;
@@ -225,6 +224,10 @@ namespace samples {
         renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaColorBuffer;
         renderingConfig.depthRenderTarget = frame.depthBuffer;
         renderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
+        cmdList->barrier(
+            {frame.depthBuffer, frame.msaaDepthBuffer},
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
         cmdList->barrier(
             {frame.colorBuffer, frame.msaaColorBuffer},
             vireo::ResourceState::UNDEFINED,

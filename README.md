@@ -46,7 +46,7 @@ The samples demonstrate the following features, in order of complexity:
   - Index buffers
   - Indexed drawing
   - Depth buffers
-  - Depth pre-pass
+  - Depth pre-pass with semaphore synchronization
   - Cubemaps
   - MSAA for color and depth buffers
   - Slang example for an MVP vertex shader, a skybox and a post-processing effect
