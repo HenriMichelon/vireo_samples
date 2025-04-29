@@ -5,21 +5,16 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Libraries.h"
-module samples.hellocube;
+module samples.cube;
 
 namespace samples {
 
     void CubeApp::onUpdate() {
-        constexpr  float angle = radians(-1.0);
-        model.transform = glm::rotate(model.transform, angle, AXIS_X);
-        model.transform = glm::rotate(model.transform, angle, AXIS_Y);
-
-        postprocessingParams.time = getCurrentTimeMilliseconds();
-        postprocessingParamsBuffer->write(&postprocessingParams);
+        scene.onUpdate();
+        skybox.onUpdate(scene);
+        postProcessing.onUpdate();
     }
 
     void CubeApp::onKeyDown(const uint32_t key) {
@@ -28,259 +23,77 @@ namespace samples {
             applyPostProcessing = !applyPostProcessing;
             return;
         }
-        // cout << "key down: " << key << endl;
-        vec3 axis;
-        auto angle = radians(2.0f);
-        switch (keyCode) {
-        case KeyCodes::LEFT:
-            axis = AXIS_Y;
-            break;
-        case KeyCodes::RIGHT:
-            axis = AXIS_Y;
-            angle *= -1.0f;
-            break;
-        case KeyCodes::UP:
-            if (cameraYRotationAngle <= radians(-60.f)) { return; }
-            axis = AXIS_X;
-            angle *= -1.0f;
-            cameraYRotationAngle += angle;
-            break;
-        case KeyCodes::DOWN:
-            if (cameraYRotationAngle >= radians(60.0f)) { return; }
-            axis = AXIS_X;
-            cameraYRotationAngle += angle;
-            break;
-        default:
-            return;
-        }
-        const auto viewDir = cameraTarget - cameraPos;
-        const vec3 rotatedDir = rotate(mat4{1.0f}, angle, axis) * vec4(viewDir, 0.0f);
-        cameraTarget = cameraPos + rotatedDir;
-
-        global.view = lookAt(cameraPos, cameraTarget, AXIS_Y);
-        skyboxGlobal.view = mat4(mat3(global.view));
+        scene.onKeyDown(key);
     }
 
     void CubeApp::onInit() {
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"MainQueue");
         swapChain = vireo->createSwapChain(
-            pipelineConfig.colorRenderFormats[0],
+            RENDER_FORMAT,
             graphicQueue,
             windowHandle,
             vireo::PresentMode::VSYNC);
 
-        vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
-        indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX,sizeof(uint32_t),cubeIndices.size());
-
-        skyboxVertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(float) * 3,skyboxVertices.size() / 3);
-        skyboxSampler = vireo->createSampler(
-            vireo::Filter::NEAREST,
-            vireo::Filter::NEAREST,
-            vireo::AddressMode::CLAMP_TO_BORDER,
-            vireo::AddressMode::CLAMP_TO_BORDER,
-            vireo::AddressMode::CLAMP_TO_BORDER);
-
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
-        uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
-        uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
-        uploadCommandList->upload(skyboxVertexBuffer, &skyboxVertices[0]);
+        scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
+        skybox.onInit(vireo, uploadCommandList, graphicQueue, swapChain->getFramesInFlight());
         uploadCommandList->end();
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
 
-        postprocessingParamsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(PostProcessingParams));
-        postprocessingParamsBuffer->map();
-
-        descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->build();
-
-        skyboxDescriptorLayout = vireo->createDescriptorLayout();
-        skyboxDescriptorLayout->add(SKYBOX_BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        skyboxDescriptorLayout->add(SKYBOX_BINDING_CUBEMAP, vireo::DescriptorType::SAMPLED_IMAGE);
-        skyboxDescriptorLayout->build();
-        skyboxSamplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
-        skyboxSamplerDescriptorLayout->add(SKYBOX_BINDING_SAMPLER, vireo::DescriptorType::SAMPLER);
-        skyboxSamplerDescriptorLayout->build();
-
-        postprocessingDescriptorLayout = vireo->createDescriptorLayout();
-        postprocessingDescriptorLayout->add(POSTPROCESSING_BINDING_PARAMS, vireo::DescriptorType::BUFFER);
-        postprocessingDescriptorLayout->add(POSTPROCESSING_BINDING_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
-        postprocessingDescriptorLayout->build();
-
-        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
-        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
-        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
-        pipeline = vireo->createGraphicPipeline(pipelineConfig);
-
-        depthPrepassPipelineConfig.resources = pipelineConfig.resources;
-        depthPrepassPipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), depthPrepassVertexAttributes);
-        depthPrepassPipelineConfig.vertexShader = vireo->createShaderModule("shaders/depth_prepass.vert");
-        depthPrepassPipeline = vireo->createGraphicPipeline(depthPrepassPipelineConfig);
-
-        skyboxPipelineConfig.resources = vireo->createPipelineResources({ skyboxDescriptorLayout, skyboxSamplerDescriptorLayout });
-        skyboxPipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(float) * 3, skyboxVertexAttributes);
-        skyboxPipelineConfig.vertexShader = vireo->createShaderModule("shaders/skybox.vert");
-        skyboxPipelineConfig.fragmentShader = vireo->createShaderModule("shaders/skybox.frag");
-        skyboxPipeline = vireo->createGraphicPipeline(skyboxPipelineConfig);
-
-        postprocessingPipelineConfig.resources = skyboxPipelineConfig.resources;
-        postprocessingPipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
-        postprocessingPipelineConfig.fragmentShader = vireo->createShaderModule("shaders/voronoi.frag");
-        postprocessingPipeline = vireo->createGraphicPipeline(postprocessingPipelineConfig);
-
-        global.view = lookAt(cameraPos, cameraTarget, up);
-        global.projection = perspective(radians(75.0f), swapChain->getAspectRatio(), 0.1f, 100.0f);
-
-        skyboxGlobal.view = mat4(mat3(global.view)); // only keep the rotation
-        skyboxGlobal.projection = global.projection;
-
-        const auto skyboxCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
-        const auto skyboxCommandList = skyboxCommandAllocator->createCommandList();
-        skyboxCommandList->begin();
-        skyboxCubeMap = loadCubemap(skyboxCommandList, "res/StandardCubeMap.jpg", vireo::ImageFormat::R8G8B8A8_SRGB);
-        skyboxCommandList->end();
-        graphicQueue->submit({skyboxCommandList});
-        graphicQueue->waitIdle();
-
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
-            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
-            frame.modelBuffer->map();
-
-            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
-            frame.globalBuffer->map();
-
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
-            frame.inFlightFence =vireo->createFence(true, L"InFlightFence");
-
-            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
-            frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
-
-            frame.skyboxGlobalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
-            frame.skyboxGlobalBuffer->map();
-            frame.skyboxDescriptorSet = vireo->createDescriptorSet(skyboxDescriptorLayout);
-            frame.skyboxDescriptorSet->update(SKYBOX_BINDING_GLOBAL, frame.skyboxGlobalBuffer);
-            frame.skyboxDescriptorSet->update(SKYBOX_BINDING_CUBEMAP, skyboxCubeMap);
-
-            frame.depthCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
-            frame.depthCommandList = frame.depthCommandAllocator->createCommandList();
-            frame.depthSemaphore = vireo->createSemaphore(vireo::SemaphoreType::BINARY);
-
-            frame.postProcessingDescriptorSet = vireo->createDescriptorSet(postprocessingDescriptorLayout);
-            frame.postProcessingDescriptorSet->update(POSTPROCESSING_BINDING_PARAMS, postprocessingParamsBuffer);
+            frame.inFlightFence =vireo->createFence(true);
         }
-
-        skyboxSamplerDescriptorSet = vireo->createDescriptorSet(skyboxSamplerDescriptorLayout);
-        skyboxSamplerDescriptorSet->update(SKYBOX_BINDING_SAMPLER, skyboxSampler);
+        colorPass.onInit(vireo, swapChain->getFramesInFlight());
+        depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
+        postProcessing.onInit(vireo, swapChain->getFramesInFlight());
 
         transferQueue->waitIdle();
     }
 
     void CubeApp::onRender() {
-        const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
+        const auto frameIndex = swapChain->getCurrentFrameIndex();
+        const auto& frame = framesData[frameIndex];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
 
-        frame.modelBuffer->write(&model);
-        frame.globalBuffer->write(&global);
-        frame.skyboxGlobalBuffer->write(&skyboxGlobal);
+        depthPrepass.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            scene,
+            graphicQueue);
 
-        frame.depthCommandAllocator->reset();
-        auto cmdList = frame.depthCommandList;
-        cmdList->begin();
-        depthPrepassRenderingConfig.depthRenderTarget = frame.depthBuffer;
-        depthPrepassRenderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
-        cmdList->barrier(
-            {frame.depthBuffer, frame.msaaDepthBuffer},
-            vireo::ResourceState::UNDEFINED,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
-        cmdList->beginRendering(depthPrepassRenderingConfig);
-        cmdList->setViewport(swapChain->getExtent());
-        cmdList->setScissors(swapChain->getExtent());
-        cmdList->bindPipeline(depthPrepassPipeline);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
-        cmdList->bindVertexBuffer(vertexBuffer);
-        cmdList->bindIndexBuffer(indexBuffer);
-        cmdList->drawIndexed(cubeIndices.size());
-        cmdList->endRendering();
-        cmdList->barrier(
-            {frame.depthBuffer, frame.msaaDepthBuffer},
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
-        cmdList->end();
-        graphicQueue->submit(
-            vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,
-            frame.depthSemaphore,
-            {cmdList});
+        skybox.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            depthPrepass,
+            frame.colorBuffer,
+            graphicQueue);
 
         frame.commandAllocator->reset();
-        cmdList = frame.commandList;
+        const auto cmdList = frame.commandList;
         cmdList->begin();
-        renderingConfig.colorRenderTargets[0].renderTarget = frame.colorBuffer;
-        renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaColorBuffer;
-        renderingConfig.depthRenderTarget = frame.depthBuffer;
-        renderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
-        cmdList->barrier(
-            {frame.colorBuffer, frame.msaaColorBuffer},
-            vireo::ResourceState::UNDEFINED,
-            vireo::ResourceState::RENDER_TARGET_COLOR);
-        cmdList->beginRendering(renderingConfig);
-        cmdList->setViewport(swapChain->getExtent());
-        cmdList->setScissors(swapChain->getExtent());
-
-        cmdList->bindPipeline(pipeline);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
-        cmdList->bindVertexBuffer(vertexBuffer);
-        cmdList->bindIndexBuffer(indexBuffer);
-        cmdList->drawIndexed(cubeIndices.size());
-
-        cmdList->bindPipeline(skyboxPipeline);
-        cmdList->bindVertexBuffer(skyboxVertexBuffer);
-        cmdList->bindDescriptors(skyboxPipeline, {frame.skyboxDescriptorSet, skyboxSamplerDescriptorSet});
-        cmdList->draw(skyboxVertices.size() / 3);
-
-        cmdList->endRendering();
-        cmdList->barrier(
-            { frame.msaaDepthBuffer, frame.depthBuffer },
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
-            vireo::ResourceState::UNDEFINED);
-        cmdList->barrier(
-            frame.msaaColorBuffer,
-            vireo::ResourceState::RENDER_TARGET_COLOR,
-            vireo::ResourceState::UNDEFINED);
+        colorPass.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            scene,
+            depthPrepass,
+            cmdList,
+            frame.colorBuffer);
 
         shared_ptr<vireo::RenderTarget> colorRenderTarget;
         if (applyPostProcessing) {
-            colorRenderTarget = frame.postProcessingColorBuffer;
-            postprocessingRenderingConfig.colorRenderTargets[0].renderTarget = frame.postProcessingColorBuffer;
-            cmdList->barrier(
-                frame.colorBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::SHADER_READ);
-            cmdList->barrier(
-                frame.postProcessingColorBuffer,
-                vireo::ResourceState::UNDEFINED,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->beginRendering(postprocessingRenderingConfig);
-            cmdList->bindPipeline(postprocessingPipeline);
-            cmdList->bindDescriptors(postprocessingPipeline, {frame.postProcessingDescriptorSet, skyboxSamplerDescriptorSet});
-            cmdList->draw(3);
-            cmdList->endRendering();
-            cmdList->barrier(
-                frame.postProcessingColorBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::COPY_SRC);
-            cmdList->barrier(
-                frame.colorBuffer,
-                vireo::ResourceState::SHADER_READ,
-                vireo::ResourceState::UNDEFINED);
+            colorRenderTarget = postProcessing.getColorBuffer(frameIndex);
+            postProcessing.onRender(
+                frameIndex,
+                swapChain->getExtent(),
+                cmdList,
+                frame.colorBuffer);
         } else {
             colorRenderTarget = frame.colorBuffer;
             cmdList->barrier(
@@ -289,6 +102,10 @@ namespace samples {
                 vireo::ResourceState::COPY_SRC);
         }
 
+        cmdList->barrier(
+            depthPrepass.getDepthBuffer(frameIndex),
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
+            vireo::ResourceState::UNDEFINED);
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::UNDEFINED,
@@ -305,8 +122,8 @@ namespace samples {
         cmdList->end();
 
         graphicQueue->submit(
-            frame.depthSemaphore,
-            vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,
+            skybox.getSemaphore(frameIndex),
+            vireo::WaitStage::TRANSFER,
             frame.inFlightFence,
             swapChain,
             {cmdList});
@@ -317,162 +134,23 @@ namespace samples {
     void CubeApp::onResize() {
         swapChain->recreate();
         const auto extent = swapChain->getExtent();
-        postprocessingParams.imageSize.x = extent.width;
-        postprocessingParams.imageSize.y = extent.height;
         for (auto& frame : framesData) {
             frame.colorBuffer = vireo->createRenderTarget(
                 swapChain,
-                renderingConfig.colorRenderTargets[0].clearValue);
-            frame.msaaColorBuffer = vireo->createRenderTarget(
-                swapChain,
-                renderingConfig.colorRenderTargets[0].clearValue,
-                pipelineConfig.msaa);
-            frame.depthBuffer = vireo->createRenderTarget(
-                vireo::ImageFormat::D32_SFLOAT,
-                extent.width,
-                extent.height,
-                vireo::RenderTargetType::DEPTH,
-                renderingConfig.depthClearValue);
-            frame.msaaDepthBuffer = vireo->createRenderTarget(
-                frame.depthBuffer->getImage()->getFormat(),
-                extent.width,
-                extent.height,
-                vireo::RenderTargetType::DEPTH,
-                renderingConfig.depthClearValue,
-                pipelineConfig.msaa);
-            frame.postProcessingColorBuffer = vireo->createRenderTarget(
-                vireo::ImageFormat::R8G8B8A8_SRGB,
-                extent.width,
-                extent.height);
-            frame.postProcessingDescriptorSet->update(POSTPROCESSING_BINDING_INPUT, frame.colorBuffer->getImage());
+                skybox.getClearValue());
         }
+        depthPrepass.onResize(extent);
+        skybox.onResize(extent);
+        postProcessing.onResize(extent);
     }
 
     void CubeApp::onDestroy() {
         graphicQueue->waitIdle();
         swapChain->waitIdle();
-        for (const auto& frame : framesData) {
-            frame.modelBuffer->unmap();
-            frame.globalBuffer->unmap();
-            frame.skyboxGlobalBuffer->unmap();
-        }
+        colorPass.onDestroy();
+        depthPrepass.onDestroy();
+        skybox.onDestroy();
     }
 
-    shared_ptr<vireo::Image> CubeApp::loadCubemap(
-        const shared_ptr<vireo::CommandList>& cmdList,
-        const string &filepath,
-        const vireo::ImageFormat imageFormat) const {
-        uint32_t texWidth, texHeight;
-        uint64_t imageSize;
-        auto *pixels = loadRGBAImage(filepath, texWidth, texHeight, imageSize);
-        if (!pixels) { throw runtime_error("failed to load texture image" + filepath); }
-
-        vector<void*> data;
-        const auto imgWidth  = texWidth / 4;
-        const auto imgHeight = texHeight / 3;
-        // right
-        data.push_back(extractImage(pixels,
-                                    2 * imgWidth,
-                                    1 * imgHeight,
-                                    texWidth,
-                                    imgWidth,
-                                    imgHeight,
-                                    4));
-        // left
-        data.push_back(extractImage(pixels,
-                                    0 * imgWidth,
-                                    1 * imgHeight,
-                                    texWidth,
-                                    imgWidth,
-                                    imgHeight,
-                                    4));
-        // top
-        data.push_back(extractImage(pixels,
-                                    1 * imgWidth,
-                                    0 * imgHeight,
-                                    texWidth,
-                                    imgWidth,
-                                    imgHeight,
-                                    4));
-        // bottom
-        data.push_back(extractImage(pixels,
-                                    1 * imgWidth,
-                                    2 * imgHeight,
-                                    texWidth,
-                                    imgWidth,
-                                    imgHeight,
-                                    4));
-        // front
-        data.push_back(extractImage(pixels,
-                                    1 * imgWidth,
-                                    1 * imgHeight,
-                                    texWidth,
-                                    imgWidth,
-                                    imgHeight,
-                                    4));
-        // back
-        data.push_back(extractImage(pixels,
-                                    3 * imgWidth,
-                                    1 * imgHeight,
-                                    texWidth,
-                                    imgWidth,
-                                    imgHeight,
-                                    4));
-        const auto image = vireo->createImage(
-                                     imageFormat,
-                                     imgWidth, imgHeight,
-                                     1,
-                                     6,
-                                     L"Cubemap");
-
-        cmdList->barrier(image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
-        cmdList->uploadArray(image, data);
-        cmdList->barrier(image, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
-
-        for (int i = 0; i < 6; i++) {
-            delete[] static_cast<std::byte*>(data[i]);
-        }
-        stbi_image_free(pixels);
-        return image;
-    }
-
-    std::byte* CubeApp::loadRGBAImage(const string& filepath, uint32_t& width, uint32_t& height, uint64_t& size) {
-        FILE* fp = fopen(filepath.c_str(), "rb");
-        if (fp == nullptr) throw runtime_error("Error: Could not open file " + filepath);
-
-        int texWidth, texHeight, texChannels;
-        unsigned char* imageData = stbi_load_from_file  (
-            fp,
-            &texWidth, &texHeight,
-            &texChannels, STBI_rgb_alpha);
-        if (!imageData) throw runtime_error("Error loading image : " + string{stbi_failure_reason()});
-
-        width = static_cast<uint32_t>(texWidth);
-        height = static_cast<uint32_t>(texHeight);
-        size = width * height * STBI_rgb_alpha;
-        return reinterpret_cast<std::byte*>(imageData);
-    }
-
-    std::byte *CubeApp::extractImage(const std::byte* source,
-                                const int   x, const int y,
-                                const int   srcWidth,
-                                const int   w, const int h,
-                                const int   channels) {
-        const auto extractedImage = new std::byte[w * h * channels];
-        for (uint32_t row = 0; row < h; ++row) {
-            for (uint32_t col = 0; col < w; ++col) {
-                for (uint32_t c = 0; c < channels; ++c) {
-                    extractedImage[(row * w + col) * channels + c] = source[((y + row) * srcWidth + (x + col)) *
-                        channels + c];
-                }
-            }
-        }
-        return extractedImage;
-    }
-
-    float CubeApp::getCurrentTimeMilliseconds() {
-        using namespace std::chrono;
-        return static_cast<float>(duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count());
-    }
 
 }

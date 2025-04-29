@@ -5,6 +5,6 @@
 * https://opensource.org/licenses/MIT
 */
 #include "Macros.h"
-import samples.hellocube;
+import samples.cube;
 
-APP(make_shared<samples::CubeApp>(), L"Hello Cube", 1280, 720);
+APP(make_shared<samples::CubeApp>(), L"Deferred", 1280, 720);
