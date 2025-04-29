@@ -29,7 +29,7 @@ namespace samples {
     void DeferredApp::onInit() {
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"MainQueue");
         swapChain = vireo->createSwapChain(
-            pipelineConfig.colorRenderFormats[0],
+            vireo::ImageFormat::R8G8B8A8_UNORM,
             graphicQueue,
             windowHandle,
             vireo::PresentMode::VSYNC);
@@ -37,42 +37,19 @@ namespace samples {
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
-
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
         skybox.onInit(vireo, uploadCommandList, graphicQueue, swapChain->getFramesInFlight());
-
         uploadCommandList->end();
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
 
-        descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->build();
-
-        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
-        pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Scene::Vertex), vertexAttributes);
-        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
-        pipeline = vireo->createGraphicPipeline(pipelineConfig);
-
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
-            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Scene::Model));
-            frame.modelBuffer->map();
-
-            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Scene::Global));
-            frame.globalBuffer->map();
-
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
-            frame.inFlightFence =vireo->createFence(true, L"InFlightFence");
-
-            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
-            frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
+            frame.inFlightFence =vireo->createFence(true);
         }
-
+        colorPass.onInit(vireo, swapChain->getFramesInFlight());
         depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
         postProcessing.onInit(vireo, swapChain->getFramesInFlight());
 
@@ -84,9 +61,6 @@ namespace samples {
         const auto& frame = framesData[frameIndex];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
-
-        frame.modelBuffer->write(&scene.getModel());
-        frame.globalBuffer->write(&scene.getGlobal());
 
         depthPrepass.onRender(
             frameIndex,
@@ -104,19 +78,13 @@ namespace samples {
         frame.commandAllocator->reset();
         const auto cmdList = frame.commandList;
         cmdList->begin();
-        renderingConfig.colorRenderTargets[0].renderTarget = frame.colorBuffer;
-        renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
-        cmdList->beginRendering(renderingConfig);
-        cmdList->setViewport(swapChain->getExtent());
-        cmdList->setScissors(swapChain->getExtent());
-        cmdList->bindPipeline(pipeline);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
-        scene.draw(cmdList);
-        cmdList->endRendering();
-        cmdList->barrier(
-            depthPrepass.getDepthBuffer(frameIndex),
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
-            vireo::ResourceState::UNDEFINED);
+        colorPass.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            scene,
+            depthPrepass,
+            cmdList,
+            frame.colorBuffer);
 
         shared_ptr<vireo::RenderTarget> colorRenderTarget;
         if (applyPostProcessing) {
@@ -134,6 +102,10 @@ namespace samples {
                 vireo::ResourceState::COPY_SRC);
         }
 
+        cmdList->barrier(
+            depthPrepass.getDepthBuffer(frameIndex),
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
+            vireo::ResourceState::UNDEFINED);
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::UNDEFINED,
@@ -165,7 +137,7 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.colorBuffer = vireo->createRenderTarget(
                 swapChain,
-                renderingConfig.colorRenderTargets[0].clearValue);
+                skybox.getClearValue());
         }
         depthPrepass.onResize(extent);
         skybox.onResize(extent);
@@ -175,10 +147,7 @@ namespace samples {
     void DeferredApp::onDestroy() {
         graphicQueue->waitIdle();
         swapChain->waitIdle();
-        for (const auto& frame : framesData) {
-            frame.modelBuffer->unmap();
-            frame.globalBuffer->unmap();
-        }
+        colorPass.onDestroy();
         depthPrepass.onDestroy();
         skybox.onDestroy();
     }

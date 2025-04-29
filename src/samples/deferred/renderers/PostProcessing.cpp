@@ -51,6 +51,9 @@ namespace samples {
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_PARAMS, paramsBuffer);
         }
+
+        samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
+        samplerDescriptorSet->update(BINDING_SAMPLER, sampler);
     }
 
     void PostProcessing::onRender(
@@ -63,7 +66,7 @@ namespace samples {
 
         renderingConfig.colorRenderTargets[0].renderTarget = frame.colorBuffer;
         cmdList->barrier(
-            frame.colorBuffer,
+            colorBuffer,
             vireo::ResourceState::RENDER_TARGET_COLOR,
             vireo::ResourceState::SHADER_READ);
         cmdList->barrier(
@@ -82,7 +85,7 @@ namespace samples {
             vireo::ResourceState::RENDER_TARGET_COLOR,
             vireo::ResourceState::COPY_SRC);
         cmdList->barrier(
-            frame.colorBuffer,
+            colorBuffer,
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::UNDEFINED);
     }

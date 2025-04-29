@@ -33,6 +33,7 @@ export namespace samples {
         auto getSemaphore(const uint32_t frameIndex) const { return framesData[frameIndex].semaphore; }
         auto getSamplerDescriptorSet() const { return samplerDescriptorSet; }
         auto getSamplerDescriptorSLayout() const { return samplerDescriptorLayout; }
+        auto getClearValue() const { return renderingConfig.colorRenderTargets[0].clearValue; }
 
     private:
         struct FrameData {
