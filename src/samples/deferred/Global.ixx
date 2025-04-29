@@ -26,8 +26,14 @@ export namespace samples {
 #endif
 
     struct Vertex {
-        vec3 pos;
-        vec3 color;
+        vec3 position;
+        vec3 normal;
+        vec2 uv;
+    };
+
+    struct Mesh {
+        std::vector<Vertex>   vertices;
+        std::vector<uint32_t> indices;
     };
 
     struct Global {
@@ -38,5 +44,7 @@ export namespace samples {
     struct Model {
         mat4 transform{1.0f};
     };
+
+    bool LoadOBJ(const std::string& filepath, Mesh& outMesh);
 
 } // namespace samples

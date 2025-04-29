@@ -20,11 +20,6 @@ namespace samples {
     }
 
     void DeferredApp::onKeyDown(const uint32_t key) {
-        const auto keyCode = static_cast<KeyCodes>(key);
-        if (keyCode == KeyCodes::P) {
-            applyPostProcessing = !applyPostProcessing;
-            return;
-        }
         scene.onKeyDown(key);
     }
 
@@ -87,22 +82,11 @@ namespace samples {
             depthPrepass,
             cmdList,
             frame.colorBuffer);
-
-        shared_ptr<vireo::RenderTarget> colorRenderTarget;
-        if (applyPostProcessing) {
-            colorRenderTarget = postProcessing.getColorBuffer(frameIndex);
-            postProcessing.onRender(
-                frameIndex,
-                swapChain->getExtent(),
-                cmdList,
-                frame.colorBuffer);
-        } else {
-            colorRenderTarget = frame.colorBuffer;
-            cmdList->barrier(
-                frame.colorBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::COPY_SRC);
-        }
+        postProcessing.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            cmdList,
+            frame.colorBuffer);
 
         cmdList->barrier(
             depthPrepass.getDepthBuffer(frameIndex),
@@ -112,13 +96,13 @@ namespace samples {
             swapChain,
             vireo::ResourceState::UNDEFINED,
             vireo::ResourceState::COPY_DST);
-        cmdList->copy(colorRenderTarget, swapChain);
+        cmdList->copy(postProcessing.getColorBuffer(frameIndex), swapChain);
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::COPY_DST,
             vireo::ResourceState::PRESENT);
         cmdList->barrier(
-            colorRenderTarget,
+            postProcessing.getColorBuffer(frameIndex),
             vireo::ResourceState::COPY_SRC,
             vireo::ResourceState::UNDEFINED);
         cmdList->end();
