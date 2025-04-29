@@ -145,11 +145,13 @@ set(DEFERRED_SRC
         ${SRC_DIR}/samples/deferred/DeferredApp.cpp
         ${SRC_DIR}/samples/deferred/DeferredAppMain.cpp
         ${SRC_DIR}/samples/deferred/Scene.cpp
-        ${SRC_DIR}/samples/deferred/DepthPrepass.cpp
+        ${SRC_DIR}/samples/deferred/renderers/DepthPrepass.cpp
+        ${SRC_DIR}/samples/deferred/renderers/Skybox.cpp
 )
 set(DEFERRED_MODULES
         ${SRC_DIR}/samples/deferred/DeferredApp.ixx
         ${SRC_DIR}/samples/deferred/Scene.ixx
-        ${SRC_DIR}/samples/deferred/DepthPrepass.ixx
+        ${SRC_DIR}/samples/deferred/renderers/DepthPrepass.ixx
+        ${SRC_DIR}/samples/deferred/renderers/Skybox.ixx
 )
 build_target(deferred "${DEFERRED_SRC}" "${DEFERRED_MODULES}")

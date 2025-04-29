@@ -25,7 +25,6 @@ export namespace samples {
 
         auto getSemaphore(const uint32_t frameIndex) const { return framesData[frameIndex].semaphore; }
         auto getDepthBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].depthBuffer; }
-        auto getMsaaDepthBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].msaaDepthBuffer; }
 
     private:
         struct FrameData {
@@ -35,7 +34,6 @@ export namespace samples {
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Semaphore>        semaphore;
             shared_ptr<vireo::RenderTarget>     depthBuffer;
-            shared_ptr<vireo::RenderTarget>     msaaDepthBuffer;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
         };
 
@@ -46,7 +44,6 @@ export namespace samples {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Scene::Vertex, pos) },
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .msaa = vireo::MSAA::X8,
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
             .depthWriteEnable = true,

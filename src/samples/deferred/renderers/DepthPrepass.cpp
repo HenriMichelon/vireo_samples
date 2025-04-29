@@ -54,9 +54,8 @@ namespace samples {
         auto cmdList = frame.commandList;
         cmdList->begin();
         renderingConfig.depthRenderTarget = frame.depthBuffer;
-        renderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
         cmdList->barrier(
-            {frame.depthBuffer, frame.msaaDepthBuffer},
+            frame.depthBuffer,
             vireo::ResourceState::UNDEFINED,
             vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
         cmdList->beginRendering(renderingConfig);
@@ -67,7 +66,7 @@ namespace samples {
         scene.draw(cmdList);
         cmdList->endRendering();
         cmdList->barrier(
-            {frame.depthBuffer, frame.msaaDepthBuffer},
+            frame.depthBuffer,
             vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
             vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
         cmdList->end();
@@ -75,7 +74,6 @@ namespace samples {
             vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,
             frame.semaphore,
             {cmdList});
-
     }
 
     void DepthPrepass::onResize(const vireo::Extent& extent) {
@@ -86,13 +84,6 @@ namespace samples {
                 extent.height,
                 vireo::RenderTargetType::DEPTH,
                 renderingConfig.depthClearValue);
-            frame.msaaDepthBuffer = vireo->createRenderTarget(
-                frame.depthBuffer->getImage()->getFormat(),
-                extent.width,
-                extent.height,
-                vireo::RenderTargetType::DEPTH,
-                renderingConfig.depthClearValue,
-                pipelineConfig.msaa);
         }
     }
 
