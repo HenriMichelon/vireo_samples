@@ -39,10 +39,6 @@ namespace samples {
             0.0f, 1.0f,
             false,
             vireo::MipMapMode::NEAREST));
-        globalUboBuffer = vireo->createBuffer(
-            vireo::BufferType::UNIFORM,
-            sizeof(GlobalUBO));
-        globalUboBuffer->map();
 
         const auto stagingBuffer = vireo->createBuffer(
             vireo::BufferType::TRANSFER,
@@ -86,7 +82,10 @@ namespace samples {
             frameData.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frameData.samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout);
 
-            frameData.descriptorSet->update(BINDING_UBO, globalUboBuffer);
+            frameData.globalUboBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM, sizeof(GlobalUBO));
+            frameData.globalUboBuffer->map();
+
+            frameData.descriptorSet->update(BINDING_UBO, frameData.globalUboBuffer);
             frameData.descriptorSet->update(BINDING_TEXTURE, textures);
             frameData.samplersDescriptorSet->update(BINDING_SAMPLERS, samplers);
 
@@ -111,7 +110,6 @@ namespace samples {
         if (globalUbo.offset.x > offsetBounds) {
             globalUbo.offset.x = -offsetBounds;
         }
-        globalUboBuffer->write(&globalUbo);
 
         pushConstants.color += 0.005f * colorIncrement;
         if ((pushConstants.color.x > 0.5f) || (pushConstants.color.x < 0.0f)) {
@@ -123,6 +121,9 @@ namespace samples {
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
+
+        frame.globalUboBuffer->write(&globalUbo);
+
         frame.commandAllocator->reset();
 
         const auto& cmdList = frame.commandList;
@@ -155,7 +156,9 @@ namespace samples {
     void TextureBufferApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
         swapChain->waitIdle();
-        globalUboBuffer->unmap();
+        for (const auto& frame : framesData) {
+            frame.globalUboBuffer->unmap();
+        }
     }
 
     // Generate a simple black and white checkerboard texture.

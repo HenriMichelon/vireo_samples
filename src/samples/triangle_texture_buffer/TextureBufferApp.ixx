@@ -54,23 +54,22 @@ export namespace samples {
             { { 0.25f, -0.25f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
         };
-        GlobalUBO     globalUbo{};
-        PushConstants pushConstants{};
-
-        shared_ptr<vireo::Buffer>          vertexBuffer;
-        shared_ptr<vireo::Buffer>          globalUboBuffer;
-        vector<shared_ptr<vireo::Image>>   textures;
-        vector<shared_ptr<vireo::Sampler>> samplers;
 
         struct FrameData {
+            shared_ptr<vireo::Buffer>           globalUboBuffer;
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
             shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
             shared_ptr<vireo::Fence>            inFlightFence;
         };
-
         vector<FrameData>                   framesData;
+
+        GlobalUBO                           globalUbo{};
+        PushConstants                       pushConstants{};
+        shared_ptr<vireo::Buffer>           vertexBuffer;
+        vector<shared_ptr<vireo::Image>>    textures;
+        vector<shared_ptr<vireo::Sampler>>  samplers;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
         shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;

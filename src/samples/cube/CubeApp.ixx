@@ -57,14 +57,15 @@ export namespace samples {
         };
 
         struct FrameData {
-            Model                               model{};
             shared_ptr<vireo::Buffer>           modelBuffer;
+            shared_ptr<vireo::Buffer>           globalBuffer;
 
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
 
+            shared_ptr<vireo::Buffer>           skyboxGlobalBuffer;
             shared_ptr<vireo::DescriptorSet>    skyboxDescriptorSet;
 
             shared_ptr<vireo::RenderTarget>     colorBuffer;
@@ -81,17 +82,16 @@ export namespace samples {
         };
 
         // Common data
-        bool                           applyPostProcessing{true};
+        bool                           applyPostProcessing{false};
         float                          cameraYRotationAngle{0.0f};
         vec3                           cameraPos{0.0f, 0.0f, 2.0f};
         vec3                           cameraTarget{0.0f, 0.0f, 0.0f};
         vector<FrameData>              framesData;
         shared_ptr<vireo::SwapChain>   swapChain;
         shared_ptr<vireo::SubmitQueue> graphicQueue;
+        Model                          model{};
         Global                         global{};
-        shared_ptr<vireo::Buffer>      globalBuffer;
         Global                         skyboxGlobal{};
-        shared_ptr<vireo::Buffer>      skyboxGlobalBuffer;
 
         // Cube rendering data
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};

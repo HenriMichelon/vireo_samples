@@ -14,16 +14,13 @@ module samples.hellocube;
 namespace samples {
 
     void CubeApp::onUpdate() {
-        auto& model = framesData[swapChain->getCurrentFrameIndex()].model;
-        const auto& modelBuffer = framesData[swapChain->getCurrentFrameIndex()].modelBuffer;
-
         constexpr  float angle = radians(-1.0);
         model.transform = glm::rotate(model.transform, angle, AXIS_X);
         model.transform = glm::rotate(model.transform, angle, AXIS_Y);
-        modelBuffer->write(&model, sizeof(Model));
 
         postprocessingParams.time = getCurrentTimeMilliseconds();
         postprocessingParamsBuffer->write(&postprocessingParams);
+
     }
 
     void CubeApp::onKeyDown(const uint32_t key) {
@@ -63,10 +60,6 @@ namespace samples {
 
         global.view = lookAt(cameraPos, cameraTarget, AXIS_Y);
         skyboxGlobal.view = mat4(mat3(global.view));
-
-        graphicQueue->waitIdle();
-        globalBuffer->write(&global);
-        skyboxGlobalBuffer->write(&skyboxGlobal);
     }
 
     void CubeApp::onInit() {
@@ -143,15 +136,9 @@ namespace samples {
 
         global.view = lookAt(cameraPos, cameraTarget, up);
         global.projection = perspective(radians(75.0f), swapChain->getAspectRatio(), 0.1f, 100.0f);
-        globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
-        globalBuffer->map();
-        globalBuffer->write(&global);
 
         skyboxGlobal.view = mat4(mat3(global.view)); // only keep the rotation
         skyboxGlobal.projection = global.projection;
-        skyboxGlobalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
-        skyboxGlobalBuffer->map();
-        skyboxGlobalBuffer->write(&skyboxGlobal);
 
         const auto skyboxCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto skyboxCommandList = skyboxCommandAllocator->createCommandList();
@@ -165,18 +152,22 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
             frame.modelBuffer->map();
-            frame.modelBuffer->write(&frame.model, sizeof(Model));
+
+            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
+            frame.globalBuffer->map();
 
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true, L"InFlightFence");
 
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            frame.descriptorSet->update(BINDING_GLOBAL, globalBuffer);
+            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
             frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
 
+            frame.skyboxGlobalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
+            frame.skyboxGlobalBuffer->map();
             frame.skyboxDescriptorSet = vireo->createDescriptorSet(skyboxDescriptorLayout);
-            frame.skyboxDescriptorSet->update(SKYBOX_BINDING_GLOBAL, skyboxGlobalBuffer);
+            frame.skyboxDescriptorSet->update(SKYBOX_BINDING_GLOBAL, frame.skyboxGlobalBuffer);
             frame.skyboxDescriptorSet->update(SKYBOX_BINDING_CUBEMAP, skyboxCubeMap);
 
             frame.depthCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
@@ -197,6 +188,10 @@ namespace samples {
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
+
+        frame.modelBuffer->write(&model, sizeof(Model));
+        frame.globalBuffer->write(&global);
+        frame.skyboxGlobalBuffer->write(&skyboxGlobal);
 
         frame.depthCommandAllocator->reset();
         auto cmdList = frame.depthCommandList;
@@ -221,7 +216,7 @@ namespace samples {
             vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
             vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
         cmdList->end();
-        graphicQueue->submit(nullptr, vireo::WaitStage::NONE, frame.depthSemaphore, {cmdList});
+        graphicQueue->submit(frame.depthSemaphore, {cmdList});
 
         frame.commandAllocator->reset();
         cmdList = frame.commandList;
@@ -354,9 +349,11 @@ namespace samples {
     void CubeApp::onDestroy() {
         graphicQueue->waitIdle();
         swapChain->waitIdle();
-        // modelBuffer->unmap();
-        globalBuffer->unmap();
-        skyboxGlobalBuffer->unmap();
+        for (const auto& frame : framesData) {
+            frame.modelBuffer->unmap();
+            frame.globalBuffer->unmap();
+            frame.skyboxGlobalBuffer->unmap();
+        }
     }
 
     shared_ptr<vireo::Image> CubeApp::loadCubemap(
