@@ -57,14 +57,22 @@ export namespace samples {
         };
 
         struct FrameData {
+            Model                               model{};
+            shared_ptr<vireo::Buffer>           modelBuffer;
+
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
 
+            shared_ptr<vireo::DescriptorSet>    skyboxDescriptorSet;
+
             shared_ptr<vireo::RenderTarget>     colorBuffer;
             shared_ptr<vireo::RenderTarget>     msaaColorBuffer;
 
+            shared_ptr<vireo::CommandAllocator> depthCommandAllocator;
+            shared_ptr<vireo::CommandList>      depthCommandList;
+            shared_ptr<vireo::Semaphore>        depthSemaphore;
             shared_ptr<vireo::RenderTarget>     depthBuffer;
             shared_ptr<vireo::RenderTarget>     msaaDepthBuffer;
 
@@ -80,6 +88,10 @@ export namespace samples {
         vector<FrameData>              framesData;
         shared_ptr<vireo::SwapChain>   swapChain;
         shared_ptr<vireo::SubmitQueue> graphicQueue;
+        Global                         global{};
+        shared_ptr<vireo::Buffer>      globalBuffer;
+        Global                         skyboxGlobal{};
+        shared_ptr<vireo::Buffer>      skyboxGlobalBuffer;
 
         // Cube rendering data
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
@@ -103,12 +115,8 @@ export namespace samples {
             }},
             .discardDepthAfterRender = true,
         };
-        Global                              global{};
-        Model                               model{};
         shared_ptr<vireo::Buffer>           vertexBuffer;
         shared_ptr<vireo::Buffer>           indexBuffer;
-        shared_ptr<vireo::Buffer>           globalBuffer;
-        shared_ptr<vireo::Buffer>           modelBuffer;
         shared_ptr<vireo::Pipeline>         pipeline;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
 
@@ -142,14 +150,11 @@ export namespace samples {
         const vector<vireo::VertexAttributeDesc> skyboxVertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0 },
         };
-        Global                              skyboxGlobal{};
         shared_ptr<vireo::Sampler>          skyboxSampler;
-        shared_ptr<vireo::Buffer>           skyboxGlobalBuffer;
         shared_ptr<vireo::Buffer>           skyboxVertexBuffer;
         shared_ptr<vireo::Image>            skyboxCubeMap;
         shared_ptr<vireo::Pipeline>         skyboxPipeline;
         shared_ptr<vireo::DescriptorLayout> skyboxDescriptorLayout;
-        shared_ptr<vireo::DescriptorSet>    skyboxDescriptorSet;
         shared_ptr<vireo::DescriptorLayout> skyboxSamplerDescriptorLayout;
         shared_ptr<vireo::DescriptorSet>    skyboxSamplerDescriptorSet;
 

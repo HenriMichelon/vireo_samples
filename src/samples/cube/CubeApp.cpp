@@ -14,6 +14,9 @@ module samples.hellocube;
 namespace samples {
 
     void CubeApp::onUpdate() {
+        auto& model = framesData[swapChain->getCurrentFrameIndex()].model;
+        const auto& modelBuffer = framesData[swapChain->getCurrentFrameIndex()].modelBuffer;
+
         constexpr  float angle = radians(-1.0);
         model.transform = glm::rotate(model.transform, angle, AXIS_X);
         model.transform = glm::rotate(model.transform, angle, AXIS_Y);
@@ -95,24 +98,8 @@ namespace samples {
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
 
-        global.view = lookAt(cameraPos, cameraTarget, up);
-        global.projection = perspective(radians(75.0f), swapChain->getAspectRatio(), 0.1f, 100.0f);
-        globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
-        globalBuffer->map();
-        globalBuffer->write(&global);
-
-        skyboxGlobal.view = mat4(mat3(global.view)); // only keep the rotation
-        skyboxGlobal.projection = global.projection;
-        skyboxGlobalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
-        skyboxGlobalBuffer->map();
-        skyboxGlobalBuffer->write(&skyboxGlobal);
-
         postprocessingParamsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(PostProcessingParams));
         postprocessingParamsBuffer->map();
-
-        modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
-        modelBuffer->map();
-        modelBuffer->write(&model, sizeof(Model));
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
@@ -154,29 +141,52 @@ namespace samples {
         postprocessingPipelineConfig.fragmentShader = vireo->createShaderModule("shaders/voronoi.frag");
         postprocessingPipeline = vireo->createGraphicPipeline(postprocessingPipelineConfig);
 
+        global.view = lookAt(cameraPos, cameraTarget, up);
+        global.projection = perspective(radians(75.0f), swapChain->getAspectRatio(), 0.1f, 100.0f);
+        globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
+        globalBuffer->map();
+        globalBuffer->write(&global);
+
+        skyboxGlobal.view = mat4(mat3(global.view)); // only keep the rotation
+        skyboxGlobal.projection = global.projection;
+        skyboxGlobalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
+        skyboxGlobalBuffer->map();
+        skyboxGlobalBuffer->write(&skyboxGlobal);
+
+        const auto skyboxCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
+        const auto skyboxCommandList = skyboxCommandAllocator->createCommandList();
+        skyboxCommandList->begin();
+        skyboxCubeMap = loadCubemap(skyboxCommandList, "res/StandardCubeMap.jpg", vireo::ImageFormat::R8G8B8A8_SRGB);
+        skyboxCommandList->end();
+        graphicQueue->submit({skyboxCommandList});
+        graphicQueue->waitIdle();
+
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
+            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
+            frame.modelBuffer->map();
+            frame.modelBuffer->write(&frame.model, sizeof(Model));
+
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true, L"InFlightFence");
+
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, globalBuffer);
-            frame.descriptorSet->update(BINDING_MODEL, modelBuffer);
+            frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
+
+            frame.skyboxDescriptorSet = vireo->createDescriptorSet(skyboxDescriptorLayout);
+            frame.skyboxDescriptorSet->update(SKYBOX_BINDING_GLOBAL, skyboxGlobalBuffer);
+            frame.skyboxDescriptorSet->update(SKYBOX_BINDING_CUBEMAP, skyboxCubeMap);
+
+            frame.depthCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            frame.depthCommandList = frame.depthCommandAllocator->createCommandList();
+            frame.depthSemaphore = vireo->createSemaphore(vireo::SemaphoreType::BINARY);
 
             frame.postProcessingDescriptorSet = vireo->createDescriptorSet(postprocessingDescriptorLayout);
             frame.postProcessingDescriptorSet->update(POSTPROCESSING_BINDING_PARAMS, postprocessingParamsBuffer);
         }
 
-        framesData[0].commandList->begin();
-        skyboxCubeMap = loadCubemap(framesData[0].commandList, "res/StandardCubeMap.jpg", vireo::ImageFormat::R8G8B8A8_SRGB);
-        framesData[0].commandList->end();
-        graphicQueue->submit({framesData[0].commandList});
-        graphicQueue->waitIdle();
-        framesData[0].commandList->cleanup();
-
-        skyboxDescriptorSet = vireo->createDescriptorSet(skyboxDescriptorLayout);
-        skyboxDescriptorSet->update(SKYBOX_BINDING_GLOBAL, skyboxGlobalBuffer);
-        skyboxDescriptorSet->update(SKYBOX_BINDING_CUBEMAP, skyboxCubeMap);
         skyboxSamplerDescriptorSet = vireo->createDescriptorSet(skyboxSamplerDescriptorLayout);
         skyboxSamplerDescriptorSet->update(SKYBOX_BINDING_SAMPLER, skyboxSampler);
 
@@ -187,9 +197,9 @@ namespace samples {
         const auto& frame = framesData[swapChain->getCurrentFrameIndex()];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
-        frame.commandAllocator->reset();
-        auto cmdList = frame.commandList;
 
+        frame.depthCommandAllocator->reset();
+        auto cmdList = frame.depthCommandList;
         cmdList->begin();
         depthPrepassRenderingConfig.depthRenderTarget = frame.depthBuffer;
         depthPrepassRenderingConfig.multisampledDepthRenderTarget = frame.msaaDepthBuffer;
@@ -210,7 +220,12 @@ namespace samples {
             {frame.depthBuffer, frame.msaaDepthBuffer},
             vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
             vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
+        cmdList->end();
+        graphicQueue->submit(nullptr, vireo::WaitStage::NONE, frame.depthSemaphore, {cmdList});
 
+        frame.commandAllocator->reset();
+        cmdList = frame.commandList;
+        cmdList->begin();
         renderingConfig.colorRenderTargets[0].renderTarget = frame.colorBuffer;
         renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaColorBuffer;
         renderingConfig.depthRenderTarget = frame.depthBuffer;
@@ -231,7 +246,7 @@ namespace samples {
 
         cmdList->bindPipeline(skyboxPipeline);
         cmdList->bindVertexBuffer(skyboxVertexBuffer);
-        cmdList->bindDescriptors(skyboxPipeline, {skyboxDescriptorSet, skyboxSamplerDescriptorSet});
+        cmdList->bindDescriptors(skyboxPipeline, {frame.skyboxDescriptorSet, skyboxSamplerDescriptorSet});
         cmdList->draw(skyboxVertices.size() / 3);
 
         cmdList->endRendering();
@@ -292,7 +307,12 @@ namespace samples {
             vireo::ResourceState::UNDEFINED);
         cmdList->end();
 
-        graphicQueue->submit(frame.inFlightFence, swapChain, {cmdList});
+        graphicQueue->submit(
+            frame.depthSemaphore,
+            vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,
+            frame.inFlightFence,
+            swapChain,
+            {cmdList});
         swapChain->present();
         swapChain->nextFrameIndex();
     }
@@ -334,7 +354,7 @@ namespace samples {
     void CubeApp::onDestroy() {
         graphicQueue->waitIdle();
         swapChain->waitIdle();
-        modelBuffer->unmap();
+        // modelBuffer->unmap();
         globalBuffer->unmap();
         skyboxGlobalBuffer->unmap();
     }
