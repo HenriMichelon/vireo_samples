@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.cube;
 
-APP(make_shared<samples::CubeApp>(), L"Deferred", 1280, 720);
+APP(make_shared<samples::CubeApp>(), L"Cube", 1280, 720);
