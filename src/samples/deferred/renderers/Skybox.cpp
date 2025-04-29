@@ -12,7 +12,7 @@ module samples.deferred.skybox;
 
 namespace samples {
 
-    void Skybox::onUpdate(Scene& scene) {
+    void Skybox::onUpdate(const Scene& scene) {
         skyboxGlobal.view = mat4(mat3(scene.getGlobal().view));
         skyboxGlobal.projection = scene.getGlobal().projection;
     }

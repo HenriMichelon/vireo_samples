@@ -14,8 +14,7 @@ namespace samples {
     void DeferredApp::onUpdate() {
         scene.onUpdate();
         skybox.onUpdate(scene);
-        postprocessingParams.time = getCurrentTimeMilliseconds();
-        postprocessingParamsBuffer->write(&postprocessingParams);
+        postProcessing.onUpdate();
     }
 
     void DeferredApp::onKeyDown(const uint32_t key) {
@@ -46,9 +45,6 @@ namespace samples {
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
 
-        postprocessingParamsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(PostProcessingParams));
-        postprocessingParamsBuffer->map();
-
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
@@ -59,16 +55,6 @@ namespace samples {
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
-
-        postprocessingDescriptorLayout = vireo->createDescriptorLayout();
-        postprocessingDescriptorLayout->add(POSTPROCESSING_BINDING_PARAMS, vireo::DescriptorType::BUFFER);
-        postprocessingDescriptorLayout->add(POSTPROCESSING_BINDING_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
-        postprocessingDescriptorLayout->build();
-
-        postprocessingPipelineConfig.resources = vireo->createPipelineResources({ postprocessingDescriptorLayout, skybox.getSamplerDescriptorSLayout() });
-        postprocessingPipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
-        postprocessingPipelineConfig.fragmentShader = vireo->createShaderModule("shaders/voronoi.frag");
-        postprocessingPipeline = vireo->createGraphicPipeline(postprocessingPipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
@@ -85,13 +71,10 @@ namespace samples {
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
             frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
-
-            frame.postProcessingDescriptorSet = vireo->createDescriptorSet(postprocessingDescriptorLayout);
-            frame.postProcessingDescriptorSet->update(POSTPROCESSING_BINDING_PARAMS, postprocessingParamsBuffer);
         }
 
         depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
-
+        postProcessing.onInit(vireo, swapChain->getFramesInFlight());
 
         transferQueue->waitIdle();
     }
@@ -137,29 +120,12 @@ namespace samples {
 
         shared_ptr<vireo::RenderTarget> colorRenderTarget;
         if (applyPostProcessing) {
-            colorRenderTarget = frame.postProcessingColorBuffer;
-            postprocessingRenderingConfig.colorRenderTargets[0].renderTarget = frame.postProcessingColorBuffer;
-            cmdList->barrier(
-                frame.colorBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::SHADER_READ);
-            cmdList->barrier(
-                frame.postProcessingColorBuffer,
-                vireo::ResourceState::UNDEFINED,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->beginRendering(postprocessingRenderingConfig);
-            cmdList->bindPipeline(postprocessingPipeline);
-            cmdList->bindDescriptors(postprocessingPipeline, {frame.postProcessingDescriptorSet, skybox.getSamplerDescriptorSet()});
-            cmdList->draw(3);
-            cmdList->endRendering();
-            cmdList->barrier(
-                frame.postProcessingColorBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::COPY_SRC);
-            cmdList->barrier(
-                frame.colorBuffer,
-                vireo::ResourceState::SHADER_READ,
-                vireo::ResourceState::UNDEFINED);
+            colorRenderTarget = postProcessing.getColorBuffer(frameIndex);
+            postProcessing.onRender(
+                frameIndex,
+                swapChain->getExtent(),
+                cmdList,
+                frame.colorBuffer);
         } else {
             colorRenderTarget = frame.colorBuffer;
             cmdList->barrier(
@@ -196,20 +162,14 @@ namespace samples {
     void DeferredApp::onResize() {
         swapChain->recreate();
         const auto extent = swapChain->getExtent();
-        postprocessingParams.imageSize.x = extent.width;
-        postprocessingParams.imageSize.y = extent.height;
         for (auto& frame : framesData) {
             frame.colorBuffer = vireo->createRenderTarget(
                 swapChain,
                 renderingConfig.colorRenderTargets[0].clearValue);
-            frame.postProcessingColorBuffer = vireo->createRenderTarget(
-                vireo::ImageFormat::R8G8B8A8_SRGB,
-                extent.width,
-                extent.height);
-            frame.postProcessingDescriptorSet->update(POSTPROCESSING_BINDING_INPUT, frame.colorBuffer->getImage());
         }
-        depthPrepass.onResize(swapChain->getExtent());
-        skybox.onResize(swapChain->getExtent());
+        depthPrepass.onResize(extent);
+        skybox.onResize(extent);
+        postProcessing.onResize(extent);
     }
 
     void DeferredApp::onDestroy() {
@@ -223,10 +183,5 @@ namespace samples {
         skybox.onDestroy();
     }
 
-
-    float DeferredApp::getCurrentTimeMilliseconds() {
-        using namespace std::chrono;
-        return static_cast<float>(duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count());
-    }
 
 }

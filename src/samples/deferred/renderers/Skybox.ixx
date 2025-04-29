@@ -15,7 +15,7 @@ export namespace samples {
 
     class Skybox {
     public:
-        void onUpdate(Scene& scene);
+        void onUpdate(const Scene& scene);
         void onInit(
             const shared_ptr<vireo::Vireo>& vireo,
             const shared_ptr<vireo::CommandList>& uploadCommandList,
@@ -47,7 +47,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
+            .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_UNORM},
             .colorBlendDesc = {{}},
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
