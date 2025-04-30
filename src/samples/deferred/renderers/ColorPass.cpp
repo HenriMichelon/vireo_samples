@@ -24,8 +24,8 @@ namespace samples {
 
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
-        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
+        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred_opaque.vert");
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/deferred_opaque.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);

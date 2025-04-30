@@ -45,6 +45,4 @@ export namespace samples {
         mat4 transform{1.0f};
     };
 
-    bool LoadOBJ(const std::string& filepath, Mesh& outMesh);
-
 } // namespace samples

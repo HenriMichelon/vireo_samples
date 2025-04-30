@@ -45,7 +45,7 @@ namespace samples {
             descriptorLayout,
             samplerDescriptorLayout });
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/voronoi.frag");
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/gamma_correction.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);

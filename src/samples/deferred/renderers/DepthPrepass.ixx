@@ -42,7 +42,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
 
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .cullMode = vireo::CullMode::BACK,

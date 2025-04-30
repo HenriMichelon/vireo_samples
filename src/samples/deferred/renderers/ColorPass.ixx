@@ -37,8 +37,9 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-                {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
-                {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
+                {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
+                {"NORMAL",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
+                {"UV",    vireo::AttributeFormat::R32G32_FLOAT, offsetof(Vertex, uv)}
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {RENDER_FORMAT},
