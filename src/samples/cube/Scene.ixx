@@ -41,6 +41,7 @@ export namespace samples {
         Global global{};
         Material material{};
         Light light{};
+        bool rotateCube{true};
         float cameraYRotationAngle{0.0f};
         vec3 cameraTarget{0.0f, 0.0f, 0.0f};
 

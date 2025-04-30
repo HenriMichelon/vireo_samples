@@ -28,10 +28,10 @@ namespace samples {
 
         material.diffuseTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_SRGB,
-            "rusty_metal_grid_diff_1k.png"));
+            "gray_rocks_diff_1k.jpg"));
         material.normalTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM,
-            "rusty_metal_grid_nor_gl_1k.png"));
+            "gray_rocks_nor_gl_1k.jpg"));
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
         uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
 
@@ -45,16 +45,30 @@ namespace samples {
     }
 
     void Scene::onUpdate() {
-        constexpr  float angle = radians(-0.1);
-        model.transform = glm::rotate(model.transform, angle, AXIS_X);
-        model.transform = glm::rotate(model.transform, angle, AXIS_Y);
+        if (rotateCube) {
+            constexpr  float angle = radians(-0.1);
+            model.transform = glm::rotate(model.transform, angle, AXIS_X);
+            model.transform = glm::rotate(model.transform, angle, AXIS_Y);
+        }
     }
 
     void Scene::onKeyDown(const uint32_t key) {
         const auto keyCode = static_cast<KeyCodes>(key);
         vec3 axis;
         auto angle = radians(2.0f);
+        cout << "key: " << key << endl;
         switch (keyCode) {
+        case KeyCodes::SPACE:
+            rotateCube = !rotateCube;
+            return;
+        case KeyCodes::W:
+            global.cameraPosition.z -= 0.1f;
+            global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
+            return;
+        case KeyCodes::S:
+            global.cameraPosition.z += 0.1f;
+            global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
+            return;
         case KeyCodes::LEFT:
             axis = AXIS_Y;
             break;

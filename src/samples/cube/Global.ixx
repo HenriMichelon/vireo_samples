@@ -22,6 +22,9 @@ export namespace samples {
         RIGHT = 39,
         DOWN = 40,
         P = 80,
+        W = 90, // 87
+        S = 83,
+        SPACE = 32,
     };
 #endif
 
