@@ -17,6 +17,7 @@ export namespace samples {
     public:
         void onInit(
            const shared_ptr<vireo::Vireo>& vireo,
+           const Scene& scene,
            uint32_t framesInFlight);
         void onRender(
             uint32_t frameIndex,
@@ -29,16 +30,22 @@ export namespace samples {
 
     private:
         struct FrameData {
-            shared_ptr<vireo::Buffer>           modelBuffer;
             shared_ptr<vireo::Buffer>           globalBuffer;
+            shared_ptr<vireo::Buffer>           modelBuffer;
+            shared_ptr<vireo::Buffer>           materialBuffer;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
+        static constexpr vireo::DescriptorIndex BINDING_MATERIAL{2};
+        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{3};
+        static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
+
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
-                {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos) },
-                {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
+                {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
+                {"NORMAL",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
+                {"UV",    vireo::AttributeFormat::R32G32_FLOAT, offsetof(Vertex, uv)}
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {RENDER_FORMAT},
@@ -55,7 +62,10 @@ export namespace samples {
         vector<FrameData>                   framesData;
         shared_ptr<vireo::Vireo>            vireo;
         shared_ptr<vireo::Pipeline>         pipeline;
+        shared_ptr<vireo::Sampler>          sampler;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
+        shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
 
     };
 }

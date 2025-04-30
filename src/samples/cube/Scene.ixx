@@ -30,43 +30,76 @@ export namespace samples {
 
         auto& getGlobal() const { return global; }
 
+        const auto& getMaterial() const { return material; }
+
+        const auto& getTextures() const { return textures; }
+
     private:
+        static constexpr auto TEXTURE_FORMAT = vireo::ImageFormat::R8G8B8A8_SRGB;
+
         Model model{};
         Global global{};
+        Material material{};
         float cameraYRotationAngle{0.0f};
         vec3 cameraPos{0.0f, 0.0f, 2.0f};
         vec3 cameraTarget{0.0f, 0.0f, 0.0f};
 
+        shared_ptr<vireo::Vireo>  vireo;
         shared_ptr<vireo::Buffer> vertexBuffer;
         shared_ptr<vireo::Buffer> indexBuffer;
+        vector<shared_ptr<vireo::Image>>  textures;
 
         // Models data
-        vector<Vertex> cubeVertices = {
-            { { -0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f } },
-            { {  0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f } },
-            { {  0.5f,  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } },
-            { { -0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f, 0.0f } },
+        std::vector<Vertex> cubeVertices = {
+            // (+Z)
+            { { -0.5f, -0.5f,  0.5f }, { 0, 0, 1 }, { 0, 0 } },
+            { {  0.5f, -0.5f,  0.5f }, { 0, 0, 1 }, { 1, 0 } },
+            { {  0.5f,  0.5f,  0.5f }, { 0, 0, 1 }, { 1, 1 } },
+            { { -0.5f,  0.5f,  0.5f }, { 0, 0, 1 }, { 0, 1 } },
 
-            { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 1.0f } },
-            { {  0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f, 1.0f } },
-            { {  0.5f,  0.5f, -0.5f }, { 0.5f, 0.5f, 0.5f } },
-            { { -0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
+            // (-Z)
+            { {  0.5f, -0.5f, -0.5f }, { 0, 0, -1 }, { 0, 0 } },
+            { { -0.5f, -0.5f, -0.5f }, { 0, 0, -1 }, { 1, 0 } },
+            { { -0.5f,  0.5f, -0.5f }, { 0, 0, -1 }, { 1, 1 } },
+            { {  0.5f,  0.5f, -0.5f }, { 0, 0, -1 }, { 0, 1 } },
+
+            // (+X)
+            { { 0.5f, -0.5f,  0.5f }, { 1, 0, 0 }, { 0, 0 } },
+            { { 0.5f, -0.5f, -0.5f }, { 1, 0, 0 }, { 1, 0 } },
+            { { 0.5f,  0.5f, -0.5f }, { 1, 0, 0 }, { 1, 1 } },
+            { { 0.5f,  0.5f,  0.5f }, { 1, 0, 0 }, { 0, 1 } },
+
+            // (-X)
+            { { -0.5f, -0.5f, -0.5f }, { -1, 0, 0 }, { 0, 0 } },
+            { { -0.5f, -0.5f,  0.5f }, { -1, 0, 0 }, { 1, 0 } },
+            { { -0.5f,  0.5f,  0.5f }, { -1, 0, 0 }, { 1, 1 } },
+            { { -0.5f,  0.5f, -0.5f }, { -1, 0, 0 }, { 0, 1 } },
+
+            // (+Y)
+            { { -0.5f, 0.5f,  0.5f }, { 0, 1, 0 }, { 0, 0 } },
+            { {  0.5f, 0.5f,  0.5f }, { 0, 1, 0 }, { 1, 0 } },
+            { {  0.5f, 0.5f, -0.5f }, { 0, 1, 0 }, { 1, 1 } },
+            { { -0.5f, 0.5f, -0.5f }, { 0, 1, 0 }, { 0, 1 } },
+
+            // (-Y)
+            { { -0.5f, -0.5f, -0.5f }, { 0, -1, 0 }, { 0, 0 } },
+            { {  0.5f, -0.5f, -0.5f }, { 0, -1, 0 }, { 1, 0 } },
+            { {  0.5f, -0.5f,  0.5f }, { 0, -1, 0 }, { 1, 1 } },
+            { { -0.5f, -0.5f,  0.5f }, { 0, -1, 0 }, { 0, 1 } },
         };
 
-        vector<uint32_t> cubeIndices = {
-            // front
-            0, 1, 2,  2, 3, 0,
-            // right
-            1, 5, 6,  6, 2, 1,
-            // back
-            5, 4, 7,  7, 6, 5,
-            // left
-            4, 0, 3,  3, 7, 4,
-            // top
-            3, 2, 6,  6, 7, 3,
-            // bottom
-            4, 5, 1,  1, 0, 4
+        std::vector<uint32_t> cubeIndices = {
+            0,  1,  2,  2,  3,  0, // back
+            4,  5,  6,  6,  7,  4, // front
+            8,  9,  10, 10, 11, 8, // right
+            12, 13, 14, 14, 15, 12, // left
+            16, 17, 18, 18, 19, 16, // top
+            20, 21, 22, 22, 23, 20 // bottom
         };
+
+        shared_ptr<vireo::Image> uploadTexture(
+          const shared_ptr<vireo::CommandList>& uploadCommandList,
+          const string& filename) const;
     };
 
 }

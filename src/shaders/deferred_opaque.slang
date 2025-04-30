@@ -24,8 +24,15 @@ struct Model {
     float4x4 transform;
 }
 
-ConstantBuffer<Global> global : register(b0);
-ConstantBuffer<Model>  model  : register(b1);
+struct Material {
+    int diffuseTextureIndex;
+}
+
+ConstantBuffer<Global>   global   : register(b0);
+ConstantBuffer<Model>    model    : register(b1);
+ConstantBuffer<Material> material : register(b2);
+Texture2D textures[1]             : register(t3);
+SamplerState sampler              : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;
@@ -35,5 +42,6 @@ VertexOutput vertexMain(VertexInput input) {
 }
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
-    return float4(input.uv.x, input.uv.y, 0.0, 1.0);
+    float4 color = textures[material.diffuseTextureIndex].Sample(sampler, input.uv);
+    return color;
 }

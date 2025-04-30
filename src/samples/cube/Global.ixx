@@ -26,8 +26,9 @@ export namespace samples {
 #endif
 
     struct Vertex {
-        vec3 pos;
-        vec3 color;
+        vec3 position;
+        vec3 normal;
+        vec2 uv;
     };
 
     struct Global {
@@ -37,6 +38,10 @@ export namespace samples {
 
     struct Model {
         mat4 transform{1.0f};
+    };
+
+    struct Material {
+        int32_t diffuseTextureIndex{-1};
     };
 
 } // namespace samples

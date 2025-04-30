@@ -32,8 +32,6 @@ export namespace samples {
             const shared_ptr<vireo::SubmitQueue>& graphicQueue);
 
         auto getSemaphore(const uint32_t frameIndex) const { return framesData[frameIndex].semaphore; }
-        auto getSamplerDescriptorSet() const { return samplerDescriptorSet; }
-        auto getSamplerDescriptorSLayout() const { return samplerDescriptorLayout; }
         auto getClearValue() const { return renderingConfig.colorRenderTargets[0].clearValue; }
 
     private:
@@ -75,7 +73,6 @@ export namespace samples {
         shared_ptr<vireo::Sampler>          sampler;
         shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
         shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
-
 
         vector<float> cubemapVertices{
             -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f,

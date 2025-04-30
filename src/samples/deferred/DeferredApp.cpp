@@ -31,14 +31,13 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
 
-        const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
+        const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
         skybox.onInit(vireo, uploadCommandList, graphicQueue, swapChain->getFramesInFlight());
         uploadCommandList->end();
-        const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
-        transferQueue->submit({uploadCommandList});
+        graphicQueue->submit({uploadCommandList});
 
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
@@ -46,11 +45,11 @@ namespace samples {
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
         }
-        colorPass.onInit(vireo, swapChain->getFramesInFlight());
+        colorPass.onInit(vireo, scene, swapChain->getFramesInFlight());
         depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
         postProcessing.onInit(vireo, swapChain->getFramesInFlight());
 
-        transferQueue->waitIdle();
+        graphicQueue->waitIdle();
     }
 
     void DeferredApp::onRender() {

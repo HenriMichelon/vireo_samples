@@ -45,4 +45,8 @@ export namespace samples {
         mat4 transform{1.0f};
     };
 
+    struct Material {
+        int32_t diffuseTextureIndex{-1};
+    };
+
 } // namespace samples

@@ -50,13 +50,7 @@ namespace samples {
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/skybox.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
-        const auto skyboxCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
-        const auto skyboxCommandList = skyboxCommandAllocator->createCommandList();
-        skyboxCommandList->begin();
-        cubeMap = loadCubemap(skyboxCommandList, "res/StandardCubeMap.jpg", vireo::ImageFormat::R8G8B8A8_SRGB);
-        skyboxCommandList->end();
-        graphicQueue->submit({skyboxCommandList});
-        graphicQueue->waitIdle();
+        cubeMap = loadCubemap(uploadCommandList, "res/StandardCubeMap.jpg", vireo::ImageFormat::R8G8B8A8_SRGB);
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {

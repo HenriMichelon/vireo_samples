@@ -5,6 +5,7 @@
 * https://opensource.org/licenses/MIT
 */
 module;
+#include <stb_image.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Libraries.h"
 module samples.cube.scene;
@@ -21,9 +22,12 @@ namespace samples {
         const shared_ptr<vireo::Vireo>& vireo,
         const shared_ptr<vireo::CommandList>& uploadCommandList,
         const float aspectRatio) {
+        this->vireo = vireo;
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
         indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX,sizeof(uint32_t),cubeIndices.size());
 
+        material.diffuseTextureIndex = textures.size();
+        textures.push_back(uploadTexture(uploadCommandList, "wooden_garage_door_1k/wooden_garage_door_diff_1k.png"));
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
         uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
 
@@ -68,6 +72,27 @@ namespace samples {
         cameraTarget = cameraPos + rotatedDir;
 
         global.view = lookAt(cameraPos, cameraTarget, AXIS_Y);
+    }
+
+    shared_ptr<vireo::Image> Scene::uploadTexture(
+        const shared_ptr<vireo::CommandList>& uploadCommandList,
+        const string& filename) const {
+        const auto pixelSize =vireo::Image::getPixelSize(TEXTURE_FORMAT);
+        int width, height, channels;
+        stbi_uc* pixels = stbi_load(("res/" + filename).c_str(), &width, &height,&channels, pixelSize);
+        if (!pixels) {
+            throw runtime_error("Failed to load texture: " + filename);
+        }
+        const auto buffer = vireo->createBuffer(vireo::BufferType::TRANSFER, width * height * pixelSize);
+        buffer->map();
+        buffer->write(pixels);
+        buffer->unmap();
+        stbi_image_free(pixels);
+        auto texture = vireo->createImage(TEXTURE_FORMAT, width, height, 1, 1, to_wstring(filename));
+        uploadCommandList->barrier(texture, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
+        uploadCommandList->copy(buffer, texture);
+        uploadCommandList->barrier(texture, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);
+        return texture;
     }
 
 }
