@@ -32,14 +32,15 @@ export namespace samples {
 
         const auto& getMaterial() const { return material; }
 
+        const auto& getLight() const { return light; }
+
         const auto& getTextures() const { return textures; }
 
     private:
-        static constexpr auto TEXTURE_FORMAT = vireo::ImageFormat::R8G8B8A8_SRGB;
-
         Model model{};
         Global global{};
         Material material{};
+        Light light{};
         float cameraYRotationAngle{0.0f};
         vec3 cameraPos{0.0f, 0.0f, 2.0f};
         vec3 cameraTarget{0.0f, 0.0f, 0.0f};
@@ -99,6 +100,7 @@ export namespace samples {
 
         shared_ptr<vireo::Image> uploadTexture(
           const shared_ptr<vireo::CommandList>& uploadCommandList,
+          vireo::ImageFormat format,
           const string& filename) const;
     };
 

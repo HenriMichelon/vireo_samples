@@ -31,7 +31,8 @@ namespace samples {
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE);
+        descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
 
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
@@ -50,10 +51,15 @@ namespace samples {
             frame.materialBuffer->map();
             frame.materialBuffer->write(&scene.getMaterial());
             frame.materialBuffer->unmap();
+            frame.lightBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
+            frame.lightBuffer->map();
+            frame.lightBuffer->write(&scene.getLight());
+            frame.lightBuffer->unmap();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"ColorPass");
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
             frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
             frame.descriptorSet->update(BINDING_MATERIAL, frame.materialBuffer);
+            frame.descriptorSet->update(BINDING_LIGHT, frame.lightBuffer);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
         }
 

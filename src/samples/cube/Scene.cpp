@@ -27,11 +27,16 @@ namespace samples {
         indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX,sizeof(uint32_t),cubeIndices.size());
 
         material.diffuseTextureIndex = textures.size();
-        textures.push_back(uploadTexture(uploadCommandList, "wooden_garage_door_1k/wooden_garage_door_diff_1k.png"));
+        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_SRGB, "wooden_garage_door_1k/wooden_garage_door_diff_1k.png"));
+        material.normalTextureIndex = textures.size();
+        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM, "wooden_garage_door_1k/wooden_garage_door_nor_gl_1k.png"));
+        material.armTextureIndex = textures.size();
+        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM, "wooden_garage_door_1k/wooden_garage_door_arm_1k.png"));
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
         uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
 
         global.view = lookAt(cameraPos, cameraTarget, up);
+        global.viewInverse = inverse(global.view);
         global.projection = perspective(radians(75.0f), aspectRatio, 0.1f, 100.0f);
     }
 
@@ -76,8 +81,9 @@ namespace samples {
 
     shared_ptr<vireo::Image> Scene::uploadTexture(
         const shared_ptr<vireo::CommandList>& uploadCommandList,
+        const vireo::ImageFormat format,
         const string& filename) const {
-        const auto pixelSize =vireo::Image::getPixelSize(TEXTURE_FORMAT);
+        const auto pixelSize =vireo::Image::getPixelSize(format);
         int width, height, channels;
         stbi_uc* pixels = stbi_load(("res/" + filename).c_str(), &width, &height,&channels, pixelSize);
         if (!pixels) {
@@ -88,7 +94,7 @@ namespace samples {
         buffer->write(pixels);
         buffer->unmap();
         stbi_image_free(pixels);
-        auto texture = vireo->createImage(TEXTURE_FORMAT, width, height, 1, 1, to_wstring(filename));
+        auto texture = vireo->createImage(format, width, height, 1, 1, to_wstring(filename));
         uploadCommandList->barrier(texture, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
         uploadCommandList->copy(buffer, texture);
         uploadCommandList->barrier(texture, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ);

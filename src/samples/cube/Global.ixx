@@ -34,14 +34,23 @@ export namespace samples {
     struct Global {
         mat4 projection;
         mat4 view;
+        mat4 viewInverse;
+        vec4 ambientLight{1.0f, 1.0f, 1.0f, 0.05f}; // RGB + strength
     };
 
     struct Model {
         mat4 transform{1.0f};
     };
 
+    struct Light {
+        alignas(16) vec3 position{0.5f, 0.5f, 2.0f};
+        vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + strength
+    };
+
     struct Material {
         int32_t diffuseTextureIndex{-1};
+        int32_t normalTextureIndex{-1};
+        int32_t armTextureIndex{-1};
     };
 
 } // namespace samples

@@ -33,19 +33,21 @@ export namespace samples {
             shared_ptr<vireo::Buffer>           globalBuffer;
             shared_ptr<vireo::Buffer>           modelBuffer;
             shared_ptr<vireo::Buffer>           materialBuffer;
+            shared_ptr<vireo::Buffer>           lightBuffer;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
         static constexpr vireo::DescriptorIndex BINDING_MATERIAL{2};
-        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{3};
+        static constexpr vireo::DescriptorIndex BINDING_LIGHT{3};
+        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{4};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
                 {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
-                {"NORMAL",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
-                {"UV",    vireo::AttributeFormat::R32G32_FLOAT, offsetof(Vertex, uv)}
+                {"NORMAL",   vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
+                {"UV",       vireo::AttributeFormat::R32G32_FLOAT,    offsetof(Vertex, uv)}
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {RENDER_FORMAT},
