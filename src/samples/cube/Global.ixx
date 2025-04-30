@@ -33,7 +33,7 @@ export namespace samples {
     };
 
     struct Global {
-        vec3 cameraPosition;
+        vec3 cameraPosition{0.0f, 0.0f, 1.5f};
         alignas(16) mat4 projection;
         mat4 view;
         mat4 viewInverse;

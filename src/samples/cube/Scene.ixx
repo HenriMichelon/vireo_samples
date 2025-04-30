@@ -42,7 +42,6 @@ export namespace samples {
         Material material{};
         Light light{};
         float cameraYRotationAngle{0.0f};
-        vec3 cameraPos{0.0f, 0.0f, 1.5f};
         vec3 cameraTarget{0.0f, 0.0f, 0.0f};
 
         shared_ptr<vireo::Vireo>  vireo;

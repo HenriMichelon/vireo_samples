@@ -35,8 +35,7 @@ namespace samples {
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
         uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
 
-        global.cameraPosition = cameraPos;
-        global.view = lookAt(cameraPos, cameraTarget, up);
+        global.view = lookAt(global.cameraPosition, cameraTarget, up);
         global.viewInverse = inverse(global.view);
         global.projection = perspective(radians(75.0f), aspectRatio, 0.1f, 100.0f);
         // model.transform = translate(model.transform, vec3(0.0f, -1.0f, 0.0f));
@@ -77,24 +76,23 @@ namespace samples {
         default:
             return;
         }
-        const auto viewDir = cameraTarget - cameraPos;
+        const auto viewDir = cameraTarget - global.cameraPosition;
         const vec3 rotatedDir = rotate(mat4{1.0f}, angle, axis) * vec4(viewDir, 0.0f);
-        cameraTarget = cameraPos + rotatedDir;
-
-        global.view = lookAt(cameraPos, cameraTarget, AXIS_Y);
+        cameraTarget = global.cameraPosition + rotatedDir;
+        global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
     }
 
     shared_ptr<vireo::Image> Scene::uploadTexture(
         const shared_ptr<vireo::CommandList>& uploadCommandList,
         const vireo::ImageFormat format,
         const string& filename) const {
-        const auto pixelSize =vireo::Image::getPixelSize(format);
+        const auto pixelSize = vireo::Image::getPixelSize(format);
         int width, height, channels;
         stbi_uc* pixels = stbi_load(("res/" + filename).c_str(), &width, &height,&channels, pixelSize);
         if (!pixels) {
             throw runtime_error("Failed to load texture: " + filename);
         }
-        auto buffer = vireo->createBuffer(vireo::BufferType::TRANSFER, width * height * pixelSize);
+        auto buffer = vireo->createBuffer(vireo::BufferType::TRANSFER, width * pixelSize, height);
         buffer->map();
         buffer->write(pixels);
         stbi_image_free(pixels);
@@ -131,7 +129,7 @@ namespace samples {
                     }
                 }
             }
-            buffer = vireo->createBuffer(vireo::BufferType::TRANSFER, w * h * pixelSize);
+            buffer = vireo->createBuffer(vireo::BufferType::TRANSFER, w * pixelSize, h);
             buffer->map();
             buffer->write(data);
             uploadCommandList->copy(buffer, texture, 0, mipLevel);
@@ -140,8 +138,11 @@ namespace samples {
             previousData = static_cast<unsigned char*>(buffer->getMappedAddress());
             mipLevel += 1;
         }
-        uploadCommandList->barrier(texture, vireo::ResourceState::COPY_DST, vireo::ResourceState::SHADER_READ, 0, mipLevels);
-
+        uploadCommandList->barrier(
+            texture,
+            vireo::ResourceState::COPY_DST,
+            vireo::ResourceState::SHADER_READ,
+            0, mipLevels);
         return texture;
     }
 
