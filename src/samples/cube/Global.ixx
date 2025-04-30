@@ -29,13 +29,15 @@ export namespace samples {
         vec3 position;
         vec3 normal;
         vec2 uv;
+        vec3 tangent;
     };
 
     struct Global {
+        alignas(16) vec3 cameraPosition;
         mat4 projection;
         mat4 view;
         mat4 viewInverse;
-        vec4 ambientLight{1.0f, 1.0f, 1.0f, 0.05f}; // RGB + strength
+        vec4 ambientLight{1.0f, 1.0f, 1.0f, 0.01f}; // RGB + strength
     };
 
     struct Model {
@@ -43,7 +45,7 @@ export namespace samples {
     };
 
     struct Light {
-        alignas(16) vec3 position{0.5f, 0.5f, 2.0f};
+        alignas(16) vec3 direction{1.0f, -.5f, -.5f};
         vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + strength
     };
 

@@ -47,7 +47,8 @@ export namespace samples {
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
                 {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
                 {"NORMAL",   vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
-                {"UV",       vireo::AttributeFormat::R32G32_FLOAT,    offsetof(Vertex, uv)}
+                {"UV",       vireo::AttributeFormat::R32G32_FLOAT,    offsetof(Vertex, uv)},
+                {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,   offsetof(Vertex, tangent)},
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {RENDER_FORMAT},
