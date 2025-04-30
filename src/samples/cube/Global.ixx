@@ -33,8 +33,8 @@ export namespace samples {
     };
 
     struct Global {
-        alignas(16) vec3 cameraPosition;
-        mat4 projection;
+        vec3 cameraPosition;
+        alignas(16) mat4 projection;
         mat4 view;
         mat4 viewInverse;
         vec4 ambientLight{1.0f, 1.0f, 1.0f, 0.01f}; // RGB + strength
@@ -45,14 +45,14 @@ export namespace samples {
     };
 
     struct Light {
-        alignas(16) vec3 direction{1.0f, -.5f, -.5f};
-        vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + strength
+        vec3 direction{1.0f, -.25f, -.5f};
+        alignas(16) vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + strength
     };
 
     struct Material {
+        float   shininess{128.f};
         int32_t diffuseTextureIndex{-1};
         int32_t normalTextureIndex{-1};
-        int32_t armTextureIndex{-1};
     };
 
 } // namespace samples

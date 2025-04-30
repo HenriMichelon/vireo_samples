@@ -115,7 +115,7 @@ namespace samples {
     shared_ptr<vireo::Image> Skybox::loadCubemap(
         const shared_ptr<vireo::CommandList>& cmdList,
         const string& filepath,
-        vireo::ImageFormat imageFormat) const {
+        const vireo::ImageFormat imageFormat) const {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         auto *pixels = loadRGBAImage(filepath, texWidth, texHeight, imageSize);

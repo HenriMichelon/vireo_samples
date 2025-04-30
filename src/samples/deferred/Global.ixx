@@ -37,16 +37,16 @@ export namespace samples {
     };
 
     struct Global {
-        mat4 projection;
-        mat4 view;
+        alignas(16) mat4 projection;
+        alignas(16) mat4 view;
     };
 
     struct Model {
-        mat4 transform{1.0f};
+       alignas(16)  mat4 transform{1.0f};
     };
 
     struct Material {
-        int32_t diffuseTextureIndex{-1};
+        alignas(4) int32_t diffuseTextureIndex{-1};
     };
 
 } // namespace samples
