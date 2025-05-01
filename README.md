@@ -43,10 +43,9 @@ The samples demonstrate the following features, in order of complexity:
   - Images copying
   - Slang example for a compute shader
 - Cube :
-  - Index buffers and indexed drawing
+  - Index buffer and indexed drawing
   - Cubemap and skybox
-  - Depth buffers
-  - Depth pre-pass with 
+  - Depth buffer and depth pre-pass
   - Forward-like color pass
   - Semaphore synchronization
-  - Slang examples for an MVP vertex shader, a Phong fragment shader, a skybox and a voronoi post-processing effect.
+  - Slang examples for an MVP vertex shader, a Phong fragment shader, a skybox, a FXAA post-processing effect and a voronoi post-processing effect.
