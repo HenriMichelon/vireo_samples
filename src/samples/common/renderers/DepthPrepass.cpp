@@ -6,9 +6,7 @@
 */
 module;
 #include "Libraries.h"
-module samples.deferred.depthprepass;
-
-import samples.deferred.global;
+module samples.common.depthprepass;
 
 namespace samples {
 

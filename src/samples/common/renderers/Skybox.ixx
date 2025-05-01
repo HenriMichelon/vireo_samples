@@ -6,11 +6,11 @@
 */
 module;
 #include "Libraries.h"
-export module samples.cube.skybox;
+export module samples.common.skybox;
 
-import samples.cube.global;
-import samples.cube.depthprepass;
-import samples.cube.scene;
+import samples.common.global;
+import samples.common.depthprepass;
+import samples.common.scene;
 
 export namespace samples {
 

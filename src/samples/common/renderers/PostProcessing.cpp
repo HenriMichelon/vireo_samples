@@ -6,7 +6,7 @@
 */
 module;
 #include "Libraries.h"
-module samples.cube.postprocessing;
+module samples.common.postprocessing;
 
 namespace samples {
 

@@ -8,7 +8,7 @@ module;
 #include <stb_image.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Libraries.h"
-module samples.cube.scene;
+module samples.common.scene;
 
 namespace samples {
 

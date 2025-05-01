@@ -9,7 +9,7 @@ module;
 #include "Libraries.h"
 module samples.deferred;
 
-import samples.deferred.global;
+import samples.common.global;
 
 namespace samples {
 

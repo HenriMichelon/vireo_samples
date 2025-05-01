@@ -8,8 +8,6 @@ module;
 #include "Libraries.h"
 module samples.deferred.colorpass;
 
-import samples.deferred.global;
-
 namespace samples {
 
     void ColorPass::onInit(
@@ -19,27 +17,28 @@ namespace samples {
         this->vireo = vireo;
 
         sampler = vireo->createSampler(
-           vireo::Filter::LINEAR,
-           vireo::Filter::LINEAR,
-           vireo::AddressMode::CLAMP_TO_BORDER,
-           vireo::AddressMode::CLAMP_TO_BORDER,
-           vireo::AddressMode::CLAMP_TO_BORDER);
-
-        descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE);
-        descriptorLayout->build();
+             vireo::Filter::LINEAR,
+             vireo::Filter::LINEAR,
+             vireo::AddressMode::CLAMP_TO_BORDER,
+             vireo::AddressMode::CLAMP_TO_BORDER,
+             vireo::AddressMode::CLAMP_TO_BORDER);
 
         samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
         samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplerDescriptorLayout->build();
 
+        descriptorLayout = vireo->createDescriptorLayout();
+        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
+        descriptorLayout->build();
+
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
-        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred_opaque.vert");
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/deferred_opaque.frag");
+        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);
@@ -52,10 +51,17 @@ namespace samples {
             frame.materialBuffer->map();
             frame.materialBuffer->write(&scene.getMaterial());
             frame.materialBuffer->unmap();
+            frame.lightBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
+            frame.lightBuffer->map();
+            auto light = scene.getLight();
+            // light.position.z -= light.position.z;
+            frame.lightBuffer->write(&light);
+            frame.lightBuffer->unmap();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"ColorPass");
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
             frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
             frame.descriptorSet->update(BINDING_MATERIAL, frame.materialBuffer);
+            frame.descriptorSet->update(BINDING_LIGHT, frame.lightBuffer);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
         }
 

@@ -6,9 +6,9 @@
 */
 module;
 #include "Libraries.h"
-export module samples.cube.scene;
+export module samples.common.scene;
 
-import samples.cube.global;
+import samples.common.global;
 
 export namespace samples {
 

@@ -6,10 +6,10 @@
 */
 module;
 #include "Libraries.h"
-export module samples.cube.depthprepass;
+export module samples.common.depthprepass;
 
-import samples.cube.global;
-import samples.cube.scene;
+import samples.common.global;
+import samples.common.scene;
 
 export namespace samples {
 

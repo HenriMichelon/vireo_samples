@@ -6,9 +6,9 @@
 */
 module;
 #include "Libraries.h"
-export module samples.cube.postprocessing;
+export module samples.common.postprocessing;
 
-import samples.cube.global;
+import samples.common.global;
 
 export namespace samples {
 

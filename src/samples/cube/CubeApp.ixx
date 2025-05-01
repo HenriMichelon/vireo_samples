@@ -9,10 +9,10 @@ module;
 export module samples.cube;
 
 import samples.app;
-import samples.cube.depthprepass;
-import samples.cube.scene;
-import samples.cube.skybox;
-import samples.cube.postprocessing;
+import samples.common.depthprepass;
+import samples.common.scene;
+import samples.common.skybox;
+import samples.common.postprocessing;
 import samples.cube.colorpass;
 
 export namespace samples {

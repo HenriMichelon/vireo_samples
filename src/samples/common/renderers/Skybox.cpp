@@ -8,15 +8,13 @@ module;
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include "Libraries.h"
-module samples.deferred.skybox;
-
-import samples.deferred.global;
+module samples.common.skybox;
 
 namespace samples {
 
     void Skybox::onUpdate(const Scene& scene) {
-        skyboxGlobal.view = mat4(mat3(scene.getGlobal().view));
-        skyboxGlobal.projection = scene.getGlobal().projection;
+        global.view = mat4(mat3(scene.getGlobal().view));
+        global.projection = scene.getGlobal().projection;
     }
 
     void Skybox::onInit(
@@ -78,7 +76,7 @@ namespace samples {
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
-        frame.globalBuffer->write(&skyboxGlobal);
+        frame.globalBuffer->write(&global);
         frame.commandAllocator->reset();
         const auto cmdList = frame.commandList;
 
@@ -117,7 +115,7 @@ namespace samples {
     shared_ptr<vireo::Image> Skybox::loadCubemap(
         const shared_ptr<vireo::CommandList>& cmdList,
         const string& filepath,
-        vireo::ImageFormat imageFormat) const {
+        const vireo::ImageFormat imageFormat) const {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         auto *pixels = loadRGBAImage(filepath, texWidth, texHeight, imageSize);

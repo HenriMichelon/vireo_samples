@@ -5,11 +5,11 @@
  */
 module;
 #include "Libraries.h"
-export module samples.deferred.global;
+export module samples.common.global;
 
 export namespace samples {
 
-    constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_UNORM;
+    constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_SRGB;
     constexpr auto AXIS_X = vec3{1.0f, 0.0f, 0.0f};
     constexpr auto AXIS_Y = vec3{0.0f, 1.0f, 0.0f};
     constexpr auto AXIS_Z = vec3{0.0f, 0.0f, 1.0f};
@@ -22,6 +22,9 @@ export namespace samples {
         RIGHT = 39,
         DOWN = 40,
         P = 80,
+        W = 90, // 87
+        S = 83,
+        SPACE = 32,
     };
 #endif
 
@@ -29,24 +32,31 @@ export namespace samples {
         vec3 position;
         vec3 normal;
         vec2 uv;
-    };
-
-    struct Mesh {
-        std::vector<Vertex>   vertices;
-        std::vector<uint32_t> indices;
+        vec3 tangent;
     };
 
     struct Global {
+        vec3 cameraPosition{0.0f, 0.0f, 1.2f};
         alignas(16) mat4 projection;
-        alignas(16) mat4 view;
+        mat4 view;
+        mat4 viewInverse;
+        vec4 ambientLight{1.0f, 1.0f, 1.0f, 0.01f}; // RGB + strength
     };
 
     struct Model {
-       alignas(16)  mat4 transform{1.0f};
+        mat4 transform{1.0f};
+    };
+
+    struct Light {
+        vec3 direction{1.0f, -.25f, -.5f};
+        alignas(16) vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + strength
     };
 
     struct Material {
-        alignas(4) int32_t diffuseTextureIndex{-1};
+        float   shininess{128.f};
+        int32_t diffuseTextureIndex{-1};
+        int32_t normalTextureIndex{-1};
+        int32_t aoTextureIndex{-1};
     };
 
 } // namespace samples

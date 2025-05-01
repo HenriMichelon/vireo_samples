@@ -9,10 +9,10 @@ module;
 export module samples.deferred;
 
 import samples.app;
-import samples.deferred.depthprepass;
-import samples.deferred.scene;
-import samples.deferred.skybox;
-import samples.deferred.postprocessing;
+import samples.common.depthprepass;
+import samples.common.scene;
+import samples.common.skybox;
+import samples.common.postprocessing;
 import samples.deferred.colorpass;
 
 export namespace samples {
