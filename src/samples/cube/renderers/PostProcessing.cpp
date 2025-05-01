@@ -43,13 +43,18 @@ namespace samples {
             descriptorLayout,
             samplerDescriptorLayout });
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/voronoi.frag");
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/fxaa.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
+
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/voronoi.frag");
+        effectPipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_PARAMS, paramsBuffer);
+            frame.effectDescriptorSet = vireo->createDescriptorSet(descriptorLayout);
+            frame.effectDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
         }
 
         samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
@@ -62,8 +67,8 @@ namespace samples {
        const shared_ptr<vireo::CommandList>& cmdList,
        const shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
-        frame.descriptorSet->update(BINDING_INPUT, colorBuffer->getImage());
 
+        frame.descriptorSet->update(BINDING_INPUT, colorBuffer->getImage());
         renderingConfig.colorRenderTargets[0].renderTarget = frame.colorBuffer;
         cmdList->barrier(
             colorBuffer,
@@ -80,10 +85,37 @@ namespace samples {
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
         cmdList->draw(3);
         cmdList->endRendering();
-        cmdList->barrier(
-            frame.colorBuffer,
-            vireo::ResourceState::RENDER_TARGET_COLOR,
-            vireo::ResourceState::COPY_SRC);
+
+        if (applyEffect) {
+            frame.effectDescriptorSet->update(BINDING_INPUT, frame.colorBuffer->getImage());
+            renderingConfig.colorRenderTargets[0].renderTarget = frame.effectColorBuffer;
+            cmdList->barrier(
+                frame.colorBuffer,
+                vireo::ResourceState::RENDER_TARGET_COLOR,
+                vireo::ResourceState::SHADER_READ);
+            cmdList->barrier(
+                frame.effectColorBuffer,
+                vireo::ResourceState::UNDEFINED,
+                vireo::ResourceState::RENDER_TARGET_COLOR);
+            cmdList->beginRendering(renderingConfig);
+            cmdList->bindPipeline(effectPipeline);
+            cmdList->bindDescriptors(effectPipeline, {frame.effectDescriptorSet, samplerDescriptorSet});
+            cmdList->draw(3);
+            cmdList->endRendering();
+            cmdList->barrier(
+                frame.effectColorBuffer,
+                vireo::ResourceState::RENDER_TARGET_COLOR,
+                vireo::ResourceState::COPY_SRC);
+            cmdList->barrier(
+                frame.colorBuffer,
+                vireo::ResourceState::SHADER_READ,
+                vireo::ResourceState::UNDEFINED);
+        } else {
+            cmdList->barrier(
+                frame.colorBuffer,
+                vireo::ResourceState::RENDER_TARGET_COLOR,
+                vireo::ResourceState::COPY_SRC);
+        }
         cmdList->barrier(
             colorBuffer,
             vireo::ResourceState::SHADER_READ,
@@ -95,6 +127,10 @@ namespace samples {
         params.imageSize.y = extent.height;
         for (auto& frame : framesData) {
             frame.colorBuffer = vireo->createRenderTarget(
+                RENDER_FORMAT,
+                extent.width,
+                extent.height);
+            frame.effectColorBuffer = vireo->createRenderTarget(
                 RENDER_FORMAT,
                 extent.width,
                 extent.height);

@@ -34,7 +34,6 @@ export namespace samples {
             shared_ptr<vireo::RenderTarget>     colorBuffer;
         };
 
-        bool                           applyPostProcessing{false};
         vector<FrameData>              framesData;
         shared_ptr<vireo::SwapChain>   swapChain;
         shared_ptr<vireo::SubmitQueue> graphicQueue;

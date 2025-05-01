@@ -25,7 +25,11 @@ export namespace samples {
             const shared_ptr<vireo::CommandList>& cmdList,
             const shared_ptr<vireo::RenderTarget>& colorBuffer);
 
-        auto getColorBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].colorBuffer; }
+        auto getColorBuffer(const uint32_t frameIndex) const {
+            return applyEffect ? framesData[frameIndex].effectColorBuffer : framesData[frameIndex].colorBuffer;
+        }
+
+        auto toggleDisplayEffect() { applyEffect = !applyEffect; }
 
     private:
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
@@ -38,10 +42,13 @@ export namespace samples {
         struct FrameData {
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
             shared_ptr<vireo::RenderTarget>     colorBuffer;
+            shared_ptr<vireo::DescriptorSet>    effectDescriptorSet;
+            shared_ptr<vireo::RenderTarget>     effectColorBuffer;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_PARAMS{0};
         static constexpr vireo::DescriptorIndex BINDING_INPUT{1};
+
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {RENDER_FORMAT},
             .colorBlendDesc = {{}}
@@ -50,19 +57,19 @@ export namespace samples {
             .colorRenderTargets = {{}}
         };
 
+        bool                                applyEffect{false};
         shared_ptr<vireo::Vireo>            vireo;
         vector<FrameData>                   framesData;
         PostProcessingParams                params{};
         shared_ptr<vireo::Buffer>           paramsBuffer;
         shared_ptr<vireo::Pipeline>         pipeline;
+        shared_ptr<vireo::Pipeline>         effectPipeline;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        shared_ptr<vireo::DescriptorSet>    descriptorSet;
         shared_ptr<vireo::Sampler>          sampler;
         shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
         shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
 
         static float getCurrentTimeMilliseconds();
-
     };
 
 }
