@@ -41,13 +41,15 @@ struct Material {
     float shininess;
     int   diffuseTextureIndex;
     int   normalTextureIndex;
+    int   aoTextureIndex;
+    int   heightTextureIndex;
 }
 
 ConstantBuffer<Global>   global   : register(b0);
 ConstantBuffer<Model>    model    : register(b1);
 ConstantBuffer<Material> material : register(b2);
 ConstantBuffer<Light> light       : register(b3);
-Texture2D textures[2]             : register(t4);
+Texture2D textures[4]             : register(t4);
 SamplerState sampler              : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
@@ -77,11 +79,13 @@ float4 fragmentMain(VertexOutput input) : SV_TARGET {
 
     float4 color = textures[material.diffuseTextureIndex].Sample(sampler, input.uv);
     float3 normal = textures[material.normalTextureIndex].Sample(sampler, input.uv).rgb;
+    float ao = textures[material.aoTextureIndex].Sample(sampler, input.uv).r;
 
     float3 albedo = color.rgb;
     float3 N = normalize(normal * 2.0 - 1.0);
     N = normalize(mul(TBN, N));
 //     float3 N = normalize(input.normal);
+
     float3 L = normalize(-light.direction);
     float3 V = normalize(global.cameraPosition - input.worldPos);
     float3 R = reflect(-L, N);
@@ -91,7 +95,8 @@ float4 fragmentMain(VertexOutput input) : SV_TARGET {
 
     float3 diffuse = diff * light.color.rgb * light.color.w;
     float3 specular = spec * light.color.rgb * light.color.w;
-    float3 ambient = global.ambientLight.rgb * global.ambientLight.w;
+    float3 ambient = global.ambientLight.rgb * global.ambientLight.w * ao;
 
     return float4((diffuse + specular + ambient) * albedo, color.a);
+//     return float4(ao, 0.0, 0.0, color.a);
 }

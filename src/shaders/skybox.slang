@@ -10,10 +10,11 @@ struct VertexInput {
 
 struct VertexOutput {
     float4 position : SV_POSITION;
-    float3 uv : TEXCOORD;
+    float3 uv       : TEXCOORD;
 };
 
 struct Global {
+    float3   cameraPosition;
     float4x4 projection;
     float4x4 view;
 }
@@ -21,7 +22,6 @@ struct Global {
 ConstantBuffer<Global> global : register(b0);
 TextureCube<float4> cubemap   : register(t1);
 SamplerState sampler          : register(s0, space1);
-
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;

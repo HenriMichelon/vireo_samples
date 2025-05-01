@@ -23,8 +23,11 @@ namespace samples {
         const shared_ptr<vireo::CommandList>& uploadCommandList,
         const float aspectRatio) {
         this->vireo = vireo;
+
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
         indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX,sizeof(uint32_t),cubeIndices.size());
+        uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
+        uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
 
         material.diffuseTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_SRGB,
@@ -32,12 +35,17 @@ namespace samples {
         material.normalTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM,
             "gray_rocks_nor_gl_1k.jpg"));
-        uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
-        uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
+        material.aoTextureIndex = textures.size();
+        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
+            "gray_rocks_ao_1k.jpg"));
+        material.heightTextureIndex = textures.size();
+        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
+            "gray_rocks_disp_1k.jpg"));
 
         global.view = lookAt(global.cameraPosition, cameraTarget, up);
         global.viewInverse = inverse(global.view);
         global.projection = perspective(radians(75.0f), aspectRatio, 0.1f, 100.0f);
+
         // model.transform = translate(model.transform, vec3(0.0f, -1.0f, 0.0f));
         constexpr  float angle = radians(-45.0f);
         model.transform = glm::rotate(model.transform, angle, AXIS_X);
@@ -56,7 +64,7 @@ namespace samples {
         const auto keyCode = static_cast<KeyCodes>(key);
         vec3 axis;
         auto angle = radians(2.0f);
-        cout << "key: " << key << endl;
+        // cout << "key: " << key << endl;
         switch (keyCode) {
         case KeyCodes::SPACE:
             rotateCube = !rotateCube;
@@ -112,15 +120,23 @@ namespace samples {
         stbi_image_free(pixels);
 
         const auto mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) - 1;
-        auto texture = vireo->createImage(format, width, height, mipLevels, 1, to_wstring(filename));
-        uploadCommandList->barrier(texture, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST, 0, mipLevels);
+        auto texture = vireo->createImage(
+            format,
+            width, height,
+            mipLevels, 1,
+            to_wstring(filename));
+        uploadCommandList->barrier(
+            texture,
+            vireo::ResourceState::UNDEFINED,
+            vireo::ResourceState::COPY_DST,
+            0, mipLevels);
         uploadCommandList->copy(buffer, texture);
 
         auto currentWidth = width;
         auto currentHeight = height;
         auto previousData = static_cast<unsigned char*>(buffer->getMappedAddress());
 
-        // Continue generating mip levels until reaching 4x4 resolution
+        // generating mip levels until reaching 4x4 resolution
         auto mipLevel = 1;
         while (currentWidth > 4 || currentHeight > 4) {
             const auto w = (currentWidth > 1) ? currentWidth / 2 : 1;

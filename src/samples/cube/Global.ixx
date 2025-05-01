@@ -56,6 +56,8 @@ export namespace samples {
         float   shininess{128.f};
         int32_t diffuseTextureIndex{-1};
         int32_t normalTextureIndex{-1};
+        int32_t aoTextureIndex{-1};
+        int32_t heightTextureIndex{-1};
     };
 
 } // namespace samples
