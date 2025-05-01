@@ -137,20 +137,20 @@ build_target(msaa "${MSAA_SRC}" "${MSAA_MODULES}")
 set(CUBE_SRC
         ${SRC_DIR}/samples/cube/CubeApp.cpp
         ${SRC_DIR}/samples/cube/CubeAppMain.cpp
+        ${SRC_DIR}/samples/cube/ForwardColorPass.cpp
         ${SRC_DIR}/samples/common/Scene.cpp
         ${SRC_DIR}/samples/common/renderers/DepthPrepass.cpp
         ${SRC_DIR}/samples/common/renderers/Skybox.cpp
         ${SRC_DIR}/samples/common/renderers/PostProcessing.cpp
-        ${SRC_DIR}/samples/cube/renderers/ColorPass.cpp
 )
 set(CUBE_MODULES
         ${SRC_DIR}/samples/cube/CubeApp.ixx
+        ${SRC_DIR}/samples/cube/ForwardColorPass.ixx
         ${SRC_DIR}/samples/common/Global.ixx
         ${SRC_DIR}/samples/common/Scene.ixx
         ${SRC_DIR}/samples/common/renderers/DepthPrepass.ixx
         ${SRC_DIR}/samples/common/renderers/Skybox.ixx
         ${SRC_DIR}/samples/common/renderers/PostProcessing.ixx
-        ${SRC_DIR}/samples/cube/renderers/ColorPass.ixx
 )
 build_target(cube "${CUBE_SRC}" "${CUBE_MODULES}")
 
