@@ -38,9 +38,6 @@ namespace samples {
         material.aoTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
             "gray_rocks_ao_1k.jpg"));
-        material.heightTextureIndex = textures.size();
-        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
-            "gray_rocks_disp_1k.jpg"));
 
         global.view = lookAt(global.cameraPosition, cameraTarget, up);
         global.viewInverse = inverse(global.view);

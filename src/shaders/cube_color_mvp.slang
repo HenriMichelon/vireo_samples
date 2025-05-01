@@ -42,14 +42,13 @@ struct Material {
     int   diffuseTextureIndex;
     int   normalTextureIndex;
     int   aoTextureIndex;
-    int   heightTextureIndex;
 }
 
 ConstantBuffer<Global>   global   : register(b0);
 ConstantBuffer<Model>    model    : register(b1);
 ConstantBuffer<Material> material : register(b2);
 ConstantBuffer<Light> light       : register(b3);
-Texture2D textures[4]             : register(t4);
+Texture2D textures[3]             : register(t4);
 SamplerState sampler              : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {

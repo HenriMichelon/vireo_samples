@@ -36,7 +36,7 @@ export namespace samples {
     };
 
     struct Global {
-        vec3 cameraPosition{0.0f, 0.0f, 1.5f};
+        vec3 cameraPosition{0.0f, 0.0f, 1.2f};
         alignas(16) mat4 projection;
         mat4 view;
         mat4 viewInverse;
@@ -57,7 +57,6 @@ export namespace samples {
         int32_t diffuseTextureIndex{-1};
         int32_t normalTextureIndex{-1};
         int32_t aoTextureIndex{-1};
-        int32_t heightTextureIndex{-1};
     };
 
 } // namespace samples
