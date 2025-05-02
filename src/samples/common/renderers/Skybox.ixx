@@ -21,6 +21,7 @@ export namespace samples {
             const shared_ptr<vireo::Vireo>& vireo,
             const shared_ptr<vireo::CommandList>& uploadCommandList,
             const shared_ptr<vireo::SubmitQueue>& graphicQueue,
+            vireo::ImageFormat renderFormat,
             uint32_t framesInFlight);
         void onResize(const vireo::Extent& extent);
         void onDestroy();
@@ -47,7 +48,6 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .colorRenderFormats = {RENDER_FORMAT},
             .colorBlendDesc = {{}},
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,

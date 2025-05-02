@@ -17,6 +17,7 @@ export namespace samples {
     public:
         void onInit(
            const shared_ptr<vireo::Vireo>& vireo,
+           vireo::ImageFormat renderFormat,
            const Scene& scene,
            uint32_t framesInFlight);
         void onRender(
@@ -51,7 +52,6 @@ export namespace samples {
                 {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,   offsetof(Vertex, tangent)},
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .colorRenderFormats = {RENDER_FORMAT},
             .colorBlendDesc = {{}},
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,

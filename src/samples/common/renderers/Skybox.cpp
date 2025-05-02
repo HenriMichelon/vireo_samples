@@ -21,6 +21,7 @@ namespace samples {
         const shared_ptr<vireo::Vireo>& vireo,
         const shared_ptr<vireo::CommandList>& uploadCommandList,
         const shared_ptr<vireo::SubmitQueue>& graphicQueue,
+        const vireo::ImageFormat renderFormat,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
@@ -42,6 +43,7 @@ namespace samples {
         samplerDescriptorLayout->add(BINDING_SAMPLER, vireo::DescriptorType::SAMPLER);
         samplerDescriptorLayout->build();
 
+        pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(float) * 3, vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/skybox.vert");

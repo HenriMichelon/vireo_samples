@@ -9,7 +9,6 @@ export module samples.common.global;
 
 export namespace samples {
 
-    constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_SRGB;
     constexpr auto AXIS_X = vec3{1.0f, 0.0f, 0.0f};
     constexpr auto AXIS_Y = vec3{0.0f, 1.0f, 0.0f};
     constexpr auto AXIS_Z = vec3{0.0f, 0.0f, 1.0f};
@@ -22,7 +21,7 @@ export namespace samples {
         RIGHT = 39,
         DOWN = 40,
         P = 80,
-        W = 90, // 87
+        W = 87,
         S = 83,
         SPACE = 32,
     };

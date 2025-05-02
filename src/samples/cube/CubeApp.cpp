@@ -38,7 +38,7 @@ namespace samples {
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
-        skybox.onInit(vireo, uploadCommandList, graphicQueue, swapChain->getFramesInFlight());
+        skybox.onInit(vireo, uploadCommandList, graphicQueue, RENDER_FORMAT, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});
 
@@ -48,9 +48,9 @@ namespace samples {
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
         }
-        colorPass.onInit(vireo, scene, swapChain->getFramesInFlight());
+        colorPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
         depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
-        postProcessing.onInit(vireo, swapChain->getFramesInFlight());
+        postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
 
         graphicQueue->waitIdle();
     }
