@@ -4,7 +4,6 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-
 struct VertexOutput {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
@@ -15,9 +14,9 @@ struct Params {
     float time;
 };
 
-ConstantBuffer<Params> params  : register(b0);
-Texture2D inputImage           : register(t1);
-SamplerState sampler           : register(s0, space1);
+ConstantBuffer<Params> params : register(b0);
+Texture2D inputImage          : register(t1);
+SamplerState sampler          : register(s0, space1);
 
 float2 hash22(float2 p) {
     float n = sin(dot(p, float2(41, 289)));
@@ -28,8 +27,7 @@ float hash1(float2 p) {
     return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
 }
 
-float voronoi(float2 uv, float time)
-{
+float voronoi(float2 uv, float time) {
     float2 g = floor(uv);
     float2 f = frac(uv);
 

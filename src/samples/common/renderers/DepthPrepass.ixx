@@ -45,8 +45,8 @@ export namespace samples {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .cullMode = vireo::CullMode::BACK,
-            .depthTestEnable = true,
+            .cullMode         = vireo::CullMode::BACK,
+            .depthTestEnable  = true,
             .depthWriteEnable = true,
         };
         vireo::RenderingConfiguration renderingConfig {
@@ -55,8 +55,8 @@ export namespace samples {
 
         vector<FrameData>                   framesData;
         shared_ptr<vireo::Vireo>            vireo;
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::Pipeline>         pipeline;
+        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
     };
 
 }

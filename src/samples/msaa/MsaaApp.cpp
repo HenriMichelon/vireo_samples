@@ -18,13 +18,13 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::IMMEDIATE);
         renderingConfig.colorRenderTargets[0].swapChain = swapChain;
+
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
         }
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(Vertex), triangleVertices.size());
-
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
@@ -58,22 +58,21 @@ namespace samples {
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+
         renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaRenderTarget;
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewports({swapChain->getExtent()});
         cmdList->setScissors({swapChain->getExtent()});
-
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->draw(triangleVertices.size());
-
         cmdList->endRendering();
+
         cmdList->barrier(frame.msaaRenderTarget, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::UNDEFINED);
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 
         graphicSubmitQueue->submit(frame.inFlightFence, swapChain, {cmdList});
-
         swapChain->present();
         swapChain->nextFrameIndex();
     }

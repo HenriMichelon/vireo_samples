@@ -29,12 +29,24 @@ export namespace samples {
             vec2 uv;
             vec3 color;
         };
+
         struct GlobalUBO {
             vec4 offset;
         };
+
         struct PushConstants {
             vec3 color;
         };
+
+        struct FrameData {
+            shared_ptr<vireo::Buffer>           globalUboBuffer;
+            shared_ptr<vireo::CommandAllocator> commandAllocator;
+            shared_ptr<vireo::CommandList>      commandList;
+            shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
+            shared_ptr<vireo::Fence>            inFlightFence;
+        };
+
         static constexpr auto pushConstantsDesc = vireo::PushConstantsDesc {
             .stage = vireo::ShaderStage::FRAGMENT,
             .size = sizeof(PushConstants),
@@ -46,34 +58,11 @@ export namespace samples {
             {"COLOR", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
         };
 
-        float colorIncrement{1.0f};
-        float scaleIncrement{1.0f};
-
         vector<Vertex> triangleVertices{
             { { 0.0f, 0.25f, 0.0f }, { 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
             { { 0.25f, -0.25f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
         };
-
-        struct FrameData {
-            shared_ptr<vireo::Buffer>           globalUboBuffer;
-            shared_ptr<vireo::CommandAllocator> commandAllocator;
-            shared_ptr<vireo::CommandList>      commandList;
-            shared_ptr<vireo::DescriptorSet>    descriptorSet;
-            shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
-            shared_ptr<vireo::Fence>            inFlightFence;
-        };
-        vector<FrameData>                   framesData;
-
-        GlobalUBO                           globalUbo{};
-        PushConstants                       pushConstants{};
-        shared_ptr<vireo::Buffer>           vertexBuffer;
-        vector<shared_ptr<vireo::Image>>    textures;
-        vector<shared_ptr<vireo::Sampler>>  samplers;
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
-        shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
-        shared_ptr<vireo::SwapChain>        swapChain;
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
@@ -85,6 +74,20 @@ export namespace samples {
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f}
             }}
         };
+
+        float                               colorIncrement{1.0f};
+        float                               scaleIncrement{1.0f};
+        GlobalUBO                           globalUbo{};
+        PushConstants                       pushConstants{};
+        vector<FrameData>                   framesData;
+        shared_ptr<vireo::Buffer>           vertexBuffer;
+        vector<shared_ptr<vireo::Image>>    textures;
+        vector<shared_ptr<vireo::Sampler>>  samplers;
+        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
+        shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
+        shared_ptr<vireo::SwapChain>        swapChain;
+
         map<string, shared_ptr<vireo::Pipeline>> pipelines;
 
         static void generateTextureData(const shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);

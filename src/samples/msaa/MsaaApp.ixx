@@ -24,6 +24,14 @@ export namespace samples {
             vec3 pos;
             vec3 color;
         };
+
+        struct FrameData {
+            shared_ptr<vireo::CommandAllocator> commandAllocator;
+            shared_ptr<vireo::CommandList>      commandList;
+            shared_ptr<vireo::Fence>            inFlightFence;
+            shared_ptr<vireo::RenderTarget>     msaaRenderTarget;
+        };
+
         const vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
@@ -33,16 +41,6 @@ export namespace samples {
             { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
         };
-
-        shared_ptr<vireo::Buffer> vertexBuffer;
-
-        struct FrameData {
-            shared_ptr<vireo::CommandAllocator> commandAllocator;
-            shared_ptr<vireo::CommandList>      commandList;
-            shared_ptr<vireo::Fence>            inFlightFence;
-            shared_ptr<vireo::RenderTarget>     msaaRenderTarget;
-        };
-        vector<FrameData> framesData;
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
@@ -56,9 +54,10 @@ export namespace samples {
             }}
         };
 
+        vector<FrameData>              framesData;
+        shared_ptr<vireo::Buffer>      vertexBuffer;
         shared_ptr<vireo::Pipeline>    pipeline;
         shared_ptr<vireo::SwapChain>   swapChain;
         shared_ptr<vireo::SubmitQueue> graphicSubmitQueue;
-
     };
 }

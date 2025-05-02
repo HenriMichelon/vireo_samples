@@ -20,10 +20,8 @@ export namespace samples {
         void onInit(
             const shared_ptr<vireo::Vireo>& vireo,
             const shared_ptr<vireo::CommandList>& uploadCommandList,
-            const shared_ptr<vireo::SubmitQueue>& graphicQueue,
             vireo::ImageFormat renderFormat,
             uint32_t framesInFlight);
-        void onResize(const vireo::Extent& extent);
         void onDestroy();
         void onRender(
             uint32_t frameIndex,
@@ -47,6 +45,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
+
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}},
             .cullMode = vireo::CullMode::BACK,

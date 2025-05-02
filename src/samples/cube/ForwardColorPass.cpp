@@ -56,7 +56,6 @@ namespace samples {
             frame.lightBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
             frame.lightBuffer->map();
             auto light = scene.getLight();
-            // light.position.z -= light.position.z;
             frame.lightBuffer->write(&light);
             frame.lightBuffer->unmap();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"ColorPass");
@@ -100,8 +99,5 @@ namespace samples {
             frame.globalBuffer->unmap();
         }
     }
-
-
-
 
 }

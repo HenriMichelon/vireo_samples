@@ -5,7 +5,6 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include <glm/gtc/matrix_transform.hpp>
 #include "Libraries.h"
 module samples.cube;
 
@@ -27,7 +26,7 @@ namespace samples {
     }
 
     void CubeApp::onInit() {
-        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"MainQueue");
+        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(
             RENDER_FORMAT,
             graphicQueue,
@@ -38,7 +37,7 @@ namespace samples {
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
-        skybox.onInit(vireo, uploadCommandList, graphicQueue, RENDER_FORMAT, swapChain->getFramesInFlight());
+        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});
 
@@ -48,6 +47,7 @@ namespace samples {
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
         }
+
         colorPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
         depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
         postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
@@ -129,7 +129,6 @@ namespace samples {
                 skybox.getClearValue());
         }
         depthPrepass.onResize(extent);
-        skybox.onResize(extent);
         postProcessing.onResize(extent);
     }
 
@@ -140,6 +139,5 @@ namespace samples {
         depthPrepass.onDestroy();
         skybox.onDestroy();
     }
-
 
 }

@@ -172,27 +172,15 @@ namespace samples {
             frame.fxaaColorBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],
                 extent.width,
-                extent.height,
-                vireo::RenderTargetType::COLOR,
-                {},
-                vireo::MSAA::NONE,
-                L"fxaa");
+                extent.height);
             frame.effectColorBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],
                 extent.width,
-                extent.height,
-                vireo::RenderTargetType::COLOR,
-                {},
-                vireo::MSAA::NONE,
-                L"effect");
+                extent.height);
             frame.gammaCorrectionColorBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],
                 extent.width,
-                extent.height,
-                vireo::RenderTargetType::COLOR,
-                {},
-                vireo::MSAA::NONE,
-                L"gamma");
+                extent.height);
         }
     }
 

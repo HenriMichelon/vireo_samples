@@ -4,7 +4,6 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-
 struct VertexOutput {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
@@ -15,9 +14,9 @@ struct Params {
     float time;
 };
 
-ConstantBuffer<Params> params  : register(b0);
-Texture2D inputImage           : register(t1);
-SamplerState sampler           : register(s0, space1);
+ConstantBuffer<Params> params : register(b0);
+Texture2D inputImage          : register(t1);
+SamplerState sampler          : register(s0, space1);
 
 float3 linearToSrgb(float3 c) {
     return select(

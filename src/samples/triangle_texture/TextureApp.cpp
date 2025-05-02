@@ -21,6 +21,7 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::IMMEDIATE);
         renderingConfig.colorRenderTargets[0].swapChain = swapChain;
+
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
@@ -109,16 +110,16 @@ namespace samples {
         const auto& cmdList = frame.commandList;
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(swapChain->getExtent());
         cmdList->setScissors(swapChain->getExtent());
-
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->draw(triangleVertices.size());
-
         cmdList->endRendering();
+
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);
         cmdList->end();
 

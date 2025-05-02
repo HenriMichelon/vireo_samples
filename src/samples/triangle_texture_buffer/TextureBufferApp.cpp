@@ -18,6 +18,7 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
         renderingConfig.colorRenderTargets[0].swapChain = swapChain;
+
         const auto ratio = swapChain->getAspectRatio();
         for (auto& vertex : triangleVertices) {
             vertex.pos.y *= ratio;
@@ -110,7 +111,6 @@ namespace samples {
         if (globalUbo.offset.x > offsetBounds) {
             globalUbo.offset.x = -offsetBounds;
         }
-
         pushConstants.color += 0.005f * colorIncrement;
         if ((pushConstants.color.x > 0.5f) || (pushConstants.color.x < 0.0f)) {
             colorIncrement = -colorIncrement;
@@ -125,10 +125,10 @@ namespace samples {
         frame.globalUboBuffer->write(&globalUbo);
 
         frame.commandAllocator->reset();
-
         const auto& cmdList = frame.commandList;
         cmdList->begin();
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(swapChain->getExtent());
         cmdList->setScissors(swapChain->getExtent());

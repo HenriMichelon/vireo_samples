@@ -40,7 +40,7 @@ namespace samples {
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
-        skybox.onInit(vireo, uploadCommandList, graphicQueue, RENDER_FORMAT, swapChain->getFramesInFlight());
+        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});
 
@@ -131,7 +131,6 @@ namespace samples {
                 skybox.getClearValue());
         }
         depthPrepass.onResize(extent);
-        skybox.onResize(extent);
         postProcessing.onResize(extent);
     }
 
@@ -142,6 +141,5 @@ namespace samples {
         depthPrepass.onDestroy();
         skybox.onDestroy();
     }
-
 
 }

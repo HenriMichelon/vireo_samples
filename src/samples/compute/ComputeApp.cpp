@@ -12,7 +12,11 @@ namespace samples {
 
     void ComputeApp::onInit() {
         graphicSubmitQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
-        swapChain = vireo->createSwapChain(vireo::ImageFormat::R8G8B8A8_SRGB, graphicSubmitQueue, windowHandle, vireo::PresentMode::IMMEDIATE);
+        swapChain = vireo->createSwapChain(
+            vireo::ImageFormat::R8G8B8A8_SRGB,
+            graphicSubmitQueue,
+            windowHandle,
+            vireo::PresentMode::IMMEDIATE);
         paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Params));
         paramsBuffer->map();
 
@@ -51,13 +55,25 @@ namespace samples {
         frame.commandList->bindPipeline(pipeline);
         frame.commandList->bindDescriptors(pipeline, {frame.descriptorSet});
 
-        frame.commandList->barrier(frame.image, vireo::ResourceState::COPY_SRC, vireo::ResourceState::DISPATCH_TARGET);
+        frame.commandList->barrier(
+            frame.image,
+            vireo::ResourceState::COPY_SRC,
+            vireo::ResourceState::DISPATCH_TARGET);
         frame.commandList->dispatch((frame.image->getWidth() + 7)/8, (frame.image->getHeight() + 7)/8, 1);
-        frame.commandList->barrier(frame.image, vireo::ResourceState::DISPATCH_TARGET, vireo::ResourceState::COPY_SRC);
+        frame.commandList->barrier(
+            frame.image,
+            vireo::ResourceState::DISPATCH_TARGET,
+            vireo::ResourceState::COPY_SRC);
 
-        frame.commandList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
+        frame.commandList->barrier(
+            swapChain,
+            vireo::ResourceState::UNDEFINED,
+            vireo::ResourceState::COPY_DST);
         frame.commandList->copy(frame.image, swapChain);
-        frame.commandList->barrier(swapChain, vireo::ResourceState::COPY_DST, vireo::ResourceState::PRESENT);
+        frame.commandList->barrier(
+            swapChain,
+            vireo::ResourceState::COPY_DST,
+            vireo::ResourceState::PRESENT);
 
         frame.commandList->end();
 

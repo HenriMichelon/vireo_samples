@@ -28,6 +28,7 @@ export namespace samples {
 
     private:
         static constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_UNORM;
+
         struct FrameData {
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;

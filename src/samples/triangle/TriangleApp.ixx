@@ -24,24 +24,23 @@ export namespace samples {
             vec3 pos;
             vec3 color;
         };
-        const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
-            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
-        };
-        vector<Vertex> triangleVertices{
-            { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
-            { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-            { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
-        };
-
-        shared_ptr<vireo::Buffer> vertexBuffer;
 
         struct FrameData {
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::Fence>            inFlightFence;
         };
-        vector<FrameData> framesData;
+
+        vector<Vertex> triangleVertices{
+            { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
+            { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+            { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+        };
+
+        const vector<vireo::VertexAttributeDesc> vertexAttributes{
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
+            {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
+        };
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
@@ -53,9 +52,11 @@ export namespace samples {
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f}
             }}
         };
+
+        vector<FrameData>              framesData;
+        shared_ptr<vireo::Buffer>      vertexBuffer;
         shared_ptr<vireo::Pipeline>    defaultPipeline;
         shared_ptr<vireo::SwapChain>   swapChain;
         shared_ptr<vireo::SubmitQueue> graphicQueue;
-
     };
 }

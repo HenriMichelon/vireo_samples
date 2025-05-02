@@ -31,11 +31,11 @@ export namespace samples {
 
     private:
         struct FrameData {
-            shared_ptr<vireo::Buffer>           globalBuffer;
-            shared_ptr<vireo::Buffer>           modelBuffer;
-            shared_ptr<vireo::Buffer>           materialBuffer;
-            shared_ptr<vireo::Buffer>           lightBuffer;
-            shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            shared_ptr<vireo::Buffer>        globalBuffer;
+            shared_ptr<vireo::Buffer>        modelBuffer;
+            shared_ptr<vireo::Buffer>        materialBuffer;
+            shared_ptr<vireo::Buffer>        lightBuffer;
+            shared_ptr<vireo::DescriptorSet> descriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};

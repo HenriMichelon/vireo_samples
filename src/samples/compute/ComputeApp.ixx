@@ -21,9 +21,10 @@ export namespace samples {
         void onResize() override;
 
     private:
+        static constexpr float MAX_FLOAT = 3.4028235e+38;
+
         const vireo::DescriptorIndex BINDING_PARAMS{0};
         const vireo::DescriptorIndex BINDING_IMAGE{1};
-        static constexpr float MAX_FLOAT = 3.4028235e+38;
 
         struct Params {
             ivec2 imageSize{};
@@ -37,9 +38,9 @@ export namespace samples {
             shared_ptr<vireo::Fence>            inFlightFence;
             shared_ptr<vireo::Image>            image;
         };
-        vector<FrameData> framesData;
 
         Params                              params{};
+        vector<FrameData>                   framesData;
         shared_ptr<vireo::Buffer>           paramsBuffer;
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::Pipeline>         pipeline;

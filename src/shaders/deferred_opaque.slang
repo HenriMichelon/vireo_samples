@@ -31,7 +31,7 @@ struct Material {
 ConstantBuffer<Global>   global   : register(b0);
 ConstantBuffer<Model>    model    : register(b1);
 ConstantBuffer<Material> material : register(b2);
-Texture2D textures[1]             : register(t3);
+Texture2D    textures[1]          : register(t3);
 SamplerState sampler              : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {

@@ -43,17 +43,16 @@ namespace samples {
         global.viewInverse = inverse(global.view);
         global.projection = perspective(radians(75.0f), aspectRatio, 0.1f, 100.0f);
 
-        // model.transform = translate(model.transform, vec3(0.0f, -1.0f, 0.0f));
         constexpr  float angle = radians(-45.0f);
-        model.transform = glm::rotate(model.transform, angle, AXIS_X);
-        model.transform = glm::rotate(model.transform, angle, AXIS_Y);
+        model.transform = rotate(model.transform, angle, AXIS_X);
+        model.transform = rotate(model.transform, angle, AXIS_Y);
     }
 
     void Scene::onUpdate() {
         if (rotateCube) {
             constexpr  float angle = radians(-0.1);
-            model.transform = glm::rotate(model.transform, angle, AXIS_X);
-            model.transform = glm::rotate(model.transform, angle, AXIS_Y);
+            model.transform = rotate(model.transform, angle, AXIS_X);
+            model.transform = rotate(model.transform, angle, AXIS_Y);
         }
     }
 
@@ -106,11 +105,13 @@ namespace samples {
         const vireo::ImageFormat format,
         const string& filename) const {
         const auto pixelSize = vireo::Image::getPixelSize(format);
+
         int width, height, channels;
         stbi_uc* pixels = stbi_load(("res/" + filename).c_str(), &width, &height,&channels, pixelSize);
         if (!pixels) {
             throw runtime_error("Failed to load texture: " + filename);
         }
+
         auto buffer = vireo->createBuffer(vireo::BufferType::TRANSFER, width * pixelSize, height);
         buffer->map();
         buffer->write(pixels);
@@ -129,11 +130,10 @@ namespace samples {
             0, mipLevels);
         uploadCommandList->copy(buffer, texture);
 
+        // generating mip levels until reaching 4x4 resolution
         auto currentWidth = width;
         auto currentHeight = height;
         auto previousData = static_cast<unsigned char*>(buffer->getMappedAddress());
-
-        // generating mip levels until reaching 4x4 resolution
         auto mipLevel = 1;
         while (currentWidth > 4 || currentHeight > 4) {
             const auto w = (currentWidth > 1) ? currentWidth / 2 : 1;

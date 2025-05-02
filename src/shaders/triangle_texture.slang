@@ -14,8 +14,8 @@ struct VertexOutput {
     float2 uv       : TEXCOORD;
 };
 
-Texture2D texture[1]        : register(t0);
-SamplerState samplers[1]    : register(s0, space1);
+Texture2D texture[1]     : register(t0);
+SamplerState samplers[1] : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;

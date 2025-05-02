@@ -20,7 +20,6 @@ namespace samples {
     void Skybox::onInit(
         const shared_ptr<vireo::Vireo>& vireo,
         const shared_ptr<vireo::CommandList>& uploadCommandList,
-        const shared_ptr<vireo::SubmitQueue>& graphicQueue,
         const vireo::ImageFormat renderFormat,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
@@ -75,6 +74,7 @@ namespace samples {
         const shared_ptr<vireo::RenderTarget>& colorBuffer,
         const shared_ptr<vireo::SubmitQueue>& graphicQueue) {
         const auto& frame = framesData[frameIndex];
+
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
@@ -103,9 +103,6 @@ namespace samples {
             vireo::WaitStage::FRAGMENT_SHADER,
             frame.semaphore,
             {cmdList});
-    }
-
-    void Skybox::onResize(const vireo::Extent&) {
     }
 
     void Skybox::onDestroy() {
@@ -215,10 +212,10 @@ namespace samples {
 
     std::byte* Skybox::extractImage(
         const std::byte* source,
-        int x, int y,
-        int srcWidth,
-        int w, int h,
-        int channels) {
+        const int x, const int y,
+        const int srcWidth,
+        const int w, const int h,
+        const int channels) {
         const auto extractedImage = new std::byte[w * h * channels];
         for (uint32_t row = 0; row < h; ++row) {
             for (uint32_t col = 0; col < w; ++col) {
@@ -229,8 +226,6 @@ namespace samples {
             }
         }
         return extractedImage;
-
     }
-
 
 }

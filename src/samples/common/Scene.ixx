@@ -37,21 +37,20 @@ export namespace samples {
         const auto& getTextures() const { return textures; }
 
     private:
-        Model model{};
-        Global global{};
+        Model    model{};
+        Global   global{};
         Material material{};
-        Light light{};
-        bool rotateCube{true};
-        float cameraYRotationAngle{0.0f};
-        vec3 cameraTarget{0.0f, 0.0f, 0.0f};
+        Light    light{};
+        bool     rotateCube{true};
+        float    cameraYRotationAngle{0.0f};
+        vec3     cameraTarget{0.0f, 0.0f, 0.0f};
 
-        shared_ptr<vireo::Vireo>  vireo;
-        shared_ptr<vireo::Buffer> vertexBuffer;
-        shared_ptr<vireo::Buffer> indexBuffer;
-        vector<shared_ptr<vireo::Image>>  textures;
+        shared_ptr<vireo::Vireo>         vireo;
+        shared_ptr<vireo::Buffer>        vertexBuffer;
+        shared_ptr<vireo::Buffer>        indexBuffer;
+        vector<shared_ptr<vireo::Image>> textures;
 
-        // Models data
-        std::vector<Vertex> cubeVertices = {
+        std::vector<Vertex> cubeVertices {
             // (-Z)
             {{-0.5f, -0.5f, -0.5f}, { 0,  0, -1}, {0, 0}, {1, 0, 0}},
             {{ 0.5f, -0.5f, -0.5f}, { 0,  0, -1}, {1, 0}, {1, 0, 0}},
@@ -90,7 +89,7 @@ export namespace samples {
         };
 
         // CCW
-        std::vector<uint32_t> cubeIndices = {
+        std::vector<uint32_t> cubeIndices {
             0,  2,  1,   0,  3,  2, // (-Z)
             4,  6,  5,   4,  7,  6, // (+Z)
             8, 10,  9,   8, 11, 10, // (-X)
@@ -100,9 +99,9 @@ export namespace samples {
         };
 
         shared_ptr<vireo::Image> uploadTexture(
-          const shared_ptr<vireo::CommandList>& uploadCommandList,
-          vireo::ImageFormat format,
-          const string& filename) const;
+            const shared_ptr<vireo::CommandList>& uploadCommandList,
+            vireo::ImageFormat format,
+            const string& filename) const;
     };
 
 }
