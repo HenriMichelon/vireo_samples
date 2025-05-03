@@ -19,6 +19,7 @@ export namespace samples {
            const shared_ptr<vireo::Vireo>& vireo,
            vireo::ImageFormat renderFormat,
            const Scene& scene,
+           const DepthPrepass& depthPrepass,
            uint32_t framesInFlight);
         void onRender(
             uint32_t frameIndex,
@@ -28,6 +29,8 @@ export namespace samples {
             const shared_ptr<vireo::CommandList>& cmdList,
             const shared_ptr<vireo::RenderTarget>& colorBuffer);
         void onDestroy();
+
+        auto getClearValue() const { return renderingConfig.colorRenderTargets[0].clearValue; }
 
     private:
         struct FrameData {
@@ -58,11 +61,10 @@ export namespace samples {
             .depthWriteEnable = false,
         };
         vireo::RenderingConfiguration renderingConfig {
-            .colorRenderTargets = {{
+             .colorRenderTargets = {{
                 .clear = true,
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f},
             }},
-            .discardDepthAfterRender = true,
         };
 
         vector<FrameData>                   framesData;

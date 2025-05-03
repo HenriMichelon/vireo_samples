@@ -33,17 +33,17 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
 
-        depthPrepass.onInit(vireo, false, swapChain->getFramesInFlight());
+        depthPrepass.onInit(vireo, true, swapChain->getFramesInFlight());
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
-        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass.getFormat(), swapChain->getFramesInFlight());
+        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});
 
-        colorPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
+        colorPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, swapChain->getFramesInFlight());
         postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
 
         framesData.resize(swapChain->getFramesInFlight());
@@ -82,6 +82,7 @@ namespace samples {
         skybox.onRender(
             frameIndex,
             swapChain->getExtent(),
+            true,
             depthPrepass,
             frame.colorBuffer,
             cmdList);
@@ -95,7 +96,7 @@ namespace samples {
         cmdList->barrier(
             depthPrepass.getDepthBuffer(frameIndex),
             depthPrepass.isWithStencil() ?
-                    vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ :
+                    vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL :
                     vireo::ResourceState::RENDER_TARGET_DEPTH_READ,
             vireo::ResourceState::UNDEFINED);
         cmdList->barrier(
@@ -129,7 +130,7 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.colorBuffer = vireo->createRenderTarget(
                 swapChain,
-                skybox.getClearValue());
+                colorPass.getClearValue());
         }
         depthPrepass.onResize(extent);
         postProcessing.onResize(extent);

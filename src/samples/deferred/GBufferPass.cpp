@@ -13,7 +13,7 @@ namespace samples {
     void GBufferPass::onInit(
         const shared_ptr<vireo::Vireo>& vireo,
         const Scene& scene,
-        const vireo::ImageFormat depthImageFormat,
+        const DepthPrepass& depthPrepass,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
@@ -35,7 +35,8 @@ namespace samples {
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
 
-        pipelineConfig.depthImageFormat = depthImageFormat;
+        pipelineConfig.depthImageFormat = depthPrepass.getFormat();
+        pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
         pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
@@ -88,10 +89,18 @@ namespace samples {
             {renderTargets.begin(), renderTargets.end()},
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
-        cmdList->barrier(
-            renderingConfig.depthRenderTarget,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
+        // if (depthPrepass.isWithStencil()) {
+        //     cmdList->barrier(
+        //         renderingConfig.depthRenderTarget,
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
+        // } else {
+        //     cmdList->barrier(
+        //         renderingConfig.depthRenderTarget,
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH,
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH_READ);
+        // }
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);

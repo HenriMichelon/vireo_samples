@@ -14,6 +14,7 @@ namespace samples {
         const shared_ptr<vireo::Vireo>& vireo,
         const vireo::ImageFormat renderFormat,
         const Scene& scene,
+        const DepthPrepass& depthPrepass,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
@@ -39,6 +40,9 @@ namespace samples {
         descriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
+        pipelineConfig.depthImageFormat = depthPrepass.getFormat();
+        pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
+        pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/deferred_lighting.frag");
@@ -69,6 +73,7 @@ namespace samples {
         const uint32_t frameIndex,
         const vireo::Extent& extent,
         const Scene& scene,
+        const DepthPrepass& depthPrepass,
         const GBufferPass& gBufferPass,
         const shared_ptr<vireo::CommandList>& cmdList,
         const shared_ptr<vireo::RenderTarget>& colorBuffer) {
@@ -83,6 +88,24 @@ namespace samples {
         frame.descriptorSet->update(BINDING_MATERIAL_BUFFER, gBufferPass.getMaterialBuffer(frameIndex)->getImage());
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
+        renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
+
+        cmdList->barrier(
+           colorBuffer,
+           vireo::ResourceState::UNDEFINED,
+           vireo::ResourceState::RENDER_TARGET_COLOR);
+        // if (depthPrepass.isWithStencil()) {
+        //     cmdList->barrier(
+        //         renderingConfig.depthRenderTarget,
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
+        // } else {
+        //     cmdList->barrier(
+        //         renderingConfig.depthRenderTarget,
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH,
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH_READ);
+        // }
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);

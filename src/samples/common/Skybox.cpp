@@ -21,7 +21,7 @@ namespace samples {
         const shared_ptr<vireo::Vireo>& vireo,
         const shared_ptr<vireo::CommandList>& uploadCommandList,
         const vireo::ImageFormat renderFormat,
-        const vireo::ImageFormat depthFormat,
+        const DepthPrepass& depthPrepass,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
@@ -44,7 +44,9 @@ namespace samples {
         samplerDescriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
-        pipelineConfig.depthImageFormat = depthFormat;
+        pipelineConfig.depthImageFormat = depthPrepass.getFormat();
+        pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
+        pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(float) * 3, vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/skybox.vert");
@@ -71,6 +73,7 @@ namespace samples {
     void Skybox::onRender(
         const uint32_t frameIndex,
         const vireo::Extent& extent,
+        bool depthIsReadOnly,
         const DepthPrepass& depthPrepass,
         const shared_ptr<vireo::RenderTarget>& colorBuffer,
         const shared_ptr<vireo::CommandList>& cmdList) {
@@ -81,9 +84,19 @@ namespace samples {
 
         frame.globalBuffer->write(&global);
 
+        if (depthIsReadOnly && depthPrepass.isWithStencil()) {
+            cmdList->barrier(
+                renderingConfig.depthRenderTarget,
+                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
+                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
+        }
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
+        if (depthPrepass.isWithStencil()) {
+            cmdList->setStencilReference(0);
+        }
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});

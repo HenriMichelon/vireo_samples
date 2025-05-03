@@ -18,7 +18,7 @@ export namespace samples {
         void onInit(
             const shared_ptr<vireo::Vireo>& vireo,
             const Scene& scene,
-            vireo::ImageFormat depthImageFormat,
+            const DepthPrepass& depthPrepass,
             uint32_t framesInFlight);
         void onRender(
             uint32_t frameIndex,
@@ -73,8 +73,7 @@ export namespace samples {
             .colorBlendDesc = { {}, {}, {}, {} },
             .cullMode = vireo::CullMode::BACK,
             .depthTestEnable = true,
-            .depthWriteEnable = true,
-            .stencilTestEnable = true,
+            .depthWriteEnable = false,
             .frontStencilOpState = {
                 .failOp = vireo::StencilOp::KEEP,
                 .passOp = vireo::StencilOp::KEEP,
@@ -91,7 +90,6 @@ export namespace samples {
                 { .clear = true }, // Albedo
                 { .clear = true }, // Shininess/AO
             },
-            .discardDepthAfterRender = true,
         };
 
         vector<FrameData>                   framesData;

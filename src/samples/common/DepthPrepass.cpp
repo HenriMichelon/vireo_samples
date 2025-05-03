@@ -56,13 +56,13 @@ namespace samples {
 
         frame.modelBuffer->write(&scene.getModel());
         frame.globalBuffer->write(&scene.getGlobal());
+        renderingConfig.depthRenderTarget = frame.depthBuffer;
 
         frame.commandAllocator->reset();
         auto cmdList = frame.commandList;
         cmdList->begin();
-        renderingConfig.depthRenderTarget = frame.depthBuffer;
         cmdList->barrier(
-            frame.depthBuffer,
+            renderingConfig.depthRenderTarget,
             vireo::ResourceState::UNDEFINED,
             withStencil ? vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL : vireo::ResourceState::RENDER_TARGET_DEPTH);
         cmdList->beginRendering(renderingConfig);

@@ -14,6 +14,7 @@ namespace samples {
         const shared_ptr<vireo::Vireo>& vireo,
         const vireo::ImageFormat renderFormat,
         const Scene& scene,
+        const DepthPrepass& depthPrepass,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
@@ -37,6 +38,7 @@ namespace samples {
         descriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
+        pipelineConfig.depthImageFormat = depthPrepass.getFormat();
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");

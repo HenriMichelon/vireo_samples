@@ -20,11 +20,13 @@ export namespace samples {
            const shared_ptr<vireo::Vireo>& vireo,
            vireo::ImageFormat renderFormat,
            const Scene& scene,
+           const DepthPrepass& depthPrepass,
            uint32_t framesInFlight);
         void onRender(
             uint32_t frameIndex,
             const vireo::Extent& extent,
             const Scene& scene,
+            const DepthPrepass& depthPrepass,
             const GBufferPass& gBufferPass,
             const shared_ptr<vireo::CommandList>& cmdList,
             const shared_ptr<vireo::RenderTarget>& colorBuffer);
@@ -49,7 +51,14 @@ export namespace samples {
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}},
-            .stencilTestEnable   = false,
+            .frontStencilOpState = {
+                .failOp = vireo::StencilOp::KEEP,
+                .passOp = vireo::StencilOp::KEEP,
+                .depthFailOp = vireo::StencilOp::KEEP,
+                .compareOp = vireo::CompareOp::EQUAL,
+                .compareMask = 0xff,
+                .writeMask = 0x00
+            }
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{}},
