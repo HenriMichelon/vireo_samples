@@ -15,7 +15,7 @@ export namespace samples {
 
     class DepthPrepass {
     public:
-        void onInit(const shared_ptr<vireo::Vireo>& vireo,uint32_t framesInFlight);
+        void onInit(const shared_ptr<vireo::Vireo>& vireo, bool withStencil, uint32_t framesInFlight);
         void onResize(const vireo::Extent& extent);
         void onDestroy();
         void onRender(
@@ -26,6 +26,8 @@ export namespace samples {
 
         auto getSemaphore(const uint32_t frameIndex) const { return framesData[frameIndex].semaphore; }
         auto getDepthBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].depthBuffer; }
+        auto getFormat() const { return pipelineConfig.depthImageFormat; }
+        auto isWithStencil() const { return withStencil; }
 
     private:
         struct FrameData {
@@ -53,6 +55,7 @@ export namespace samples {
             .clearDepth = true,
         };
 
+        bool                                withStencil{false};
         vector<FrameData>                   framesData;
         shared_ptr<vireo::Vireo>            vireo;
         shared_ptr<vireo::Pipeline>         pipeline;

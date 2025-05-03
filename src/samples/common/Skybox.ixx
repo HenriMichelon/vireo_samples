@@ -21,6 +21,7 @@ export namespace samples {
             const shared_ptr<vireo::Vireo>& vireo,
             const shared_ptr<vireo::CommandList>& uploadCommandList,
             vireo::ImageFormat renderFormat,
+            vireo::ImageFormat depthFormat,
             uint32_t framesInFlight);
         void onDestroy();
         void onRender(

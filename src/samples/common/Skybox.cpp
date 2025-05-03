@@ -21,6 +21,7 @@ namespace samples {
         const shared_ptr<vireo::Vireo>& vireo,
         const shared_ptr<vireo::CommandList>& uploadCommandList,
         const vireo::ImageFormat renderFormat,
+        const vireo::ImageFormat depthFormat,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
@@ -43,6 +44,7 @@ namespace samples {
         samplerDescriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
+        pipelineConfig.depthImageFormat = depthFormat;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(float) * 3, vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/skybox.vert");
@@ -83,10 +85,17 @@ namespace samples {
         const auto cmdList = frame.commandList;
 
         cmdList->begin();
-        cmdList->barrier(
-            renderingConfig.depthRenderTarget,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
+        if (depthPrepass.isWithStencil()) {
+            cmdList->barrier(
+                renderingConfig.depthRenderTarget,
+                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
+        } else {
+            cmdList->barrier(
+                renderingConfig.depthRenderTarget,
+                vireo::ResourceState::RENDER_TARGET_DEPTH,
+                vireo::ResourceState::RENDER_TARGET_DEPTH_READ);
+        }
         cmdList->barrier(
             colorBuffer,
             vireo::ResourceState::UNDEFINED,

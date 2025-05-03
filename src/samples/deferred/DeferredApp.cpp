@@ -35,13 +35,20 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
 
+        depthPrepass.onInit(vireo, true, swapChain->getFramesInFlight());
+        lightingPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
+
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
-        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, swapChain->getFramesInFlight());
+        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass.getFormat(), swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});
+
+        gbufferPass.onInit(vireo, scene, depthPrepass.getFormat(), swapChain->getFramesInFlight());
+        postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
+        postProcessing.toggleGammaCorrection();
 
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
@@ -49,11 +56,6 @@ namespace samples {
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
         }
-        lightingPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
-        gbufferPass.onInit(vireo, scene, swapChain->getFramesInFlight());
-        depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
-        postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
-        postProcessing.toggleGammaCorrection();
 
         graphicQueue->waitIdle();
     }

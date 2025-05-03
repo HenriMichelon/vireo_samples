@@ -18,6 +18,7 @@ export namespace samples {
         void onInit(
             const shared_ptr<vireo::Vireo>& vireo,
             const Scene& scene,
+            vireo::ImageFormat depthImageFormat,
             uint32_t framesInFlight);
         void onRender(
             uint32_t frameIndex,

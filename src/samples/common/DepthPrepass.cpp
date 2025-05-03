@@ -12,6 +12,7 @@ namespace samples {
 
     void DepthPrepass::onInit(
         const shared_ptr<vireo::Vireo>& vireo,
+        const bool withStencil,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
@@ -20,6 +21,10 @@ namespace samples {
         descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
         descriptorLayout->build();
 
+        if (withStencil) {
+            this->withStencil = true;
+            pipelineConfig.depthImageFormat = vireo::ImageFormat::D32_SFLOAT_S8_UINT;
+        }
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/depth_prepass.vert");
@@ -57,7 +62,7 @@ namespace samples {
         cmdList->barrier(
             frame.depthBuffer,
             vireo::ResourceState::UNDEFINED,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
+            withStencil ? vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL : vireo::ResourceState::RENDER_TARGET_DEPTH);
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
@@ -75,7 +80,7 @@ namespace samples {
     void DepthPrepass::onResize(const vireo::Extent& extent) {
         for (auto& frame : framesData) {
             frame.depthBuffer = vireo->createRenderTarget(
-                vireo::ImageFormat::D32_SFLOAT,
+                pipelineConfig.depthImageFormat,
                 extent.width,
                 extent.height,
                 vireo::RenderTargetType::DEPTH,

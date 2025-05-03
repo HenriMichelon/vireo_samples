@@ -13,6 +13,7 @@ namespace samples {
     void GBufferPass::onInit(
         const shared_ptr<vireo::Vireo>& vireo,
         const Scene& scene,
+        const vireo::ImageFormat depthImageFormat,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
@@ -34,6 +35,7 @@ namespace samples {
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
 
+        pipelineConfig.depthImageFormat = depthImageFormat;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred_gbuffer.vert");
