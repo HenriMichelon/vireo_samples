@@ -73,7 +73,6 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
         shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
 
-
         vector<float> cubemapVertices{
             -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f,
              1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,

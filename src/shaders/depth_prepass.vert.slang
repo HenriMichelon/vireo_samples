@@ -9,6 +9,7 @@ struct VertexInput {
 };
 
 struct Global {
+    float3   cameraPosition;
     float4x4 projection;
     float4x4 view;
 }
@@ -21,5 +22,8 @@ ConstantBuffer<Global> global : register(b0);
 ConstantBuffer<Model>  model  : register(b1);
 
 float4 vertexMain(VertexInput input) : SV_POSITION {
-    return mul(global.projection, mul(global.view, mul(model.transform, float4(input.position, 1.0))));
+    float4 localPos = float4(input.position, 1.0);
+    float4 worldPos = mul(model.transform, localPos);
+    float4 viewPos = mul(global.view, worldPos);
+    return mul(global.projection, viewPos);
 }

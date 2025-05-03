@@ -13,7 +13,7 @@ struct VertexInput {
 
 struct VertexOutput {
     float4 position : SV_POSITION;
-    float3 worldPos : TEXCOORD0;
+    float4 worldPos : TEXCOORD0;
     float3 normal   : TEXCOORD1;
     float2 uv       : TEXCOORD2;
     float3 tangent  : TEXCOORD3;
@@ -57,6 +57,8 @@ VertexOutput vertexMain(VertexInput input) {
 
     float4 localPos = float4(input.position, 1.0);
     float4 worldPos = mul(model.transform, localPos);
+    output.worldPos = worldPos;
+
     float4 viewPos = mul(global.view, worldPos);
     output.position = mul(global.projection, viewPos);
 
@@ -81,7 +83,7 @@ FragmentOutput fragmentMain(VertexOutput input) {
     float3 N = normalize(normal * 2.0 - 1.0);
     N = normalize(mul(TBN, N));
 
-    output.position = float4(input.worldPos.xyz, 1.0);
+    output.position = input.worldPos;
     output.normal = float4(N, 0.0);
     output.albedo = float4(color.rgb, 1.0);
     output.rma = float4(0.0, 0.0, ao, 0.0);
