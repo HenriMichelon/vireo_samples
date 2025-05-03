@@ -134,23 +134,31 @@ set(MSAA_MODULES ${SRC_DIR}/samples/msaa/MsaaApp.ixx)
 build_target(msaa "${MSAA_SRC}" "${MSAA_MODULES}")
 
 #######################################################
+set(SCENE_COMMON_SRC
+        ${SRC_DIR}/samples/common/Scene.cpp
+        ${SRC_DIR}/samples/common/DepthPrepass.cpp
+        ${SRC_DIR}/samples/common/Skybox.cpp
+        ${SRC_DIR}/samples/common/PostProcessing.cpp
+)
+set(SCENE_COMMON_MODULES
+        ${SRC_DIR}/samples/common/Global.ixx
+        ${SRC_DIR}/samples/common/Scene.ixx
+        ${SRC_DIR}/samples/common/DepthPrepass.ixx
+        ${SRC_DIR}/samples/common/Skybox.ixx
+        ${SRC_DIR}/samples/common/PostProcessing.ixx
+)
+
+#######################################################
 set(CUBE_SRC
         ${SRC_DIR}/samples/cube/CubeApp.cpp
         ${SRC_DIR}/samples/cube/CubeAppMain.cpp
         ${SRC_DIR}/samples/cube/ForwardColorPass.cpp
-        ${SRC_DIR}/samples/common/Scene.cpp
-        ${SRC_DIR}/samples/common/renderers/DepthPrepass.cpp
-        ${SRC_DIR}/samples/common/renderers/Skybox.cpp
-        ${SRC_DIR}/samples/common/renderers/PostProcessing.cpp
+        ${SCENE_COMMON_SRC}
 )
 set(CUBE_MODULES
         ${SRC_DIR}/samples/cube/CubeApp.ixx
         ${SRC_DIR}/samples/cube/ForwardColorPass.ixx
-        ${SRC_DIR}/samples/common/Global.ixx
-        ${SRC_DIR}/samples/common/Scene.ixx
-        ${SRC_DIR}/samples/common/renderers/DepthPrepass.ixx
-        ${SRC_DIR}/samples/common/renderers/Skybox.ixx
-        ${SRC_DIR}/samples/common/renderers/PostProcessing.ixx
+        ${SCENE_COMMON_MODULES}
 )
 build_target(cube "${CUBE_SRC}" "${CUBE_MODULES}")
 
@@ -159,18 +167,11 @@ set(DEFERRED_SRC
         ${SRC_DIR}/samples/deferred/DeferredApp.cpp
         ${SRC_DIR}/samples/deferred/DeferredAppMain.cpp
         ${SRC_DIR}/samples/deferred/GBufferPass.cpp
-        ${SRC_DIR}/samples/common/Scene.cpp
-        ${SRC_DIR}/samples/common/renderers/DepthPrepass.cpp
-        ${SRC_DIR}/samples/common/renderers/Skybox.cpp
-        ${SRC_DIR}/samples/common/renderers/PostProcessing.cpp
+        ${SCENE_COMMON_SRC}
 )
 set(DEFERRED_MODULES
         ${SRC_DIR}/samples/deferred/DeferredApp.ixx
         ${SRC_DIR}/samples/deferred/GBufferPass.ixx
-        ${SRC_DIR}/samples/common/Global.ixx
-        ${SRC_DIR}/samples/common/Scene.ixx
-        ${SRC_DIR}/samples/common/renderers/DepthPrepass.ixx
-        ${SRC_DIR}/samples/common/renderers/Skybox.ixx
-        ${SRC_DIR}/samples/common/renderers/PostProcessing.ixx
+        ${SCENE_COMMON_MODULES}
 )
 build_target(deferred "${DEFERRED_SRC}" "${DEFERRED_MODULES}")

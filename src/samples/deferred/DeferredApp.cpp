@@ -49,7 +49,7 @@ namespace samples {
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
         }
-        gbufferPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
+        gbufferPass.onInit(vireo, scene, swapChain->getFramesInFlight());
         depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
         postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
         postProcessing.toggleGammaCorrection();
@@ -93,7 +93,7 @@ namespace samples {
 
         cmdList->barrier(
             depthPrepass.getDepthBuffer(frameIndex),
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
             vireo::ResourceState::UNDEFINED);
         cmdList->barrier(
             swapChain,
@@ -123,6 +123,9 @@ namespace samples {
     void DeferredApp::onResize() {
         swapChain->recreate();
         const auto extent = swapChain->getExtent();
+        const auto cmdAlloc = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
+        auto cmdList = cmdAlloc->createCommandList();
+        cmdList->begin();
         for (auto& frame : framesData) {
             frame.colorBuffer = vireo->createRenderTarget(
                 swapChain,
@@ -130,7 +133,10 @@ namespace samples {
         }
         depthPrepass.onResize(extent);
         postProcessing.onResize(extent);
-        gbufferPass.onResize(extent);
+        gbufferPass.onResize(extent, cmdList);
+        cmdList->end();
+        graphicQueue->submit({cmdList});
+        graphicQueue->waitIdle();
     }
 
     void DeferredApp::onDestroy() {

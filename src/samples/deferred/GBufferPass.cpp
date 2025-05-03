@@ -12,7 +12,6 @@ namespace samples {
 
     void GBufferPass::onInit(
         const shared_ptr<vireo::Vireo>& vireo,
-        const vireo::ImageFormat renderFormat,
         const Scene& scene,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
@@ -84,8 +83,12 @@ namespace samples {
         });
         cmdList->barrier(
             {renderTargets.begin(), renderTargets.end()},
-            vireo::ResourceState::UNDEFINED,
+            vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
+        cmdList->barrier(
+            renderingConfig.depthRenderTarget,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
@@ -99,7 +102,7 @@ namespace samples {
             vireo::ResourceState::SHADER_READ);
     }
 
-    void GBufferPass::onResize(const vireo::Extent& extent) {
+    void GBufferPass::onResize(const vireo::Extent& extent, const shared_ptr<vireo::CommandList>& cmdList) {
         for (auto& frame : framesData) {
             frame.positionBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[BUFFER_POSITION],
@@ -121,6 +124,10 @@ namespace samples {
                 extent.width,extent.height,
                 vireo::RenderTargetType::COLOR,
                 renderingConfig.colorRenderTargets[BUFFER_RMA].clearValue);
+            cmdList->barrier(
+                {frame.positionBuffer, frame.normalBuffer, frame.albedoBuffer, frame.rmaBuffer},
+                vireo::ResourceState::UNDEFINED,
+                vireo::ResourceState::SHADER_READ);
         }
     }
 

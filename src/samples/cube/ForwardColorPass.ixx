@@ -69,6 +69,5 @@ export namespace samples {
         shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
         shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
-
     };
 }

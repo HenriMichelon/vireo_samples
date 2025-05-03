@@ -17,7 +17,6 @@ export namespace samples {
     public:
         void onInit(
             const shared_ptr<vireo::Vireo>& vireo,
-            vireo::ImageFormat renderFormat,
             const Scene& scene,
             uint32_t framesInFlight);
         void onRender(
@@ -26,7 +25,7 @@ export namespace samples {
             const Scene& scene,
             const DepthPrepass& depthPrepass,
             const shared_ptr<vireo::CommandList>& cmdList);
-        void onResize(const vireo::Extent& extent);
+        void onResize(const vireo::Extent& extent, const shared_ptr<vireo::CommandList>& cmdList);
         void onDestroy();
 
     private:

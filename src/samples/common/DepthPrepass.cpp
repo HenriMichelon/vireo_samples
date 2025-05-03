@@ -65,10 +65,6 @@ namespace samples {
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
         scene.draw(cmdList);
         cmdList->endRendering();
-        cmdList->barrier(
-            frame.depthBuffer,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
         cmdList->end();
         graphicQueue->submit(
             vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,

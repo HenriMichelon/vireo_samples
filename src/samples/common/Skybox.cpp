@@ -84,6 +84,10 @@ namespace samples {
 
         cmdList->begin();
         cmdList->barrier(
+            renderingConfig.depthRenderTarget,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+            vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
+        cmdList->barrier(
             colorBuffer,
             vireo::ResourceState::UNDEFINED,
             vireo::ResourceState::RENDER_TARGET_COLOR);

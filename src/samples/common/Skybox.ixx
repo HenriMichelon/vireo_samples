@@ -46,6 +46,9 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_CUBEMAP{1};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
 
+        const vector<vireo::VertexAttributeDesc> vertexAttributes{
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0 },
+        };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}},
             .cullMode = vireo::CullMode::BACK,
@@ -57,9 +60,6 @@ export namespace samples {
                 .clear = true,
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f},
             }},
-        };
-        const vector<vireo::VertexAttributeDesc> vertexAttributes{
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0 },
         };
 
         Global                              global{};
