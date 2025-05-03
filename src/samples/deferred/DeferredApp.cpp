@@ -49,6 +49,7 @@ namespace samples {
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
         }
+        lightingPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
         gbufferPass.onInit(vireo, scene, swapChain->getFramesInFlight());
         depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
         postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
@@ -85,6 +86,13 @@ namespace samples {
             scene,
             depthPrepass,
             cmdList);
+        lightingPass.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            scene,
+            gbufferPass,
+            cmdList,
+            frame.colorBuffer);
         postProcessing.onRender(
             frameIndex,
             swapChain->getExtent(),

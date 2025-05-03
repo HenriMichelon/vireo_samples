@@ -14,6 +14,7 @@ import samples.common.scene;
 import samples.common.skybox;
 import samples.common.postprocessing;
 import samples.deferred.gbuffer;
+import samples.deferred.lightingpass;
 
 export namespace samples {
 
@@ -44,5 +45,6 @@ export namespace samples {
         Skybox                         skybox;
         PostProcessing                 postProcessing;
         GBufferPass                    gbufferPass;
+        LightingPass                   lightingPass;
     };
 }

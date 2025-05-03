@@ -6,7 +6,7 @@
 */
 module;
 #include "Libraries.h"
-export module samples.cube.lightingpass;
+export module samples.deferred.lightingpass;
 
 import samples.common.global;
 import samples.common.depthprepass;
@@ -24,6 +24,7 @@ export namespace samples {
         void onRender(
             uint32_t frameIndex,
             const vireo::Extent& extent,
+            const Scene& scene,
             const GBufferPass& gBufferPass,
             const shared_ptr<vireo::CommandList>& cmdList,
             const shared_ptr<vireo::RenderTarget>& colorBuffer);
@@ -44,6 +45,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_NORMAL_BUFFER{4};
         static constexpr vireo::DescriptorIndex BINDING_ALBEDO_BUFFER{5};
         static constexpr vireo::DescriptorIndex BINDING_MATERIAL_BUFFER{6};
+        static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}},
