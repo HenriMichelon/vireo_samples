@@ -5,7 +5,6 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include <glm/gtc/matrix_transform.hpp>
 #include "Libraries.h"
 module samples.deferred;
 
@@ -50,7 +49,7 @@ namespace samples {
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
         }
-        colorPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
+        gbufferPass.onInit(vireo, RENDER_FORMAT, scene, swapChain->getFramesInFlight());
         depthPrepass.onInit(vireo, swapChain->getFramesInFlight());
         postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
         postProcessing.toggleGammaCorrection();
@@ -80,13 +79,12 @@ namespace samples {
         frame.commandAllocator->reset();
         const auto cmdList = frame.commandList;
         cmdList->begin();
-        colorPass.onRender(
+        gbufferPass.onRender(
             frameIndex,
             swapChain->getExtent(),
             scene,
             depthPrepass,
-            cmdList,
-            frame.colorBuffer);
+            cmdList);
         postProcessing.onRender(
             frameIndex,
             swapChain->getExtent(),
@@ -132,12 +130,13 @@ namespace samples {
         }
         depthPrepass.onResize(extent);
         postProcessing.onResize(extent);
+        gbufferPass.onResize(extent);
     }
 
     void DeferredApp::onDestroy() {
         graphicQueue->waitIdle();
         swapChain->waitIdle();
-        colorPass.onDestroy();
+        gbufferPass.onDestroy();
         depthPrepass.onDestroy();
         skybox.onDestroy();
     }

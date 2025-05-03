@@ -6,11 +6,11 @@
 */
 module;
 #include "Libraries.h"
-module samples.deferred.colorpass;
+module samples.deferred.gbuffer;
 
 namespace samples {
 
-    void ColorPass::onInit(
+    void GBufferPass::onInit(
         const shared_ptr<vireo::Vireo>& vireo,
         const vireo::ImageFormat renderFormat,
         const Scene& scene,
@@ -32,15 +32,13 @@ namespace samples {
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
 
-        pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
-        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
+        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred_gbuffer.vert");
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/deferred_gbuffer.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);
@@ -53,17 +51,10 @@ namespace samples {
             frame.materialBuffer->map();
             frame.materialBuffer->write(&scene.getMaterial());
             frame.materialBuffer->unmap();
-            frame.lightBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
-            frame.lightBuffer->map();
-            auto light = scene.getLight();
-            // light.position.z -= light.position.z;
-            frame.lightBuffer->write(&light);
-            frame.lightBuffer->unmap();
-            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"ColorPass");
+            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"GBuffer");
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
             frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
             frame.descriptorSet->update(BINDING_MATERIAL, frame.materialBuffer);
-            frame.descriptorSet->update(BINDING_LIGHT, frame.lightBuffer);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
         }
 
@@ -71,20 +62,30 @@ namespace samples {
         samplerDescriptorSet->update(BINDING_SAMPLERS, sampler);
     }
 
-    void ColorPass::onRender(
-       const uint32_t frameIndex,
-       const vireo::Extent& extent,
-       const Scene& scene,
-       const DepthPrepass& depthPrepass,
-       const shared_ptr<vireo::CommandList>& cmdList,
-       const shared_ptr<vireo::RenderTarget>& colorBuffer) {
+    void GBufferPass::onRender(
+        const uint32_t frameIndex,
+        const vireo::Extent& extent,
+        const Scene& scene,
+        const DepthPrepass& depthPrepass,
+        const shared_ptr<vireo::CommandList>& cmdList) {
         const auto& frame = framesData[frameIndex];
 
         frame.modelBuffer->write(&scene.getModel());
         frame.globalBuffer->write(&scene.getGlobal());
 
-        renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
+        renderingConfig.colorRenderTargets[BUFFER_POSITION].renderTarget = frame.positionBuffer;
+        renderingConfig.colorRenderTargets[BUFFER_NORMAL].renderTarget = frame.normalBuffer;
+        renderingConfig.colorRenderTargets[BUFFER_ALBEDO].renderTarget = frame.albedoBuffer;
+        renderingConfig.colorRenderTargets[BUFFER_RMA].renderTarget = frame.rmaBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
+
+        auto renderTargets = views::transform(renderingConfig.colorRenderTargets, [](const auto& colorRenderTarget) {
+            return colorRenderTarget.renderTarget;
+        });
+        cmdList->barrier(
+            {renderTargets.begin(), renderTargets.end()},
+            vireo::ResourceState::UNDEFINED,
+            vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
@@ -92,16 +93,42 @@ namespace samples {
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
         scene.draw(cmdList);
         cmdList->endRendering();
+        cmdList->barrier(
+            {renderTargets.begin(), renderTargets.end()},
+            vireo::ResourceState::RENDER_TARGET_COLOR,
+            vireo::ResourceState::SHADER_READ);
     }
 
-    void ColorPass::onDestroy() {
+    void GBufferPass::onResize(const vireo::Extent& extent) {
+        for (auto& frame : framesData) {
+            frame.positionBuffer = vireo->createRenderTarget(
+                pipelineConfig.colorRenderFormats[BUFFER_POSITION],
+                extent.width,extent.height,
+                vireo::RenderTargetType::COLOR,
+                renderingConfig.colorRenderTargets[BUFFER_POSITION].clearValue);
+            frame.normalBuffer = vireo->createRenderTarget(
+                pipelineConfig.colorRenderFormats[BUFFER_NORMAL],
+                extent.width,extent.height,
+                vireo::RenderTargetType::COLOR,
+                renderingConfig.colorRenderTargets[BUFFER_NORMAL].clearValue);
+            frame.albedoBuffer = vireo->createRenderTarget(
+                pipelineConfig.colorRenderFormats[BUFFER_ALBEDO],
+                extent.width,extent.height,
+                vireo::RenderTargetType::COLOR,
+                renderingConfig.colorRenderTargets[BUFFER_ALBEDO].clearValue);
+            frame.rmaBuffer = vireo->createRenderTarget(
+                pipelineConfig.colorRenderFormats[BUFFER_RMA],
+                extent.width,extent.height,
+                vireo::RenderTargetType::COLOR,
+                renderingConfig.colorRenderTargets[BUFFER_RMA].clearValue);
+        }
+    }
+
+    void GBufferPass::onDestroy() {
         for (const auto& frame : framesData) {
             frame.modelBuffer->unmap();
             frame.globalBuffer->unmap();
         }
     }
-
-
-
 
 }

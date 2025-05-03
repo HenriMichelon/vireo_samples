@@ -13,7 +13,7 @@ import samples.common.depthprepass;
 import samples.common.scene;
 import samples.common.skybox;
 import samples.common.postprocessing;
-import samples.deferred.colorpass;
+import samples.deferred.gbuffer;
 
 export namespace samples {
 
@@ -43,6 +43,6 @@ export namespace samples {
         DepthPrepass                   depthPrepass;
         Skybox                         skybox;
         PostProcessing                 postProcessing;
-        ColorPass                      colorPass;
+        GBufferPass                    gbufferPass;
     };
 }

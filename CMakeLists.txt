@@ -158,19 +158,19 @@ build_target(cube "${CUBE_SRC}" "${CUBE_MODULES}")
 set(DEFERRED_SRC
         ${SRC_DIR}/samples/deferred/DeferredApp.cpp
         ${SRC_DIR}/samples/deferred/DeferredAppMain.cpp
+        ${SRC_DIR}/samples/deferred/GBufferPass.cpp
         ${SRC_DIR}/samples/common/Scene.cpp
         ${SRC_DIR}/samples/common/renderers/DepthPrepass.cpp
         ${SRC_DIR}/samples/common/renderers/Skybox.cpp
         ${SRC_DIR}/samples/common/renderers/PostProcessing.cpp
-        ${SRC_DIR}/samples/deferred/renderers/ColorPass.cpp
 )
 set(DEFERRED_MODULES
         ${SRC_DIR}/samples/deferred/DeferredApp.ixx
+        ${SRC_DIR}/samples/deferred/GBufferPass.ixx
         ${SRC_DIR}/samples/common/Global.ixx
         ${SRC_DIR}/samples/common/Scene.ixx
         ${SRC_DIR}/samples/common/renderers/DepthPrepass.ixx
         ${SRC_DIR}/samples/common/renderers/Skybox.ixx
         ${SRC_DIR}/samples/common/renderers/PostProcessing.ixx
-        ${SRC_DIR}/samples/deferred/renderers/ColorPass.ixx
 )
 build_target(deferred "${DEFERRED_SRC}" "${DEFERRED_MODULES}")

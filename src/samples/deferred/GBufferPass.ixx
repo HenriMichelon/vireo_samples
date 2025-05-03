@@ -1,0 +1,91 @@
+/*
+* Copyright (c) 2025-present Henri Michelon
+*
+* This software is released under the MIT License.
+* https://opensource.org/licenses/MIT
+*/
+module;
+#include "Libraries.h"
+export module samples.deferred.gbuffer;
+
+import samples.common.global;
+import samples.common.depthprepass;
+import samples.common.scene;
+
+export namespace samples {
+    class GBufferPass {
+    public:
+        void onInit(
+            const shared_ptr<vireo::Vireo>& vireo,
+            vireo::ImageFormat renderFormat,
+            const Scene& scene,
+            uint32_t framesInFlight);
+        void onRender(
+            uint32_t frameIndex,
+            const vireo::Extent& extent,
+            const Scene& scene,
+            const DepthPrepass& depthPrepass,
+            const shared_ptr<vireo::CommandList>& cmdList);
+        void onResize(const vireo::Extent& extent);
+        void onDestroy();
+
+    private:
+        struct FrameData {
+            shared_ptr<vireo::Buffer>        globalBuffer;
+            shared_ptr<vireo::Buffer>        modelBuffer;
+            shared_ptr<vireo::Buffer>        materialBuffer;
+            shared_ptr<vireo::DescriptorSet> descriptorSet;
+            shared_ptr<vireo::RenderTarget>  positionBuffer;
+            shared_ptr<vireo::RenderTarget>  normalBuffer;
+            shared_ptr<vireo::RenderTarget>  albedoBuffer;
+            shared_ptr<vireo::RenderTarget>  rmaBuffer;
+        };
+
+        static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
+        static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
+        static constexpr vireo::DescriptorIndex BINDING_MATERIAL{2};
+        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{3};
+        static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
+
+        static constexpr int BUFFER_POSITION{0};
+        static constexpr int BUFFER_NORMAL{1};
+        static constexpr int BUFFER_ALBEDO{2};
+        static constexpr int BUFFER_RMA{3};
+
+        const vector<vireo::VertexAttributeDesc> vertexAttributes {
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
+            {"NORMAL",   vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
+            {"UV",       vireo::AttributeFormat::R32G32_FLOAT,    offsetof(Vertex, uv)},
+            {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,   offsetof(Vertex, tangent)},
+        };
+        vireo::GraphicPipelineConfiguration pipelineConfig {
+            .colorRenderFormats = {
+                vireo::ImageFormat::R16G16B16A16_SFLOAT, // Position
+                vireo::ImageFormat::R16G16B16A16_SFLOAT, // Normal
+                vireo::ImageFormat::R8G8B8A8_UNORM,      // Albedo
+                vireo::ImageFormat::R8G8B8A8_UNORM,      // Roughness/Metallic/AO
+            },
+            .colorBlendDesc = { {}, {}, {}, {} },
+            .cullMode = vireo::CullMode::BACK,
+            .depthTestEnable = true,
+            .depthWriteEnable = true,
+        };
+        vireo::RenderingConfiguration renderingConfig {
+            .colorRenderTargets = {
+                { .clear = true }, // Position
+                { .clear = true }, // Normal
+                { .clear = true }, // Albedo
+                { .clear = true }, // Roughness/Metallic/AO
+            },
+            .discardDepthAfterRender = true,
+        };
+
+        vector<FrameData>                   framesData;
+        shared_ptr<vireo::Vireo>            vireo;
+        shared_ptr<vireo::Pipeline>         pipeline;
+        shared_ptr<vireo::Sampler>          sampler;
+        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
+        shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
+    };
+}
