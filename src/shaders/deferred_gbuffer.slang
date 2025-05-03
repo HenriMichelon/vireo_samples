@@ -24,7 +24,7 @@ struct FragmentOutput {
     float4   position : SV_TARGET0; // xyz = world-space position
     float4   normal   : SV_TARGET1; // xyz = world-space normal
     float4   albedo   : SV_TARGET2; // rgb = albedo, a unused
-    float4   rma      : SV_TARGET3; // r=roughness, g=metallic, b=AO, a unused
+    float2   material : SV_TARGET3; // r=shininess, g=AO
 };
 
 struct Global {
@@ -86,6 +86,6 @@ FragmentOutput fragmentMain(VertexOutput input) {
     output.position = input.worldPos;
     output.normal = float4(N, 0.0);
     output.albedo = float4(color.rgb, 1.0);
-    output.rma = float4(0.0, 0.0, ao, 0.0);
+    output.material = float2(material.shininess, ao);
     return output;
 }

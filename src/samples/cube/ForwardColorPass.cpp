@@ -45,24 +45,24 @@ namespace samples {
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
-            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global), 1, L"GLobal");
-            frame.globalBuffer->map();
-            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), 1, L"Model");
-            frame.modelBuffer->map();
-            frame.materialBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material), 1, L"Material");
-            frame.materialBuffer->map();
-            frame.materialBuffer->write(&scene.getMaterial());
-            frame.materialBuffer->unmap();
-            frame.lightBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
-            frame.lightBuffer->map();
+            frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global), 1, L"GLobal");
+            frame.globalUniform->map();
+            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), 1, L"Model");
+            frame.modelUniform->map();
+            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material), 1, L"Material");
+            frame.materialUniform->map();
+            frame.materialUniform->write(&scene.getMaterial());
+            frame.materialUniform->unmap();
+            frame.lightUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
+            frame.lightUniform->map();
             auto light = scene.getLight();
-            frame.lightBuffer->write(&light);
-            frame.lightBuffer->unmap();
+            frame.lightUniform->write(&light);
+            frame.lightUniform->unmap();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"ColorPass");
-            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
-            frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
-            frame.descriptorSet->update(BINDING_MATERIAL, frame.materialBuffer);
-            frame.descriptorSet->update(BINDING_LIGHT, frame.lightBuffer);
+            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
+            frame.descriptorSet->update(BINDING_MODEL, frame.modelUniform);
+            frame.descriptorSet->update(BINDING_MATERIAL, frame.materialUniform);
+            frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
         }
 
@@ -79,8 +79,8 @@ namespace samples {
        const shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
 
-        frame.modelBuffer->write(&scene.getModel());
-        frame.globalBuffer->write(&scene.getGlobal());
+        frame.modelUniform->write(&scene.getModel());
+        frame.globalUniform->write(&scene.getGlobal());
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
@@ -95,8 +95,8 @@ namespace samples {
 
     void ColorPass::onDestroy() {
         for (const auto& frame : framesData) {
-            frame.modelBuffer->unmap();
-            frame.globalBuffer->unmap();
+            frame.modelUniform->unmap();
+            frame.globalUniform->unmap();
         }
     }
 

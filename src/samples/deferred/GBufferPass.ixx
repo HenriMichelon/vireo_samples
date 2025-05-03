@@ -28,16 +28,21 @@ export namespace samples {
         void onResize(const vireo::Extent& extent, const shared_ptr<vireo::CommandList>& cmdList);
         void onDestroy();
 
+        auto getPositionBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].positionBuffer; }
+        auto getNormalBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].normalBuffer; }
+        auto getAlbedoBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].albedoBuffer; }
+        auto getMaterialBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].materialBuffer; }
+
     private:
         struct FrameData {
-            shared_ptr<vireo::Buffer>        globalBuffer;
-            shared_ptr<vireo::Buffer>        modelBuffer;
-            shared_ptr<vireo::Buffer>        materialBuffer;
+            shared_ptr<vireo::Buffer>        globalUniform;
+            shared_ptr<vireo::Buffer>        modelUniform;
+            shared_ptr<vireo::Buffer>        materialUniform;
             shared_ptr<vireo::DescriptorSet> descriptorSet;
             shared_ptr<vireo::RenderTarget>  positionBuffer;
             shared_ptr<vireo::RenderTarget>  normalBuffer;
             shared_ptr<vireo::RenderTarget>  albedoBuffer;
-            shared_ptr<vireo::RenderTarget>  rmaBuffer;
+            shared_ptr<vireo::RenderTarget>  materialBuffer;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
@@ -49,7 +54,7 @@ export namespace samples {
         static constexpr int BUFFER_POSITION{0};
         static constexpr int BUFFER_NORMAL{1};
         static constexpr int BUFFER_ALBEDO{2};
-        static constexpr int BUFFER_RMA{3};
+        static constexpr int BUFFER_MATERIAL{3};
 
         const vector<vireo::VertexAttributeDesc> vertexAttributes {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
@@ -62,7 +67,7 @@ export namespace samples {
                 vireo::ImageFormat::R16G16B16A16_SFLOAT, // Position
                 vireo::ImageFormat::R16G16B16A16_SFLOAT, // Normal
                 vireo::ImageFormat::R8G8B8A8_UNORM,      // Albedo
-                vireo::ImageFormat::R8G8B8A8_UNORM,      // Roughness/Metallic/AO
+                vireo::ImageFormat::R8G8_UNORM,          // Shininess/AO
             },
             .colorBlendDesc = { {}, {}, {}, {} },
             .cullMode = vireo::CullMode::BACK,
@@ -74,7 +79,7 @@ export namespace samples {
                 { .clear = true }, // Position
                 { .clear = true }, // Normal
                 { .clear = true }, // Albedo
-                { .clear = true }, // Roughness/Metallic/AO
+                { .clear = true }, // Shininess/AO
             },
             .discardDepthAfterRender = true,
         };

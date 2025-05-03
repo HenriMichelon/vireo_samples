@@ -39,7 +39,7 @@ export namespace samples {
         };
 
         struct FrameData {
-            shared_ptr<vireo::Buffer>           globalUboBuffer;
+            shared_ptr<vireo::Buffer>           globalUniform;
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;

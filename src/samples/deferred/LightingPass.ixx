@@ -6,14 +6,15 @@
 */
 module;
 #include "Libraries.h"
-export module samples.cube.colorpass;
+export module samples.cube.lightingpass;
 
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;
+import samples.deferred.gbuffer;
 
 export namespace samples {
-    class ColorPass {
+    class LightingPass {
     public:
         void onInit(
            const shared_ptr<vireo::Vireo>& vireo,
@@ -23,8 +24,7 @@ export namespace samples {
         void onRender(
             uint32_t frameIndex,
             const vireo::Extent& extent,
-            const Scene& scene,
-            const DepthPrepass& depthPrepass,
+            const GBufferPass& gBufferPass,
             const shared_ptr<vireo::CommandList>& cmdList,
             const shared_ptr<vireo::RenderTarget>& colorBuffer);
         void onDestroy();
@@ -33,29 +33,20 @@ export namespace samples {
         struct FrameData {
             shared_ptr<vireo::Buffer>        globalUniform;
             shared_ptr<vireo::Buffer>        modelUniform;
-            shared_ptr<vireo::Buffer>        materialUniform;
             shared_ptr<vireo::Buffer>        lightUniform;
             shared_ptr<vireo::DescriptorSet> descriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
-        static constexpr vireo::DescriptorIndex BINDING_MATERIAL{2};
-        static constexpr vireo::DescriptorIndex BINDING_LIGHT{3};
-        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{4};
-        static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
+        static constexpr vireo::DescriptorIndex BINDING_LIGHT{2};
+        static constexpr vireo::DescriptorIndex BINDING_POSITION_BUFFER{3};
+        static constexpr vireo::DescriptorIndex BINDING_NORMAL_BUFFER{4};
+        static constexpr vireo::DescriptorIndex BINDING_ALBEDO_BUFFER{5};
+        static constexpr vireo::DescriptorIndex BINDING_MATERIAL_BUFFER{6};
 
-        const vector<vireo::VertexAttributeDesc> vertexAttributes{
-                {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
-                {"NORMAL",   vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
-                {"UV",       vireo::AttributeFormat::R32G32_FLOAT,    offsetof(Vertex, uv)},
-                {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,   offsetof(Vertex, tangent)},
-        };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}},
-            .cullMode = vireo::CullMode::BACK,
-            .depthTestEnable = true,
-            .depthWriteEnable = false,
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{}},

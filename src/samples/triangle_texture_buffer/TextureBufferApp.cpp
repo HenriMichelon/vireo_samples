@@ -83,10 +83,10 @@ namespace samples {
             frameData.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frameData.samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout);
 
-            frameData.globalUboBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM, sizeof(GlobalUBO));
-            frameData.globalUboBuffer->map();
+            frameData.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM, sizeof(GlobalUBO));
+            frameData.globalUniform->map();
 
-            frameData.descriptorSet->update(BINDING_UBO, frameData.globalUboBuffer);
+            frameData.descriptorSet->update(BINDING_UBO, frameData.globalUniform);
             frameData.descriptorSet->update(BINDING_TEXTURE, textures);
             frameData.samplersDescriptorSet->update(BINDING_SAMPLERS, samplers);
 
@@ -122,7 +122,7 @@ namespace samples {
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
 
-        frame.globalUboBuffer->write(&globalUbo);
+        frame.globalUniform->write(&globalUbo);
 
         frame.commandAllocator->reset();
         const auto& cmdList = frame.commandList;
@@ -157,7 +157,7 @@ namespace samples {
         graphicSubmitQueue->waitIdle();
         swapChain->waitIdle();
         for (const auto& frame : framesData) {
-            frame.globalUboBuffer->unmap();
+            frame.globalUniform->unmap();
         }
     }
 
