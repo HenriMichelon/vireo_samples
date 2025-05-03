@@ -49,6 +49,7 @@ export namespace samples {
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}},
+            .stencilTestEnable   = false,
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{}},

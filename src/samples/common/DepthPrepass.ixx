@@ -47,9 +47,18 @@ export namespace samples {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .cullMode         = vireo::CullMode::BACK,
-            .depthTestEnable  = true,
-            .depthWriteEnable = true,
+            .cullMode            = vireo::CullMode::BACK,
+            .depthTestEnable     = true,
+            .depthWriteEnable    = true,
+            .stencilTestEnable   = false,
+            .frontStencilOpState = {
+                .failOp = vireo::StencilOp::KEEP,
+                .passOp = vireo::StencilOp::REPLACE,
+                .depthFailOp = vireo::StencilOp::KEEP,
+                .compareOp = vireo::CompareOp::ALWAYS,
+                .compareMask = 0xff,
+                .writeMask = 0xff
+            }
         };
         vireo::RenderingConfiguration renderingConfig {
             .clearDepth = true,

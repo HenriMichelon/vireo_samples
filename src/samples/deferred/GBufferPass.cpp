@@ -36,6 +36,7 @@ namespace samples {
         descriptorLayout->build();
 
         pipelineConfig.depthImageFormat = depthImageFormat;
+        pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred_gbuffer.vert");
@@ -94,6 +95,7 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
+        cmdList->setStencilReference(1);
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
         scene.draw(cmdList);

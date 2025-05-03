@@ -23,7 +23,9 @@ namespace samples {
 
         if (withStencil) {
             this->withStencil = true;
+            pipelineConfig.stencilTestEnable = true;
             pipelineConfig.depthImageFormat = vireo::ImageFormat::D32_SFLOAT_S8_UINT;
+            pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         }
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
@@ -66,6 +68,9 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
+        if (withStencil) {
+            cmdList->setStencilReference(1);
+        }
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
         scene.draw(cmdList);
