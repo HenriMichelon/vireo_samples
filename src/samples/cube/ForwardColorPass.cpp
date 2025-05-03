@@ -84,6 +84,23 @@ namespace samples {
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
+
+        cmdList->barrier(
+          colorBuffer,
+          vireo::ResourceState::UNDEFINED,
+          vireo::ResourceState::RENDER_TARGET_COLOR);
+        if (depthPrepass.isWithStencil()) {
+            cmdList->barrier(
+                renderingConfig.depthRenderTarget,
+                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
+                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
+        } else {
+            cmdList->barrier(
+                renderingConfig.depthRenderTarget,
+                vireo::ResourceState::RENDER_TARGET_DEPTH,
+                vireo::ResourceState::RENDER_TARGET_DEPTH_READ);
+        }
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);

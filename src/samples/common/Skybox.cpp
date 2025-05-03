@@ -62,7 +62,6 @@ namespace samples {
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
             frame.descriptorSet->update(BINDING_CUBEMAP, cubeMap);
-            frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::BINARY);
         }
 
         samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
@@ -74,32 +73,14 @@ namespace samples {
         const vireo::Extent& extent,
         const DepthPrepass& depthPrepass,
         const shared_ptr<vireo::RenderTarget>& colorBuffer,
-        const shared_ptr<vireo::SubmitQueue>& graphicQueue) {
+        const shared_ptr<vireo::CommandList>& cmdList) {
         const auto& frame = framesData[frameIndex];
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         frame.globalBuffer->write(&global);
-        frame.commandAllocator->reset();
-        const auto cmdList = frame.commandList;
 
-        cmdList->begin();
-        if (depthPrepass.isWithStencil()) {
-            cmdList->barrier(
-                renderingConfig.depthRenderTarget,
-                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
-        } else {
-            cmdList->barrier(
-                renderingConfig.depthRenderTarget,
-                vireo::ResourceState::RENDER_TARGET_DEPTH,
-                vireo::ResourceState::RENDER_TARGET_DEPTH_READ);
-        }
-        cmdList->barrier(
-            colorBuffer,
-            vireo::ResourceState::UNDEFINED,
-            vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
@@ -108,14 +89,6 @@ namespace samples {
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
         cmdList->draw(cubemapVertices.size() / 3);
         cmdList->endRendering();
-        cmdList->end();
-
-        graphicQueue->submit(
-            depthPrepass.getSemaphore(frameIndex),
-            vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,
-            vireo::WaitStage::FRAGMENT_SHADER,
-            frame.semaphore,
-            {cmdList});
     }
 
     void Skybox::onDestroy() {

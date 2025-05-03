@@ -29,9 +29,8 @@ export namespace samples {
             const vireo::Extent& extent,
             const DepthPrepass& depthPrepass,
             const shared_ptr<vireo::RenderTarget>& colorBuffer,
-            const shared_ptr<vireo::SubmitQueue>& graphicQueue);
+            const shared_ptr<vireo::CommandList>& cmdList);
 
-        auto getSemaphore(const uint32_t frameIndex) const { return framesData[frameIndex].semaphore; }
         auto getClearValue() const { return renderingConfig.colorRenderTargets[0].clearValue; }
 
     private:
@@ -40,7 +39,6 @@ export namespace samples {
             shared_ptr<vireo::CommandAllocator> commandAllocator;
             shared_ptr<vireo::CommandList>      commandList;
             shared_ptr<vireo::DescriptorSet>    descriptorSet;
-            shared_ptr<vireo::Semaphore>        semaphore;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
@@ -57,10 +55,7 @@ export namespace samples {
             .depthWriteEnable = false,
         };
         vireo::RenderingConfiguration renderingConfig {
-            .colorRenderTargets = {{
-                .clear = true,
-                .clearValue = {0.0f, 0.2f, 0.4f, 1.0f},
-            }},
+            .colorRenderTargets = {{}},
         };
 
         Global                              global{};

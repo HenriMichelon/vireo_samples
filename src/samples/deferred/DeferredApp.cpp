@@ -72,13 +72,6 @@ namespace samples {
             scene,
             graphicQueue);
 
-        skybox.onRender(
-            frameIndex,
-            swapChain->getExtent(),
-            depthPrepass,
-            frame.colorBuffer,
-            graphicQueue);
-
         frame.commandAllocator->reset();
         const auto cmdList = frame.commandList;
         cmdList->begin();
@@ -95,6 +88,12 @@ namespace samples {
             gbufferPass,
             cmdList,
             frame.colorBuffer);
+        skybox.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            depthPrepass,
+            frame.colorBuffer,
+            cmdList);
         postProcessing.onRender(
             frameIndex,
             swapChain->getExtent(),
@@ -121,7 +120,7 @@ namespace samples {
         cmdList->end();
 
         graphicQueue->submit(
-            skybox.getSemaphore(frameIndex),
+            depthPrepass.getSemaphore(frameIndex),
             vireo::WaitStage::TRANSFER,
             frame.inFlightFence,
             swapChain,

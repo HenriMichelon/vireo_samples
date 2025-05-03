@@ -58,7 +58,10 @@ export namespace samples {
             .depthWriteEnable = false,
         };
         vireo::RenderingConfiguration renderingConfig {
-            .colorRenderTargets = {{}},
+            .colorRenderTargets = {{
+                .clear = true,
+                .clearValue = {0.0f, 0.2f, 0.4f, 1.0f},
+            }},
             .discardDepthAfterRender = true,
         };
 
