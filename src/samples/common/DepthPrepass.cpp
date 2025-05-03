@@ -83,7 +83,7 @@ namespace samples {
                 pipelineConfig.depthImageFormat,
                 extent.width,
                 extent.height,
-                vireo::RenderTargetType::DEPTH,
+                withStencil ? vireo::RenderTargetType::DEPTH_STENCIL : vireo::RenderTargetType::DEPTH,
                 renderingConfig.depthClearValue);
         }
     }
