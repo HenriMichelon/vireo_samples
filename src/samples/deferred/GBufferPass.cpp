@@ -73,7 +73,6 @@ namespace samples {
         const std::shared_ptr<vireo::CommandList>& cmdList) {
         const auto& frame = framesData[frameIndex];
 
-        frame.modelUniform->write(&scene.getModel());
         frame.globalUniform->write(&scene.getGlobal());
 
         renderingConfig.colorRenderTargets[BUFFER_POSITION].renderTarget = frame.positionBuffer;
@@ -89,17 +88,6 @@ namespace samples {
             {renderTargets.begin(), renderTargets.end()},
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
-        // if (depthPrepass.isWithStencil()) {
-        //     cmdList->barrier(
-        //         renderingConfig.depthRenderTarget,
-        //         vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-        //         vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
-        // } else {
-        //     cmdList->barrier(
-        //         renderingConfig.depthRenderTarget,
-        //         vireo::ResourceState::RENDER_TARGET_DEPTH,
-        //         vireo::ResourceState::RENDER_TARGET_DEPTH_READ);
-        // }
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
@@ -107,7 +95,8 @@ namespace samples {
         cmdList->setStencilReference(1);
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
-        scene.draw(cmdList);
+        frame.modelUniform->write(&scene.getModel(Scene::MODEL_OPAQUE));
+        scene.drawCube(cmdList);
         cmdList->endRendering();
         cmdList->barrier(
             {renderTargets.begin(), renderTargets.end()},

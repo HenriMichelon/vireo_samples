@@ -12,7 +12,7 @@ module samples.common.scene;
 
 namespace samples {
 
-    void Scene::draw(const std::shared_ptr<vireo::CommandList>& cmdList) const {
+    void Scene::drawCube(const std::shared_ptr<vireo::CommandList>& cmdList) const {
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->bindIndexBuffer(indexBuffer);
         cmdList->drawIndexed(cubeIndices.size());
@@ -43,16 +43,25 @@ namespace samples {
         global.viewInverse = glm::inverse(global.view);
         global.projection = glm::perspective(glm::radians(75.0f), aspectRatio, 0.1f, 100.0f);
 
-        constexpr  float angle = glm::radians(-45.0f);
-        model.transform = rotate(model.transform, angle, AXIS_X);
-        model.transform = rotate(model.transform, angle, AXIS_Y);
+        static constexpr float angle = glm::radians(-45.0f);
+        models.resize(2);
+        for (auto& model : models) {
+            model.transform = glm::rotate(model.transform, angle, AXIS_X);
+            model.transform = glm::rotate(model.transform, angle, AXIS_Y);
+        }
     }
 
     void Scene::onUpdate() {
         if (rotateCube) {
-            constexpr  float angle = glm::radians(-0.1);
-            model.transform = rotate(model.transform, angle, AXIS_X);
-            model.transform = rotate(model.transform, angle, AXIS_Y);
+            static constexpr float angle = glm::radians(-0.1);
+            models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle, AXIS_X);
+            models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle, AXIS_Y);
+
+            cubeXRotationAngle += angle;
+            const auto tr1 = glm::translate(glm::mat4{1.0f}, glm::vec3(0.75f, 0.0f, 0.0f));
+            const auto rot = glm::rotate(glm::mat4{1.0f}, cubeXRotationAngle, AXIS_X);
+            const auto tr2 = glm::translate(glm::mat4{1.0f}, glm::vec3(-0.75f, 0.0f, 0.0f));
+            models[MODEL_TRANSPARENT].transform = tr2 * rot * tr1 * models[MODEL_TRANSPARENT].transform;
         }
     }
 

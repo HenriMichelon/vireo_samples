@@ -33,7 +33,7 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
 
-        depthPrepass.onInit(vireo, true, swapChain->getFramesInFlight());
+        depthPrepass.onInit(vireo, false, swapChain->getFramesInFlight());
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
@@ -95,8 +95,6 @@ namespace samples {
 
         cmdList->barrier(
             depthPrepass.getDepthBuffer(frameIndex),
-            depthPrepass.isWithStencil() ?
-                    vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL :
                     vireo::ResourceState::RENDER_TARGET_DEPTH_READ,
             vireo::ResourceState::UNDEFINED);
         cmdList->barrier(

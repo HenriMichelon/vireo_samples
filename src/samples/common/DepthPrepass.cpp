@@ -34,16 +34,16 @@ namespace samples {
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
-            frame.modelBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
-            frame.modelBuffer->map();
-            frame.globalBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
-            frame.globalBuffer->map();
+            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
+            frame.modelUniform->map();
+            frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
+            frame.globalUniform->map();
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::BINARY);
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
-            frame.descriptorSet->update(BINDING_MODEL, frame.modelBuffer);
+            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
+            frame.descriptorSet->update(BINDING_MODEL, frame.modelUniform);
         }
     }
 
@@ -54,8 +54,7 @@ namespace samples {
         const std::shared_ptr<vireo::SubmitQueue>& graphicQueue) {
         const auto& frame = framesData[frameIndex];
 
-        frame.modelBuffer->write(&scene.getModel());
-        frame.globalBuffer->write(&scene.getGlobal());
+        frame.globalUniform->write(&scene.getGlobal());
         renderingConfig.depthRenderTarget = frame.depthBuffer;
 
         frame.commandAllocator->reset();
@@ -73,7 +72,8 @@ namespace samples {
         }
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
-        scene.draw(cmdList);
+        frame.modelUniform->write(&scene.getModel(Scene::MODEL_OPAQUE));
+        scene.drawCube(cmdList);
         cmdList->endRendering();
         cmdList->end();
         graphicQueue->submit(
@@ -95,8 +95,8 @@ namespace samples {
 
     void DepthPrepass::onDestroy() {
         for (const auto& frame : framesData) {
-            frame.modelBuffer->unmap();
-            frame.globalBuffer->unmap();
+            frame.modelUniform->unmap();
+            frame.globalUniform->unmap();
         }
     }
 

@@ -12,12 +12,11 @@ struct VertexOutput {
 };
 
 ConstantBuffer<Global> global : register(b0);
-ConstantBuffer<Model>  model  : register(b1);
-ConstantBuffer<Light>  light  : register(b2);
-Texture2D    positionBuffer   : register(t3);
-Texture2D    normalBuffer     : register(t4);
-Texture2D    albedoBuffer     : register(t5);
-Texture2D    materialBuffer   : register(t6);
+ConstantBuffer<Light>  light  : register(b1);
+Texture2D    positionBuffer   : register(t2);
+Texture2D    normalBuffer     : register(t3);
+Texture2D    albedoBuffer     : register(t4);
+Texture2D    materialBuffer   : register(t5);
 SamplerState sampler          : register(s0, space1);
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {

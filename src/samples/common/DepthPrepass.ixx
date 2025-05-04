@@ -31,8 +31,8 @@ export namespace samples {
 
     private:
         struct FrameData {
-            std::shared_ptr<vireo::Buffer>           modelBuffer;
-            std::shared_ptr<vireo::Buffer>           globalBuffer;
+            std::shared_ptr<vireo::Buffer>           modelUniform;
+            std::shared_ptr<vireo::Buffer>           globalUniform;
             std::shared_ptr<vireo::CommandAllocator> commandAllocator;
             std::shared_ptr<vireo::CommandList>      commandList;
             std::shared_ptr<vireo::Semaphore>        semaphore;

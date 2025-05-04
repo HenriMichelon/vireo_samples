@@ -35,18 +35,16 @@ export namespace samples {
     private:
         struct FrameData {
             std::shared_ptr<vireo::Buffer>        globalUniform;
-            std::shared_ptr<vireo::Buffer>        modelUniform;
             std::shared_ptr<vireo::Buffer>        lightUniform;
             std::shared_ptr<vireo::DescriptorSet> descriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
-        static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
-        static constexpr vireo::DescriptorIndex BINDING_LIGHT{2};
-        static constexpr vireo::DescriptorIndex BINDING_POSITION_BUFFER{3};
-        static constexpr vireo::DescriptorIndex BINDING_NORMAL_BUFFER{4};
-        static constexpr vireo::DescriptorIndex BINDING_ALBEDO_BUFFER{5};
-        static constexpr vireo::DescriptorIndex BINDING_MATERIAL_BUFFER{6};
+        static constexpr vireo::DescriptorIndex BINDING_LIGHT{1};
+        static constexpr vireo::DescriptorIndex BINDING_POSITION_BUFFER{2};
+        static constexpr vireo::DescriptorIndex BINDING_NORMAL_BUFFER{3};
+        static constexpr vireo::DescriptorIndex BINDING_ALBEDO_BUFFER{4};
+        static constexpr vireo::DescriptorIndex BINDING_MATERIAL_BUFFER{5};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         vireo::GraphicPipelineConfiguration pipelineConfig {

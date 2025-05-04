@@ -31,7 +31,6 @@ namespace samples {
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::BUFFER);
         descriptorLayout->add(BINDING_POSITION_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->add(BINDING_NORMAL_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
@@ -52,8 +51,6 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global), 1, L"GLobal");
             frame.globalUniform->map();
-            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), 1, L"Model");
-            frame.modelUniform->map();
             frame.lightUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
             frame.lightUniform->map();
             auto light = scene.getLight();
@@ -61,7 +58,6 @@ namespace samples {
             frame.lightUniform->unmap();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"ColorPass");
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
-            frame.descriptorSet->update(BINDING_MODEL, frame.modelUniform);
             frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
         }
 
@@ -79,7 +75,6 @@ namespace samples {
         const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
 
-        frame.modelUniform->write(&scene.getModel());
         frame.globalUniform->write(&scene.getGlobal());
 
         frame.descriptorSet->update(BINDING_POSITION_BUFFER, gBufferPass.getPositionBuffer(frameIndex)->getImage());
@@ -94,30 +89,18 @@ namespace samples {
            colorBuffer,
            vireo::ResourceState::UNDEFINED,
            vireo::ResourceState::RENDER_TARGET_COLOR);
-        // if (depthPrepass.isWithStencil()) {
-        //     cmdList->barrier(
-        //         renderingConfig.depthRenderTarget,
-        //         vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-        //         vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
-        // } else {
-        //     cmdList->barrier(
-        //         renderingConfig.depthRenderTarget,
-        //         vireo::ResourceState::RENDER_TARGET_DEPTH,
-        //         vireo::ResourceState::RENDER_TARGET_DEPTH_READ);
-        // }
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
-        scene.draw(cmdList);
+        cmdList->draw(3);
         cmdList->endRendering();
     }
 
     void LightingPass::onDestroy() {
         for (const auto& frame : framesData) {
-            frame.modelUniform->unmap();
             frame.globalUniform->unmap();
         }
     }

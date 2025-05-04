@@ -45,13 +45,13 @@ The samples demonstrate the following features, in order of complexity:
 - Cube :
   - Index buffer and indexed drawing
   - Depth buffer and depth pre-pass
-  - Optional stencil buffer
   - Forward color pass
   - Cubemap and skybox
   - Post-processing example for FXAA and a voronoi effect
   - Semaphore synchronization
   - Slang examples for an MVP vertex shader, a Phong fragment shader, a skybox, a FXAA post-processing effect and a voronoi post-processing effect.
 - Deferred, same as Cube with :
-  - Deferred gbuffers & lighting passes
+  - Gbuffers and deferred lighting passes
+  - Stencil buffer
   - Post-processing example for gamma correction
-  - Slang examples for the gbuffers pass shaders, the lighting pass shader and the gamma post-processing
+  - Slang examples for the gbuffers pass, the lighting pass and the gamma post-processing

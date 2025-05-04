@@ -14,37 +14,34 @@ export namespace samples {
 
     class Scene {
     public:
+        static constexpr auto MODEL_OPAQUE{0};
+        static constexpr auto MODEL_TRANSPARENT{1};
 
         void onInit(
             const std::shared_ptr<vireo::Vireo>& vireo,
             const std::shared_ptr<vireo::CommandList>& uploadCommandList,
             float aspectRatio);
-
         void onUpdate();
-
         void onKeyDown(uint32_t key);
 
-        void draw(const std::shared_ptr<vireo::CommandList>& cmdList) const;
+        void drawCube(const std::shared_ptr<vireo::CommandList>& cmdList) const;
 
-        auto& getModel() const { return model; }
-
+        auto& getModel(const uint32_t model) const { return models[model]; }
         auto& getGlobal() const { return global; }
-
         const auto& getMaterial() const { return material; }
-
         const auto& getLight() const { return light; }
-
         const auto& getTextures() const { return textures; }
 
     private:
-        Model      model{};
         Global     global{};
         Material   material{};
         Light      light{};
         bool       rotateCube{true};
+        float      cubeXRotationAngle{0.0f};
         float      cameraYRotationAngle{0.0f};
         glm::vec3  cameraTarget{0.0f, 0.0f, 0.0f};
 
+        std::vector<Model>                         models;
         std::shared_ptr<vireo::Vireo>              vireo;
         std::shared_ptr<vireo::Buffer>             vertexBuffer;
         std::shared_ptr<vireo::Buffer>             indexBuffer;

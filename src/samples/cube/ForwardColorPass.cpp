@@ -81,7 +81,6 @@ namespace samples {
        const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
 
-        frame.modelUniform->write(&scene.getModel());
         frame.globalUniform->write(&scene.getGlobal());
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
@@ -108,7 +107,8 @@ namespace samples {
         cmdList->setScissors(extent);
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
-        scene.draw(cmdList);
+        frame.modelUniform->write(&scene.getModel(Scene::MODEL_OPAQUE));
+        scene.drawCube(cmdList);
         cmdList->endRendering();
     }
 
