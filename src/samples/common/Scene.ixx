@@ -16,15 +16,15 @@ export namespace samples {
     public:
 
         void onInit(
-            const shared_ptr<vireo::Vireo>& vireo,
-            const shared_ptr<vireo::CommandList>& uploadCommandList,
+            const std::shared_ptr<vireo::Vireo>& vireo,
+            const std::shared_ptr<vireo::CommandList>& uploadCommandList,
             float aspectRatio);
 
         void onUpdate();
 
         void onKeyDown(uint32_t key);
 
-        void draw(const shared_ptr<vireo::CommandList>& cmdList) const;
+        void draw(const std::shared_ptr<vireo::CommandList>& cmdList) const;
 
         auto& getModel() const { return model; }
 
@@ -37,18 +37,18 @@ export namespace samples {
         const auto& getTextures() const { return textures; }
 
     private:
-        Model    model{};
-        Global   global{};
-        Material material{};
-        Light    light{};
-        bool     rotateCube{true};
-        float    cameraYRotationAngle{0.0f};
-        vec3     cameraTarget{0.0f, 0.0f, 0.0f};
+        Model      model{};
+        Global     global{};
+        Material   material{};
+        Light      light{};
+        bool       rotateCube{true};
+        float      cameraYRotationAngle{0.0f};
+        glm::vec3  cameraTarget{0.0f, 0.0f, 0.0f};
 
-        shared_ptr<vireo::Vireo>         vireo;
-        shared_ptr<vireo::Buffer>        vertexBuffer;
-        shared_ptr<vireo::Buffer>        indexBuffer;
-        vector<shared_ptr<vireo::Image>> textures;
+        std::shared_ptr<vireo::Vireo>              vireo;
+        std::shared_ptr<vireo::Buffer>             vertexBuffer;
+        std::shared_ptr<vireo::Buffer>             indexBuffer;
+        std::vector<std::shared_ptr<vireo::Image>> textures;
 
         std::vector<Vertex> cubeVertices {
             // (-Z)
@@ -98,10 +98,10 @@ export namespace samples {
             20,22,21,   20,23,22    // (+Y)
         };
 
-        shared_ptr<vireo::Image> uploadTexture(
-            const shared_ptr<vireo::CommandList>& uploadCommandList,
+        std::shared_ptr<vireo::Image> uploadTexture(
+            const std::shared_ptr<vireo::CommandList>& uploadCommandList,
             vireo::ImageFormat format,
-            const string& filename) const;
+            const std::string& filename) const;
     };
 
 }

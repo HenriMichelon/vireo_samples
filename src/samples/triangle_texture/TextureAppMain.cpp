@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.hellotexture;
 
-APP(make_shared<samples::TextureApp>(), L"Hello Triangle Texture", 1280, 720);
+APP(std::make_shared<samples::TextureApp>(), L"Hello Triangle Texture", 1280, 720);

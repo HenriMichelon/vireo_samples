@@ -88,7 +88,7 @@ namespace samples {
         params.imageSize.x = extent.width;
         params.imageSize.y = extent.height;
 
-        vector<shared_ptr<const vireo::CommandList>> commandLists;
+        std::vector<std::shared_ptr<const vireo::CommandList>> commandLists;
         for (auto& frame : framesData) {
             frame.image = vireo->createReadWriteImage(
                 vireo::ImageFormat::R8G8B8A8_UNORM,

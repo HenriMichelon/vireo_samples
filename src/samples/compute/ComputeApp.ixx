@@ -27,25 +27,25 @@ export namespace samples {
         const vireo::DescriptorIndex BINDING_IMAGE{1};
 
         struct Params {
-            ivec2 imageSize{};
+            glm::ivec2 imageSize{};
             float time;
         };
 
         struct FrameData {
-            shared_ptr<vireo::CommandAllocator> commandAllocator;
-            shared_ptr<vireo::CommandList>      commandList;
-            shared_ptr<vireo::DescriptorSet>    descriptorSet;
-            shared_ptr<vireo::Fence>            inFlightFence;
-            shared_ptr<vireo::Image>            image;
+            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
+            std::shared_ptr<vireo::CommandList>      commandList;
+            std::shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            std::shared_ptr<vireo::Fence>            inFlightFence;
+            std::shared_ptr<vireo::Image>            image;
         };
 
-        Params                              params{};
-        vector<FrameData>                   framesData;
-        shared_ptr<vireo::Buffer>           paramsBuffer;
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        shared_ptr<vireo::Pipeline>         pipeline;
-        shared_ptr<vireo::SwapChain>        swapChain;
-        shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
+        Params                                   params{};
+        std::vector<FrameData>                   framesData;
+        std::shared_ptr<vireo::Buffer>           paramsBuffer;
+        std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::Pipeline>         pipeline;
+        std::shared_ptr<vireo::SwapChain>        swapChain;
+        std::shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
 
         static float getCurrentTimeMilliseconds();
     };

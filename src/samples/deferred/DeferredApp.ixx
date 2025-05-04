@@ -31,20 +31,20 @@ export namespace samples {
         static constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_UNORM;
 
         struct FrameData {
-            shared_ptr<vireo::CommandAllocator> commandAllocator;
-            shared_ptr<vireo::CommandList>      commandList;
-            shared_ptr<vireo::Fence>            inFlightFence;
-            shared_ptr<vireo::RenderTarget>     colorBuffer;
+            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
+            std::shared_ptr<vireo::CommandList>      commandList;
+            std::shared_ptr<vireo::Fence>            inFlightFence;
+            std::shared_ptr<vireo::RenderTarget>     colorBuffer;
         };
 
-        vector<FrameData>              framesData;
-        shared_ptr<vireo::SwapChain>   swapChain;
-        shared_ptr<vireo::SubmitQueue> graphicQueue;
-        Scene                          scene;
-        DepthPrepass                   depthPrepass;
-        Skybox                         skybox;
-        PostProcessing                 postProcessing;
-        GBufferPass                    gbufferPass;
-        LightingPass                   lightingPass;
+        Scene                               scene;
+        DepthPrepass                        depthPrepass;
+        Skybox                              skybox;
+        PostProcessing                      postProcessing;
+        GBufferPass                         gbufferPass;
+        LightingPass                        lightingPass;
+        std::vector<FrameData>              framesData;
+        std::shared_ptr<vireo::SwapChain>   swapChain;
+        std::shared_ptr<vireo::SubmitQueue> graphicQueue;
     };
 }

@@ -14,14 +14,14 @@ import vireo.tools;
 namespace samples {
 
     HWND Win32Application::hwnd = nullptr;
-    shared_ptr<Application> Win32Application::app{};
+    std::shared_ptr<Application> Win32Application::app{};
 
     struct MonitorEnumData {
         int  enumIndex{0};
         int  monitorIndex{0};
-        RECT monitorRect{0};
+        RECT monitorRect{};
     };
-    BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC , LPRECT lprcMonitor, LPARAM dwData) {
+    BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC , const LPRECT lprcMonitor, const LPARAM dwData) {
         const auto data = reinterpret_cast<MonitorEnumData*>(dwData);
         if (data->enumIndex == data->monitorIndex) {
             data->monitorRect = *lprcMonitor;
@@ -31,12 +31,13 @@ namespace samples {
         return TRUE;
     }
 
-    int Win32Application::run(const shared_ptr<Application>& app,
-                              const UINT width,
-                              const UINT height,
-                              const wstring& name,
-                              const HINSTANCE hInstance,
-                              const int nCmdShow) {
+    int Win32Application::run(
+        const std::shared_ptr<Application>& app,
+        const uint32_t width,
+        const uint32_t height,
+        const std::wstring& name,
+        const HINSTANCE hInstance,
+        const int nCmdShow) {
         if (!dirExists("shaders")) {
             MessageBox(nullptr,
                        L"Shaders directory not found, please run the application from the root of the project",
@@ -45,21 +46,20 @@ namespace samples {
             return 0;
         }
 
-        wstring title = name;
+        std::wstring title = name;
         title.append(L" : ");
 
         const auto windowClass = WNDCLASSEX{
-            .cbSize = sizeof(WNDCLASSEX),
-            .style = CS_HREDRAW | CS_VREDRAW,
-            .lpfnWndProc = WindowProc,
-            .hInstance = hInstance,
-            .hCursor = LoadCursor(NULL, IDC_ARROW),
+            .cbSize        = sizeof(WNDCLASSEX),
+            .style         = CS_HREDRAW | CS_VREDRAW,
+            .lpfnWndProc   = WindowProc,
+            .hInstance     = hInstance,
+            .hCursor       = LoadCursor(NULL, IDC_ARROW),
             .lpszClassName = L"VireoSampleClass",
         };
         RegisterClassEx(&windowClass);
 
-        auto monitorData = MonitorEnumData {
-        };
+        auto monitorData = MonitorEnumData {};
 
         int x = CW_USEDEFAULT;
         int y = CW_USEDEFAULT;
@@ -89,10 +89,8 @@ namespace samples {
             windowClass.lpszClassName,
             title.c_str(),
             style,
-            x,
-            y,
-            w,
-            h,
+            x, y,
+            w, h,
             nullptr,
             nullptr,
             hInstance,
@@ -196,21 +194,21 @@ namespace samples {
         return DefWindowProc(hWnd, msg, wParam, lParam);
     }
 
-    bool Win32Application::dirExists(const string& dirName_in) {
+    bool Win32Application::dirExists(const std::string& dirName_in) {
         const DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
         return (ftyp != INVALID_FILE_ATTRIBUTES) && (ftyp & FILE_ATTRIBUTE_DIRECTORY);
     }
 
-    vireo::Backend Win32Application::backendSelectorDialog(const HINSTANCE hInstance, const wstring& title) {
+    vireo::Backend Win32Application::backendSelectorDialog(const HINSTANCE hInstance, const std::wstring& title) {
         const auto className = L"ApiSelectorWindow";
-        const WNDCLASS wc{
-            .lpfnWndProc = SelectorWindowProc,
-            .hInstance = hInstance,
+        const auto wc = WNDCLASS {
+            .lpfnWndProc   = SelectorWindowProc,
+            .hInstance     = hInstance,
             .lpszClassName = className,
         };
         RegisterClass(&wc);
 
-        const HWND hWnd = CreateWindowEx(
+        const auto hWnd = CreateWindowEx(
             0,
             className,
             L"Select Graphics API",
@@ -244,10 +242,8 @@ namespace samples {
             L"BUTTON",
             L"Vulkan",
             WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-            20,
-            15,
-            70,
-            25,
+            20, 15,
+            70, 25,
             hWnd,
             reinterpret_cast<HMENU>(ID_VULKAN),
             hInstance,
@@ -258,10 +254,8 @@ namespace samples {
             L"BUTTON",
             L"DirectX",
             WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-            110,
-            15,
-            70,
-            25,
+            110, 15,
+            70, 25,
             hWnd,
             reinterpret_cast<HMENU>(ID_DIRECTX),
             hInstance,

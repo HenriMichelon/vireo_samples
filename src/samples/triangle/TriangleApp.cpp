@@ -12,7 +12,7 @@ namespace samples {
 
     void TriangleApp::onInit() {
         const auto& adapterDesc = vireo->getPhysicalDevice()->getDescription();
-        wcout << adapterDesc.name << L" " << to_wstring(adapterDesc.dedicatedVideoMemory / 1024 / 1024) << L"Mb" << endl;
+        std::wcout << adapterDesc.name << L" " << std::to_wstring(adapterDesc.dedicatedVideoMemory / 1024 / 1024) << L"Mb" << std::endl;
 
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormats.front(), graphicQueue, windowHandle, vireo::PresentMode::IMMEDIATE);

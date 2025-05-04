@@ -16,7 +16,7 @@ export namespace samples {
     class GBufferPass {
     public:
         void onInit(
-            const shared_ptr<vireo::Vireo>& vireo,
+            const std::shared_ptr<vireo::Vireo>& vireo,
             const Scene& scene,
             const DepthPrepass& depthPrepass,
             uint32_t framesInFlight);
@@ -25,8 +25,8 @@ export namespace samples {
             const vireo::Extent& extent,
             const Scene& scene,
             const DepthPrepass& depthPrepass,
-            const shared_ptr<vireo::CommandList>& cmdList);
-        void onResize(const vireo::Extent& extent, const shared_ptr<vireo::CommandList>& cmdList);
+            const std::shared_ptr<vireo::CommandList>& cmdList);
+        void onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList);
         void onDestroy();
 
         auto getPositionBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].positionBuffer; }
@@ -36,14 +36,14 @@ export namespace samples {
 
     private:
         struct FrameData {
-            shared_ptr<vireo::Buffer>        globalUniform;
-            shared_ptr<vireo::Buffer>        modelUniform;
-            shared_ptr<vireo::Buffer>        materialUniform;
-            shared_ptr<vireo::DescriptorSet> descriptorSet;
-            shared_ptr<vireo::RenderTarget>  positionBuffer;
-            shared_ptr<vireo::RenderTarget>  normalBuffer;
-            shared_ptr<vireo::RenderTarget>  albedoBuffer;
-            shared_ptr<vireo::RenderTarget>  materialBuffer;
+            std::shared_ptr<vireo::Buffer>        globalUniform;
+            std::shared_ptr<vireo::Buffer>        modelUniform;
+            std::shared_ptr<vireo::Buffer>        materialUniform;
+            std::shared_ptr<vireo::DescriptorSet> descriptorSet;
+            std::shared_ptr<vireo::RenderTarget>  positionBuffer;
+            std::shared_ptr<vireo::RenderTarget>  normalBuffer;
+            std::shared_ptr<vireo::RenderTarget>  albedoBuffer;
+            std::shared_ptr<vireo::RenderTarget>  materialBuffer;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
@@ -57,30 +57,30 @@ export namespace samples {
         static constexpr int BUFFER_ALBEDO{2};
         static constexpr int BUFFER_MATERIAL{3};
 
-        const vector<vireo::VertexAttributeDesc> vertexAttributes {
+        const std::vector<vireo::VertexAttributeDesc> vertexAttributes {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
             {"NORMAL",   vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
             {"UV",       vireo::AttributeFormat::R32G32_FLOAT,    offsetof(Vertex, uv)},
             {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,   offsetof(Vertex, tangent)},
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .colorRenderFormats = {
+            .colorRenderFormats  = {
                 vireo::ImageFormat::R16G16B16A16_SFLOAT, // Position
                 vireo::ImageFormat::R16G16B16A16_SFLOAT, // Normal
                 vireo::ImageFormat::R8G8B8A8_UNORM,      // Albedo
                 vireo::ImageFormat::R8G8_UNORM,          // Shininess/AO
             },
-            .colorBlendDesc = { {}, {}, {}, {} },
-            .cullMode = vireo::CullMode::BACK,
-            .depthTestEnable = true,
-            .depthWriteEnable = false,
+            .colorBlendDesc      = { {}, {}, {}, {} },
+            .cullMode            = vireo::CullMode::BACK,
+            .depthTestEnable     = true,
+            .depthWriteEnable    = false,
             .frontStencilOpState = {
-                .failOp = vireo::StencilOp::KEEP,
-                .passOp = vireo::StencilOp::KEEP,
+                .failOp      = vireo::StencilOp::KEEP,
+                .passOp      = vireo::StencilOp::KEEP,
                 .depthFailOp = vireo::StencilOp::KEEP,
-                .compareOp = vireo::CompareOp::EQUAL,
+                .compareOp   = vireo::CompareOp::EQUAL,
                 .compareMask = 0xff,
-                .writeMask = 0x00
+                .writeMask   = 0x00
             }
         };
         vireo::RenderingConfiguration renderingConfig {
@@ -92,12 +92,12 @@ export namespace samples {
             },
         };
 
-        vector<FrameData>                   framesData;
-        shared_ptr<vireo::Vireo>            vireo;
-        shared_ptr<vireo::Pipeline>         pipeline;
-        shared_ptr<vireo::Sampler>          sampler;
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
-        shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
+        std::vector<FrameData>                   framesData;
+        std::shared_ptr<vireo::Vireo>            vireo;
+        std::shared_ptr<vireo::Pipeline>         pipeline;
+        std::shared_ptr<vireo::Sampler>          sampler;
+        std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
+        std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
     };
 }

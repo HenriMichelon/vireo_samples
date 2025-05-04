@@ -21,42 +21,42 @@ export namespace samples {
 
     private:
         struct Vertex {
-            vec3 pos;
-            vec3 color;
+            glm::vec3 pos;
+            glm::vec3 color;
         };
 
         struct FrameData {
-            shared_ptr<vireo::CommandAllocator> commandAllocator;
-            shared_ptr<vireo::CommandList>      commandList;
-            shared_ptr<vireo::Fence>            inFlightFence;
+            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
+            std::shared_ptr<vireo::CommandList>      commandList;
+            std::shared_ptr<vireo::Fence>            inFlightFence;
         };
 
-        vector<Vertex> triangleVertices{
+        std::vector<Vertex> triangleVertices{
             { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
             { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
         };
 
-        const vector<vireo::VertexAttributeDesc> vertexAttributes{
+        const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
             {"COLOR",    vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
         };
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
-            .colorBlendDesc = {{}}
+            .colorBlendDesc     = {{}}
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{
-                .clear = true,
+                .clear      = true,
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f}
             }}
         };
 
-        vector<FrameData>              framesData;
-        shared_ptr<vireo::Buffer>      vertexBuffer;
-        shared_ptr<vireo::Pipeline>    defaultPipeline;
-        shared_ptr<vireo::SwapChain>   swapChain;
-        shared_ptr<vireo::SubmitQueue> graphicQueue;
+        std::vector<FrameData>              framesData;
+        std::shared_ptr<vireo::Buffer>      vertexBuffer;
+        std::shared_ptr<vireo::Pipeline>    defaultPipeline;
+        std::shared_ptr<vireo::SwapChain>   swapChain;
+        std::shared_ptr<vireo::SubmitQueue> graphicQueue;
     };
 }

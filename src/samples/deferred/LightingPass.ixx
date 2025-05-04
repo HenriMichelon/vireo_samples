@@ -17,7 +17,7 @@ export namespace samples {
     class LightingPass {
     public:
         void onInit(
-           const shared_ptr<vireo::Vireo>& vireo,
+           const std::shared_ptr<vireo::Vireo>& vireo,
            vireo::ImageFormat renderFormat,
            const Scene& scene,
            const DepthPrepass& depthPrepass,
@@ -28,16 +28,16 @@ export namespace samples {
             const Scene& scene,
             const DepthPrepass& depthPrepass,
             const GBufferPass& gBufferPass,
-            const shared_ptr<vireo::CommandList>& cmdList,
-            const shared_ptr<vireo::RenderTarget>& colorBuffer);
+            const std::shared_ptr<vireo::CommandList>& cmdList,
+            const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
         void onDestroy();
 
     private:
         struct FrameData {
-            shared_ptr<vireo::Buffer>        globalUniform;
-            shared_ptr<vireo::Buffer>        modelUniform;
-            shared_ptr<vireo::Buffer>        lightUniform;
-            shared_ptr<vireo::DescriptorSet> descriptorSet;
+            std::shared_ptr<vireo::Buffer>        globalUniform;
+            std::shared_ptr<vireo::Buffer>        modelUniform;
+            std::shared_ptr<vireo::Buffer>        lightUniform;
+            std::shared_ptr<vireo::DescriptorSet> descriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
@@ -65,12 +65,12 @@ export namespace samples {
             .discardDepthAfterRender = true,
         };
 
-        vector<FrameData>                   framesData;
-        shared_ptr<vireo::Vireo>            vireo;
-        shared_ptr<vireo::Pipeline>         pipeline;
-        shared_ptr<vireo::Sampler>          sampler;
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
-        shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
+        std::vector<FrameData>                   framesData;
+        std::shared_ptr<vireo::Vireo>            vireo;
+        std::shared_ptr<vireo::Pipeline>         pipeline;
+        std::shared_ptr<vireo::Sampler>          sampler;
+        std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
+        std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
     };
 }

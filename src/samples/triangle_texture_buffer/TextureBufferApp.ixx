@@ -25,26 +25,26 @@ export namespace samples {
         const vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         struct Vertex {
-            vec3 pos;
-            vec2 uv;
-            vec3 color;
+            glm::vec3 pos;
+            glm::vec2 uv;
+            glm::vec3 color;
         };
 
         struct GlobalUBO {
-            vec4 offset;
+            glm::vec4 offset;
         };
 
         struct PushConstants {
-            vec3 color;
+            glm::vec3 color;
         };
 
         struct FrameData {
-            shared_ptr<vireo::Buffer>           globalUniform;
-            shared_ptr<vireo::CommandAllocator> commandAllocator;
-            shared_ptr<vireo::CommandList>      commandList;
-            shared_ptr<vireo::DescriptorSet>    descriptorSet;
-            shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
-            shared_ptr<vireo::Fence>            inFlightFence;
+            std::shared_ptr<vireo::Buffer>           globalUniform;
+            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
+            std::shared_ptr<vireo::CommandList>      commandList;
+            std::shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            std::shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
+            std::shared_ptr<vireo::Fence>            inFlightFence;
         };
 
         static constexpr auto pushConstantsDesc = vireo::PushConstantsDesc {
@@ -52,13 +52,13 @@ export namespace samples {
             .size = sizeof(PushConstants),
         };
 
-        const vector<vireo::VertexAttributeDesc> vertexAttributes{
+        const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
             {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, offsetof(Vertex, uv)},
             {"COLOR", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, color)}
         };
 
-        vector<Vertex> triangleVertices{
+        std::vector<Vertex> triangleVertices{
             { { 0.0f, 0.25f, 0.0f }, { 0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
             { { 0.25f, -0.25f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
             { { -0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } }
@@ -75,21 +75,21 @@ export namespace samples {
             }}
         };
 
-        float                               colorIncrement{1.0f};
-        float                               scaleIncrement{1.0f};
-        GlobalUBO                           globalUbo{};
-        PushConstants                       pushConstants{};
-        vector<FrameData>                   framesData;
-        shared_ptr<vireo::Buffer>           vertexBuffer;
-        vector<shared_ptr<vireo::Image>>    textures;
-        vector<shared_ptr<vireo::Sampler>>  samplers;
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
-        shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
-        shared_ptr<vireo::SwapChain>        swapChain;
+        float                                    colorIncrement{1.0f};
+        float                                    scaleIncrement{1.0f};
+        GlobalUBO                                globalUbo{};
+        PushConstants                            pushConstants{};
+        std::vector<FrameData>                   framesData;
+        std::shared_ptr<vireo::Buffer>           vertexBuffer;
+        std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
+        std::shared_ptr<vireo::SubmitQueue>      graphicSubmitQueue;
+        std::shared_ptr<vireo::SwapChain>        swapChain;
 
-        map<string, shared_ptr<vireo::Pipeline>> pipelines;
+        std::vector<std::shared_ptr<vireo::Image>>              textures;
+        std::vector<std::shared_ptr<vireo::Sampler>>            samplers;
+        std::map<std::string, std::shared_ptr<vireo::Pipeline>> pipelines;
 
-        static void generateTextureData(const shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
+        static void generateTextureData(const std::shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
     };
 }

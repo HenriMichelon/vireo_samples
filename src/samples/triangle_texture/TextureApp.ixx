@@ -23,23 +23,23 @@ export namespace samples {
         const vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         struct Vertex {
-            vec3 pos;
-            vec2 uv;
+            glm::vec3 pos;
+            glm::vec2 uv;
         };
         struct FrameData {
-            shared_ptr<vireo::CommandAllocator> commandAllocator;
-            shared_ptr<vireo::CommandList>      commandList;
-            shared_ptr<vireo::DescriptorSet>    descriptorSet;
-            shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
-            shared_ptr<vireo::Fence>            inFlightFence;
+            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
+            std::shared_ptr<vireo::CommandList>      commandList;
+            std::shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            std::shared_ptr<vireo::DescriptorSet>    samplersDescriptorSet;
+            std::shared_ptr<vireo::Fence>            inFlightFence;
         };
 
-        const vector<vireo::VertexAttributeDesc> vertexAttributes{
+        const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, pos)},
             {"TEXCOORD", vireo::AttributeFormat::R32G32_FLOAT, offsetof(Vertex, uv)},
         };
 
-        vector<Vertex> triangleVertices{
+        std::vector<Vertex> triangleVertices{
             { { 0.0f, 0.25f, 0.0f }, { 0.5f, 0.0f } },
             { { 0.25f, -0.25f, 0.0f }, { 1.0f, 1.0f } },
             { { -0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f } }
@@ -47,25 +47,25 @@ export namespace samples {
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats = {vireo::ImageFormat::R8G8B8A8_SRGB},
-            .colorBlendDesc = {{}},
+            .colorBlendDesc     = {{}},
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{
-                .clear = true,
+                .clear      = true,
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f}
             }}
         };
 
-        vector<FrameData>                   framesData;
-        shared_ptr<vireo::Buffer>           vertexBuffer;
-        shared_ptr<vireo::Image>            texture;
-        shared_ptr<vireo::Sampler>          sampler;
-        shared_ptr<vireo::Pipeline>         pipeline;
-        shared_ptr<vireo::SubmitQueue>      graphicQueue;
-        shared_ptr<vireo::SwapChain>        swapChain;
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
+        std::vector<FrameData>                   framesData;
+        std::shared_ptr<vireo::Buffer>           vertexBuffer;
+        std::shared_ptr<vireo::Image>            texture;
+        std::shared_ptr<vireo::Sampler>          sampler;
+        std::shared_ptr<vireo::Pipeline>         pipeline;
+        std::shared_ptr<vireo::SubmitQueue>      graphicQueue;
+        std::shared_ptr<vireo::SwapChain>        swapChain;
+        std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
 
-        static void generateTextureData(const shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
+        static void generateTextureData(const std::shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
     };
 }

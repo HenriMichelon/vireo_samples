@@ -6,6 +6,3 @@
 import std;
 import glm;
 import vireo;
-
-using namespace std;
-using namespace glm;

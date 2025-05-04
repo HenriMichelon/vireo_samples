@@ -13,13 +13,13 @@ module samples.common.skybox;
 namespace samples {
 
     void Skybox::onUpdate(const Scene& scene) {
-        global.view = mat4(mat3(scene.getGlobal().view));
+        global.view = glm::mat4(glm::mat3(scene.getGlobal().view));
         global.projection = scene.getGlobal().projection;
     }
 
     void Skybox::onInit(
-        const shared_ptr<vireo::Vireo>& vireo,
-        const shared_ptr<vireo::CommandList>& uploadCommandList,
+        const std::shared_ptr<vireo::Vireo>& vireo,
+        const std::shared_ptr<vireo::CommandList>& uploadCommandList,
         const vireo::ImageFormat renderFormat,
         const DepthPrepass& depthPrepass,
         const uint32_t framesInFlight) {
@@ -75,8 +75,8 @@ namespace samples {
         const vireo::Extent& extent,
         bool depthIsReadOnly,
         const DepthPrepass& depthPrepass,
-        const shared_ptr<vireo::RenderTarget>& colorBuffer,
-        const shared_ptr<vireo::CommandList>& cmdList) {
+        const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
+        const std::shared_ptr<vireo::CommandList>& cmdList) {
         const auto& frame = framesData[frameIndex];
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
@@ -110,16 +110,16 @@ namespace samples {
         }
     }
 
-    shared_ptr<vireo::Image> Skybox::loadCubemap(
-        const shared_ptr<vireo::CommandList>& cmdList,
-        const string& filepath,
+    std::shared_ptr<vireo::Image> Skybox::loadCubemap(
+        const std::shared_ptr<vireo::CommandList>& cmdList,
+        const std::string& filepath,
         const vireo::ImageFormat imageFormat) const {
         uint32_t texWidth, texHeight;
         uint64_t imageSize;
         auto *pixels = loadRGBAImage(filepath, texWidth, texHeight, imageSize);
-        if (!pixels) { throw runtime_error("failed to load texture image" + filepath); }
+        if (!pixels) { throw std::runtime_error("failed to load texture image" + filepath); }
 
-        vector<void*> data;
+        std::vector<void*> data;
         const auto imgWidth  = texWidth / 4;
         const auto imgHeight = texHeight / 3;
         // right
@@ -189,19 +189,19 @@ namespace samples {
     }
 
     std::byte* Skybox::loadRGBAImage(
-        const string& filepath,
+        const std::string& filepath,
         uint32_t& width,
         uint32_t& height,
         uint64_t& size) {
         FILE* fp = fopen(filepath.c_str(), "rb");
-        if (fp == nullptr) throw runtime_error("Error: Could not open file " + filepath);
+        if (fp == nullptr) throw std::runtime_error("Error: Could not open file " + filepath);
 
         int texWidth, texHeight, texChannels;
         unsigned char* imageData = stbi_load_from_file  (
             fp,
             &texWidth, &texHeight,
             &texChannels, STBI_rgb_alpha);
-        if (!imageData) throw runtime_error("Error loading image : " + string{stbi_failure_reason()});
+        if (!imageData) throw std::runtime_error("Error loading image : " + std::string{stbi_failure_reason()});
 
         width = static_cast<uint32_t>(texWidth);
         height = static_cast<uint32_t>(texHeight);

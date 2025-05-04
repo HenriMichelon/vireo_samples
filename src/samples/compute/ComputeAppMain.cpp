@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.compute;
 
-APP(make_shared<samples::ComputeApp>(), L"Hello Compute", 1280, 720);
+APP(std::make_shared<samples::ComputeApp>(), L"Hello Compute", 1280, 720);

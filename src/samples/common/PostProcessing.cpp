@@ -16,7 +16,7 @@ namespace samples {
     }
 
     void PostProcessing::onInit(
-           const shared_ptr<vireo::Vireo>& vireo,
+           const std::shared_ptr<vireo::Vireo>& vireo,
            const vireo::ImageFormat renderFormat,
            const uint32_t framesInFlight) {
         this->vireo = vireo;
@@ -72,8 +72,8 @@ namespace samples {
     void PostProcessing::onRender(
        const uint32_t frameIndex,
        const vireo::Extent& extent,
-       const shared_ptr<vireo::CommandList>& cmdList,
-       const shared_ptr<vireo::RenderTarget>& colorBuffer) {
+       const std::shared_ptr<vireo::CommandList>& cmdList,
+       const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
 
         frame.fxaaDescriptorSet->update(BINDING_INPUT, colorBuffer->getImage());

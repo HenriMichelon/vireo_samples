@@ -11,7 +11,7 @@ module samples.common.depthprepass;
 namespace samples {
 
     void DepthPrepass::onInit(
-        const shared_ptr<vireo::Vireo>& vireo,
+        const std::shared_ptr<vireo::Vireo>& vireo,
         const bool withStencil,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
@@ -51,7 +51,7 @@ namespace samples {
         const uint32_t frameIndex,
         const vireo::Extent& extent,
         const Scene& scene,
-        const shared_ptr<vireo::SubmitQueue>& graphicQueue) {
+        const std::shared_ptr<vireo::SubmitQueue>& graphicQueue) {
         const auto& frame = framesData[frameIndex];
 
         frame.modelBuffer->write(&scene.getModel());

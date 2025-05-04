@@ -81,8 +81,8 @@ namespace samples {
 
         framesData.resize(swapChain->getFramesInFlight());
         for (uint32_t i = 0; i < framesData.size(); i++) {
-            framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"Global " + to_wstring(i));
-            framesData[i].samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + to_wstring(i));
+            framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"Global " + std::to_wstring(i));
+            framesData[i].samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + std::to_wstring(i));
 
             framesData[i].descriptorSet->update(BINDING_TEXTURE, texture);
             framesData[i].samplersDescriptorSet->update(BINDING_SAMPLERS, sampler);
@@ -136,7 +136,7 @@ namespace samples {
     // Generate a simple black and white checkerboard texture.
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
     void TextureApp::generateTextureData(
-        const shared_ptr<vireo::Buffer>&destination,
+        const std::shared_ptr<vireo::Buffer>&destination,
         const uint32_t width,
         const uint32_t height) {
         const auto rowPitch = width * 4;

@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.deferred;
 
-APP(make_shared<samples::DeferredApp>(), L"Deferred", 1280, 720);
+APP(std::make_shared<samples::DeferredApp>(), L"Deferred", 1280, 720);

@@ -11,7 +11,7 @@ module samples.deferred.gbuffer;
 namespace samples {
 
     void GBufferPass::onInit(
-        const shared_ptr<vireo::Vireo>& vireo,
+        const std::shared_ptr<vireo::Vireo>& vireo,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
         const uint32_t framesInFlight) {
@@ -70,7 +70,7 @@ namespace samples {
         const vireo::Extent& extent,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
-        const shared_ptr<vireo::CommandList>& cmdList) {
+        const std::shared_ptr<vireo::CommandList>& cmdList) {
         const auto& frame = framesData[frameIndex];
 
         frame.modelUniform->write(&scene.getModel());
@@ -82,7 +82,7 @@ namespace samples {
         renderingConfig.colorRenderTargets[BUFFER_MATERIAL].renderTarget = frame.materialBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
-        auto renderTargets = views::transform(renderingConfig.colorRenderTargets, [](const auto& colorRenderTarget) {
+        auto renderTargets = std::views::transform(renderingConfig.colorRenderTargets, [](const auto& colorRenderTarget) {
             return colorRenderTarget.renderTarget;
         });
         cmdList->barrier(
@@ -115,7 +115,7 @@ namespace samples {
             vireo::ResourceState::SHADER_READ);
     }
 
-    void GBufferPass::onResize(const vireo::Extent& extent, const shared_ptr<vireo::CommandList>& cmdList) {
+    void GBufferPass::onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList) {
         for (auto& frame : framesData) {
             frame.positionBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[BUFFER_POSITION],

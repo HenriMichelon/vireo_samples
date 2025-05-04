@@ -11,7 +11,7 @@ module samples.deferred.lightingpass;
 namespace samples {
 
     void LightingPass::onInit(
-        const shared_ptr<vireo::Vireo>& vireo,
+        const std::shared_ptr<vireo::Vireo>& vireo,
         const vireo::ImageFormat renderFormat,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
@@ -75,8 +75,8 @@ namespace samples {
         const Scene& scene,
         const DepthPrepass& depthPrepass,
         const GBufferPass& gBufferPass,
-        const shared_ptr<vireo::CommandList>& cmdList,
-        const shared_ptr<vireo::RenderTarget>& colorBuffer) {
+        const std::shared_ptr<vireo::CommandList>& cmdList,
+        const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
 
         frame.modelUniform->write(&scene.getModel());

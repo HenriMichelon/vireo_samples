@@ -164,7 +164,7 @@ namespace samples {
     // Generate a simple black and white checkerboard texture.
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
     void TextureBufferApp::generateTextureData(
-        const shared_ptr<vireo::Buffer>&destination,
+        const std::shared_ptr<vireo::Buffer>&destination,
         const uint32_t width,
         const uint32_t height) {
         const auto rowPitch = width * 4;

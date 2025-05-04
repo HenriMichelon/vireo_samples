@@ -15,14 +15,14 @@ export namespace samples {
 
     class DepthPrepass {
     public:
-        void onInit(const shared_ptr<vireo::Vireo>& vireo, bool withStencil, uint32_t framesInFlight);
+        void onInit(const std::shared_ptr<vireo::Vireo>& vireo, bool withStencil, uint32_t framesInFlight);
         void onResize(const vireo::Extent& extent);
         void onDestroy();
         void onRender(
             uint32_t frameIndex,
             const vireo::Extent& extent,
             const Scene& scene,
-            const shared_ptr<vireo::SubmitQueue>& graphicQueue);
+            const std::shared_ptr<vireo::SubmitQueue>& graphicQueue);
 
         auto getSemaphore(const uint32_t frameIndex) const { return framesData[frameIndex].semaphore; }
         auto getDepthBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].depthBuffer; }
@@ -31,19 +31,19 @@ export namespace samples {
 
     private:
         struct FrameData {
-            shared_ptr<vireo::Buffer>           modelBuffer;
-            shared_ptr<vireo::Buffer>           globalBuffer;
-            shared_ptr<vireo::CommandAllocator> commandAllocator;
-            shared_ptr<vireo::CommandList>      commandList;
-            shared_ptr<vireo::Semaphore>        semaphore;
-            shared_ptr<vireo::RenderTarget>     depthBuffer;
-            shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            std::shared_ptr<vireo::Buffer>           modelBuffer;
+            std::shared_ptr<vireo::Buffer>           globalBuffer;
+            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
+            std::shared_ptr<vireo::CommandList>      commandList;
+            std::shared_ptr<vireo::Semaphore>        semaphore;
+            std::shared_ptr<vireo::RenderTarget>     depthBuffer;
+            std::shared_ptr<vireo::DescriptorSet>    descriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
 
-        const vector<vireo::VertexAttributeDesc> vertexAttributes{
+        const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
@@ -52,23 +52,23 @@ export namespace samples {
             .depthWriteEnable    = true,
             .stencilTestEnable   = false,
             .frontStencilOpState = {
-                .failOp = vireo::StencilOp::KEEP,
-                .passOp = vireo::StencilOp::REPLACE,
+                .failOp      = vireo::StencilOp::KEEP,
+                .passOp      = vireo::StencilOp::REPLACE,
                 .depthFailOp = vireo::StencilOp::KEEP,
-                .compareOp = vireo::CompareOp::ALWAYS,
+                .compareOp   = vireo::CompareOp::ALWAYS,
                 .compareMask = 0xff,
-                .writeMask = 0xff
+                .writeMask   = 0xff
             }
         };
         vireo::RenderingConfiguration renderingConfig {
             .clearDepth = true,
         };
 
-        bool                                withStencil{false};
-        vector<FrameData>                   framesData;
-        shared_ptr<vireo::Vireo>            vireo;
-        shared_ptr<vireo::Pipeline>         pipeline;
-        shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        bool                                     withStencil{false};
+        std::vector<FrameData>                   framesData;
+        std::shared_ptr<vireo::Vireo>            vireo;
+        std::shared_ptr<vireo::Pipeline>         pipeline;
+        std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
     };
 
 }
