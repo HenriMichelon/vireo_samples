@@ -4,27 +4,12 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
+#include "global.inc.slang"
+
 struct VertexOutput {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
 };
-
-struct Global {
-    float3   cameraPosition;
-    float4x4 projection;
-    float4x4 view;
-    float4x4 viewInverse;
-    float4   ambientLight;
-}
-
-struct Model {
-    float4x4 transform;
-}
-
-struct Light {
-    float3 direction;
-    float4 color;
-}
 
 ConstantBuffer<Global> global : register(b0);
 ConstantBuffer<Model>  model  : register(b1);

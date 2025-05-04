@@ -4,21 +4,8 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-struct VertexInput {
-    float3 position : POSITION;
-    float3 normal   : NORMAL;
-    float2 uv       : UV;
-    float3 tangent  : TANGENT;
-};
-
-struct VertexOutput {
-    float4 position : SV_POSITION;
-    float4 worldPos : TEXCOORD0;
-    float3 normal   : TEXCOORD1;
-    float2 uv       : TEXCOORD2;
-    float3 tangent  : TEXCOORD3;
-    float3 bitangent: TEXCOORD4;
-};
+#include "global.inc.slang"
+#include "scene_input.inc.slang"
 
 struct FragmentOutput {
     float4   position : SV_TARGET0; // xyz = world-space position
@@ -26,25 +13,6 @@ struct FragmentOutput {
     float4   albedo   : SV_TARGET2; // rgb = albedo, a unused
     float2   material : SV_TARGET3; // r=shininess, g=AO
 };
-
-struct Global {
-    float3   cameraPosition;
-    float4x4 projection;
-    float4x4 view;
-    float4x4 viewInverse;
-    float4   ambientLight;
-}
-
-struct Model {
-    float4x4 transform;
-}
-
-struct Material {
-    float shininess;
-    int   diffuseTextureIndex;
-    int   normalTextureIndex;
-    int   aoTextureIndex;
-}
 
 ConstantBuffer<Global>   global   : register(b0);
 ConstantBuffer<Model>    model    : register(b1);
@@ -57,7 +25,7 @@ VertexOutput vertexMain(VertexInput input) {
 
     float4 localPos = float4(input.position, 1.0);
     float4 worldPos = mul(model.transform, localPos);
-    output.worldPos = worldPos;
+    output.worldPos = worldPos.xyz;
 
     float4 viewPos = mul(global.view, worldPos);
     output.position = mul(global.projection, viewPos);
@@ -83,7 +51,7 @@ FragmentOutput fragmentMain(VertexOutput input) {
     float3 N = normalize(normal * 2.0 - 1.0);
     N = normalize(mul(TBN, N));
 
-    output.position = input.worldPos;
+    output.position = float4(input.worldPos, 0.0);
     output.normal = float4(N, 0.0);
     output.albedo = float4(color.rgb, 1.0);
     output.material = float2(material.shininess, ao);

@@ -4,15 +4,7 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-struct VertexOutput {
-    float4 position : SV_POSITION;
-    float2 uv : TEXCOORD;
-};
-
-struct Params {
-    uint2 imageSize;
-    float time;
-};
+#include "postprocess.inc.slang"
 
 ConstantBuffer<Params> params  : register(b0);
 Texture2D inputImage           : register(t1);
