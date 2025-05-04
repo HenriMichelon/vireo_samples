@@ -36,7 +36,7 @@ namespace samples {
             vireo::AddressMode::CLAMP_TO_BORDER);
 
         descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_CUBEMAP, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->build();
         samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
@@ -97,6 +97,7 @@ namespace samples {
         if (depthPrepass.isWithStencil()) {
             cmdList->setStencilReference(0);
         }
+        cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});

@@ -36,7 +36,7 @@ namespace samples {
         samplerDescriptorLayout->build();
 
         descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->build();
 
@@ -89,6 +89,7 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
+        cmdList->setDescriptors({frame.fxaaDescriptorSet, samplerDescriptorSet});
         cmdList->bindPipeline(fxaaPipeline);
         cmdList->bindDescriptors(fxaaPipeline, {frame.fxaaDescriptorSet, samplerDescriptorSet});
         cmdList->draw(3);
@@ -105,6 +106,7 @@ namespace samples {
                 frame.effectColorBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
+            cmdList->setDescriptors({frame.effectDescriptorSet, samplerDescriptorSet});
             cmdList->beginRendering(renderingConfig);
             cmdList->bindPipeline(effectPipeline);
             cmdList->bindDescriptors(effectPipeline, {frame.effectDescriptorSet, samplerDescriptorSet});
@@ -124,6 +126,7 @@ namespace samples {
                 frame.gammaCorrectionColorBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
+            cmdList->setDescriptors({frame.gammaCorrectionDescriptorSet, samplerDescriptorSet});
             cmdList->beginRendering(renderingConfig);
             cmdList->bindPipeline(gammaCorrectionPipeline);
             cmdList->bindDescriptors(gammaCorrectionPipeline, {frame.gammaCorrectionDescriptorSet, samplerDescriptorSet});

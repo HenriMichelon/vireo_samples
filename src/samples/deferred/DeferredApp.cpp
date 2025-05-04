@@ -35,13 +35,12 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
 
-        depthPrepass.onInit(vireo, true, swapChain->getFramesInFlight());
-        lightingPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, swapChain->getFramesInFlight());
-
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
+        depthPrepass.onInit(vireo, scene, true, swapChain->getFramesInFlight());
+        lightingPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, swapChain->getFramesInFlight());
         skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});

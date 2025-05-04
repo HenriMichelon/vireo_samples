@@ -58,7 +58,7 @@ namespace samples {
         transferQueue->submit({uploadCommandList});
 
         descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_UBO, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_UBO, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::SAMPLED_IMAGE, textures.size());
         descriptorLayout->build();
 
@@ -132,6 +132,7 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(swapChain->getExtent());
         cmdList->setScissors(swapChain->getExtent());
+        cmdList->setDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
 
         cmdList->bindPipeline(pipelines["shader1"]);
         cmdList->bindDescriptors(pipelines["shader1"], {frame.descriptorSet, frame.samplersDescriptorSet});

@@ -114,6 +114,7 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(swapChain->getExtent());
         cmdList->setScissors(swapChain->getExtent());
+        cmdList->setDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);

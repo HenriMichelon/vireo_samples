@@ -35,7 +35,7 @@ export namespace samples {
     };
 
     struct Global {
-        glm::vec3 cameraPosition{0.0f, 0.0f, 1.2f};
+        glm::vec3 cameraPosition{0.0f, 0.0f, 1.75f};
         alignas(16) glm::mat4 projection;
         glm::mat4 view;
         glm::mat4 viewInverse;

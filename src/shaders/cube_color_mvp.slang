@@ -7,12 +7,12 @@
 #include "global.inc.slang"
 #include "scene_input.inc.slang"
 
-ConstantBuffer<Global>   global   : register(b0);
-ConstantBuffer<Model>    model    : register(b1);
-ConstantBuffer<Material> material : register(b2);
-ConstantBuffer<Light>    light    : register(b3);
-Texture2D    textures[3]          : register(t4);
-SamplerState sampler              : register(s0, space1);
+ConstantBuffer<Global>   global      : register(b0);
+ConstantBuffer<Material> material    : register(b1);
+ConstantBuffer<Light>    light       : register(b2);
+Texture2D                textures[3] : register(t3);
+ConstantBuffer<Model>    model       : register(b0, space1);
+SamplerState sampler                 : register(s0, space2);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;

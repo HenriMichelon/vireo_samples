@@ -15,7 +15,11 @@ export namespace samples {
 
     class DepthPrepass {
     public:
-        void onInit(const std::shared_ptr<vireo::Vireo>& vireo, bool withStencil, uint32_t framesInFlight);
+        void onInit(
+            const std::shared_ptr<vireo::Vireo>& vireo,
+            const Scene& scene,
+            bool withStencil,
+            uint32_t framesInFlight);
         void onResize(const vireo::Extent& extent);
         void onDestroy();
         void onRender(
@@ -31,17 +35,18 @@ export namespace samples {
 
     private:
         struct FrameData {
-            std::shared_ptr<vireo::Buffer>           modelUniform;
             std::shared_ptr<vireo::Buffer>           globalUniform;
+            std::shared_ptr<vireo::Buffer>           modelUniform;
             std::shared_ptr<vireo::CommandAllocator> commandAllocator;
             std::shared_ptr<vireo::CommandList>      commandList;
             std::shared_ptr<vireo::Semaphore>        semaphore;
             std::shared_ptr<vireo::RenderTarget>     depthBuffer;
             std::shared_ptr<vireo::DescriptorSet>    descriptorSet;
+            std::shared_ptr<vireo::DescriptorSet>    modelDescriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
-        static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
+        static constexpr vireo::DescriptorIndex BINDING_MODEL{0};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
@@ -69,6 +74,7 @@ export namespace samples {
         std::shared_ptr<vireo::Vireo>            vireo;
         std::shared_ptr<vireo::Pipeline>         pipeline;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> modelDescriptorLayout;
     };
 
 }

@@ -26,7 +26,7 @@ export namespace samples {
 
         void drawCube(const std::shared_ptr<vireo::CommandList>& cmdList) const;
 
-        auto& getModel(const uint32_t model) const { return models[model]; }
+        auto& getModels() const { return models; }
         auto& getGlobal() const { return global; }
         const auto& getMaterial() const { return material; }
         const auto& getLight() const { return light; }
@@ -37,7 +37,7 @@ export namespace samples {
         Material   material{};
         Light      light{};
         bool       rotateCube{true};
-        float      cubeXRotationAngle{0.0f};
+        float      cubeYRotationAngle{0.0f};
         float      cameraYRotationAngle{0.0f};
         glm::vec3  cameraTarget{0.0f, 0.0f, 0.0f};
 

@@ -12,14 +12,18 @@ namespace samples {
 
     void DepthPrepass::onInit(
         const std::shared_ptr<vireo::Vireo>& vireo,
+        const Scene& scene,
         const bool withStencil,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
         descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->build();
+
+        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
+        modelDescriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM_DYNAMIC);
+        modelDescriptorLayout->build();
 
         if (withStencil) {
             this->withStencil = true;
@@ -27,23 +31,28 @@ namespace samples {
             pipelineConfig.depthImageFormat = vireo::ImageFormat::D32_SFLOAT_S8_UINT;
             pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         }
-        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout });
+        pipelineConfig.resources = vireo->createPipelineResources(
+            { descriptorLayout, modelDescriptorLayout }
+        );
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/depth_prepass.vert");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
-            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model));
-            frame.modelUniform->map();
             frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalUniform->map();
+            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
+            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
+
+            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), scene.getModels().size());
+            frame.modelUniform->map();
+            frame.modelDescriptorSet = vireo->createDescriptorSet(modelDescriptorLayout);
+            frame.modelDescriptorSet->update(BINDING_MODEL, frame.modelUniform);
+
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::BINARY);
-            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
-            frame.descriptorSet->update(BINDING_MODEL, frame.modelUniform);
         }
     }
 
@@ -55,6 +64,8 @@ namespace samples {
         const auto& frame = framesData[frameIndex];
 
         frame.globalUniform->write(&scene.getGlobal());
+        frame.modelUniform->write(scene.getModels().data());
+
         renderingConfig.depthRenderTarget = frame.depthBuffer;
 
         frame.commandAllocator->reset();
@@ -70,9 +81,16 @@ namespace samples {
         if (withStencil) {
             cmdList->setStencilReference(1);
         }
+        cmdList->setDescriptors({frame.descriptorSet, frame.modelDescriptorSet});
         cmdList->bindPipeline(pipeline);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet});
-        frame.modelUniform->write(&scene.getModel(Scene::MODEL_OPAQUE));
+        cmdList->bindDescriptor(pipeline, frame.descriptorSet, 0);
+        cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, 1, {
+            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE,
+        });
+        scene.drawCube(cmdList);
+        cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, 1, {
+            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT,
+        });
         scene.drawCube(cmdList);
         cmdList->endRendering();
         cmdList->end();

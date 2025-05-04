@@ -33,12 +33,11 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
 
-        depthPrepass.onInit(vireo, false, swapChain->getFramesInFlight());
-
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
+        depthPrepass.onInit(vireo, scene, false, swapChain->getFramesInFlight());
         skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});

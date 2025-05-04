@@ -29,43 +29,47 @@ namespace samples {
         samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplerDescriptorLayout->build();
 
+        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
+        modelDescriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM_DYNAMIC);
+        modelDescriptorLayout->build();
+
         descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
+        descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::UNIFORM);
+        descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.depthImageFormat = depthPrepass.getFormat();
-        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
+        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, modelDescriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
-        pipeline = vireo->createGraphicPipeline(pipelineConfig);
+        opaquePipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
-            frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global), 1, L"GLobal");
+            frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalUniform->map();
-            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), 1, L"Model");
+            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), scene.getModels().size());
             frame.modelUniform->map();
-            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material), 1, L"Material");
+            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material), 1);
             frame.materialUniform->map();
             frame.materialUniform->write(&scene.getMaterial());
             frame.materialUniform->unmap();
-            frame.lightUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
+            frame.lightUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1);
             frame.lightUniform->map();
             auto light = scene.getLight();
             frame.lightUniform->write(&light);
             frame.lightUniform->unmap();
-            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"ColorPass");
+            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
-            frame.descriptorSet->update(BINDING_MODEL, frame.modelUniform);
             frame.descriptorSet->update(BINDING_MATERIAL, frame.materialUniform);
             frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
+            frame.modeDescriptorSet = vireo->createDescriptorSet(modelDescriptorLayout);
+            frame.modeDescriptorSet->update(BINDING_MODEL, frame.modelUniform);
         }
 
         samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
@@ -82,6 +86,7 @@ namespace samples {
         const auto& frame = framesData[frameIndex];
 
         frame.globalUniform->write(&scene.getGlobal());
+        frame.modelUniform->write(scene.getModels().data());
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
@@ -105,9 +110,17 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
-        cmdList->bindPipeline(pipeline);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
-        frame.modelUniform->write(&scene.getModel(Scene::MODEL_OPAQUE));
+        cmdList->setDescriptors({frame.descriptorSet, frame.modeDescriptorSet, samplerDescriptorSet});
+        cmdList->bindPipeline(opaquePipeline);
+        cmdList->bindDescriptor(opaquePipeline, frame.descriptorSet, 0);
+        cmdList->bindDescriptor(opaquePipeline, samplerDescriptorSet, 2);
+        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, 1, {
+            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE,
+        });
+        scene.drawCube(cmdList);
+        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, 1, {
+            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT,
+        });
         scene.drawCube(cmdList);
         cmdList->endRendering();
     }

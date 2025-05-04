@@ -29,9 +29,9 @@ namespace samples {
         samplerDescriptorLayout->build();
 
         descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
+        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM);
+        descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
 
@@ -88,14 +88,14 @@ namespace samples {
             {renderTargets.begin(), renderTargets.end()},
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
-
+        cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
         cmdList->setStencilReference(1);
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
-        frame.modelUniform->write(&scene.getModel(Scene::MODEL_OPAQUE));
+        frame.modelUniform->write(scene.getModels().data());
         scene.drawCube(cmdList);
         cmdList->endRendering();
         cmdList->barrier(

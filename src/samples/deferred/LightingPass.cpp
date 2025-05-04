@@ -30,8 +30,8 @@ namespace samples {
         samplerDescriptorLayout->build();
 
         descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::BUFFER);
-        descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
+        descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_POSITION_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->add(BINDING_NORMAL_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->add(BINDING_ALBEDO_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
@@ -93,6 +93,7 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
+        cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
         cmdList->draw(3);

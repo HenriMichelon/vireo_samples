@@ -21,7 +21,7 @@ namespace samples {
         paramsBuffer->map();
 
         descriptorLayout = vireo->createDescriptorLayout();
-        descriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::BUFFER);
+        descriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_IMAGE, vireo::DescriptorType::READWRITE_IMAGE);
         descriptorLayout->build();
 
@@ -52,6 +52,7 @@ namespace samples {
 
         frame.commandAllocator->reset();
         frame.commandList->begin();
+        frame.commandList->setDescriptors({frame.descriptorSet});
         frame.commandList->bindPipeline(pipeline);
         frame.commandList->bindDescriptors(pipeline, {frame.descriptorSet});
 

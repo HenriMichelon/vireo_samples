@@ -39,13 +39,14 @@ export namespace samples {
             std::shared_ptr<vireo::Buffer>        materialUniform;
             std::shared_ptr<vireo::Buffer>        lightUniform;
             std::shared_ptr<vireo::DescriptorSet> descriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> modeDescriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
-        static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
-        static constexpr vireo::DescriptorIndex BINDING_MATERIAL{2};
-        static constexpr vireo::DescriptorIndex BINDING_LIGHT{3};
-        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{4};
+        static constexpr vireo::DescriptorIndex BINDING_MATERIAL{1};
+        static constexpr vireo::DescriptorIndex BINDING_LIGHT{2};
+        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{3};
+        static constexpr vireo::DescriptorIndex BINDING_MODEL{0};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
@@ -69,9 +70,10 @@ export namespace samples {
 
         std::vector<FrameData>                   framesData;
         std::shared_ptr<vireo::Vireo>            vireo;
-        std::shared_ptr<vireo::Pipeline>         pipeline;
+        std::shared_ptr<vireo::Pipeline>         opaquePipeline;
         std::shared_ptr<vireo::Sampler>          sampler;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> modelDescriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
         std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
     };
