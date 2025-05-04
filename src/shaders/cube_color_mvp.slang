@@ -11,8 +11,8 @@ ConstantBuffer<Global>   global      : register(b0);
 ConstantBuffer<Material> material    : register(b1);
 ConstantBuffer<Light>    light       : register(b2);
 Texture2D                textures[3] : register(t3);
-ConstantBuffer<Model>    model       : register(b0, space1);
-SamplerState sampler                 : register(s0, space2);
+SamplerState sampler                 : register(s0, space1);
+ConstantBuffer<Model>    model       : register(b0, space2);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;

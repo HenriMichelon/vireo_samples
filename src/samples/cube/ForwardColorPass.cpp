@@ -42,7 +42,7 @@ namespace samples {
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.depthImageFormat = depthPrepass.getFormat();
-        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, modelDescriptorLayout, samplerDescriptorLayout });
+        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout, modelDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
@@ -110,15 +110,15 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
-        cmdList->setDescriptors({frame.descriptorSet, frame.modeDescriptorSet, samplerDescriptorSet});
+        cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
         cmdList->bindPipeline(opaquePipeline);
         cmdList->bindDescriptor(opaquePipeline, frame.descriptorSet, 0);
-        cmdList->bindDescriptor(opaquePipeline, samplerDescriptorSet, 2);
-        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, 1, {
+        cmdList->bindDescriptor(opaquePipeline, samplerDescriptorSet, 1);
+        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, 2, {
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE,
         });
         scene.drawCube(cmdList);
-        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, 1, {
+        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, 2, {
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT,
         });
         scene.drawCube(cmdList);

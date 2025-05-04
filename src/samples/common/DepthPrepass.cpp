@@ -81,7 +81,7 @@ namespace samples {
         if (withStencil) {
             cmdList->setStencilReference(1);
         }
-        cmdList->setDescriptors({frame.descriptorSet, frame.modelDescriptorSet});
+        cmdList->setDescriptors({frame.descriptorSet});
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptor(pipeline, frame.descriptorSet, 0);
         cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, 1, {
