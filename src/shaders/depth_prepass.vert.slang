@@ -10,7 +10,7 @@ struct VertexInput {
     float3 position : POSITION;
 };
 
-ConstantBuffer<Global> global : register(b0);
+ConstantBuffer<Global> global : register(b0, space0);
 ConstantBuffer<Model>  model  : register(b0, space1);
 
 float4 vertexMain(VertexInput input) : SV_POSITION {

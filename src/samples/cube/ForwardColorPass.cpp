@@ -29,11 +29,11 @@ namespace samples {
         samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplerDescriptorLayout->build();
 
-        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
+        modelsDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
+        materialsDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
-        descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
@@ -41,7 +41,7 @@ namespace samples {
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.depthImageFormat = depthPrepass.getFormat();
         pipelineConfig.resources = vireo->createPipelineResources({
-            descriptorLayout, samplerDescriptorLayout, modelDescriptorLayout });
+            descriptorLayout, samplerDescriptorLayout, modelsDescriptorLayout, materialsDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
@@ -50,25 +50,29 @@ namespace samples {
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
             frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
-            frame.globalUniform->map();
             frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), scene.getModels().size());
-            frame.modelUniform->map();
-            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material), 1);
-            frame.materialUniform->map();
-            frame.materialUniform->write(&scene.getMaterial());
-            frame.materialUniform->unmap();
+            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material), scene.getMaterials().size());
             frame.lightUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1);
+
+            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
+            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
+            frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
+            frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
+            frame.modelsDescriptorSet = vireo->createDescriptorSet(modelsDescriptorLayout);
+            frame.modelsDescriptorSet->update(frame.modelUniform);
+            frame.materialsDescriptorSet = vireo->createDescriptorSet(materialsDescriptorLayout);
+            frame.materialsDescriptorSet->update(frame.materialUniform);
+
+            frame.globalUniform->map();
+            frame.modelUniform->map();
+            frame.materialUniform->map();
+            frame.materialUniform->write(scene.getMaterials().data());
+            frame.materialUniform->unmap();
             frame.lightUniform->map();
             auto light = scene.getLight();
             frame.lightUniform->write(&light);
             frame.lightUniform->unmap();
-            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
-            frame.descriptorSet->update(BINDING_MATERIAL, frame.materialUniform);
-            frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
-            frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
-            frame.modeDescriptorSet = vireo->createDescriptorSet(modelDescriptorLayout);
-            frame.modeDescriptorSet->update(frame.modelUniform);
+
         }
 
         samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
@@ -94,17 +98,6 @@ namespace samples {
           colorBuffer,
           vireo::ResourceState::UNDEFINED,
           vireo::ResourceState::RENDER_TARGET_COLOR);
-        if (depthPrepass.isWithStencil()) {
-            cmdList->barrier(
-                renderingConfig.depthRenderTarget,
-                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL,
-                vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ);
-        } else {
-            cmdList->barrier(
-                renderingConfig.depthRenderTarget,
-                vireo::ResourceState::RENDER_TARGET_DEPTH,
-                vireo::ResourceState::RENDER_TARGET_DEPTH_READ);
-        }
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
@@ -113,12 +106,23 @@ namespace samples {
         cmdList->bindPipeline(opaquePipeline);
         cmdList->bindDescriptor(opaquePipeline, frame.descriptorSet, SET_GLOBAL);
         cmdList->bindDescriptor(opaquePipeline, samplerDescriptorSet, SET_SAMPLERS);
-        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, SET_MODELS,
+
+        cmdList->bindDescriptor(opaquePipeline,
+            frame.materialsDescriptorSet,SET_MATERIALS,
+            frame.materialUniform->getInstanceSizeAligned() * Scene::MATERIAL_ROCKS);
+        cmdList->bindDescriptor(opaquePipeline,
+            frame.modelsDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE);
         scene.drawCube(cmdList);
-        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, SET_MODELS,
+
+        cmdList->bindDescriptor(opaquePipeline,
+            frame.materialsDescriptorSet, SET_MATERIALS,
+            frame.materialUniform->getInstanceSizeAligned() * Scene::MATERIAL_PLATE);
+        cmdList->bindDescriptor(opaquePipeline,
+            frame.modelsDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT);
         scene.drawCube(cmdList);
+
         cmdList->endRendering();
     }
 

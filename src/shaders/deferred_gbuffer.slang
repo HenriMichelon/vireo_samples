@@ -18,18 +18,23 @@ struct Models {
     Model models[2];
 }
 
+struct Materials {
+    Material materials[2];
+}
+
 struct PushConstants {
     uint modelIndex;
+    uint materialIndex;
 };
 
 [[push_constant]]
 PushConstants pushConstants : register(b0, space2);
 
-ConstantBuffer<Global>   global   : register(b0);
-ConstantBuffer<Models>   models   : register(b1);
-ConstantBuffer<Material> material : register(b2);
-Texture2D    textures[3]          : register(t3);
-SamplerState sampler              : register(s0, space1);
+ConstantBuffer<Global>    global      : register(b0);
+ConstantBuffer<Models>    models      : register(b1);
+ConstantBuffer<Materials> materials   : register(b2);
+Texture2D                 textures[3] : register(t3);
+SamplerState              sampler     : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;
@@ -56,6 +61,8 @@ VertexOutput vertexMain(VertexInput input) {
 
 FragmentOutput fragmentMain(VertexOutput input) {
     FragmentOutput output;
+    Material material = materials.materials[pushConstants.materialIndex];
+
     float3x3 TBN = (float3x3(input.tangent, input.bitangent, input.normal));
     float4 color = textures[material.diffuseTextureIndex].Sample(sampler, input.uv);
     float3 normal = textures[material.normalTextureIndex].Sample(sampler, input.uv).rgb;

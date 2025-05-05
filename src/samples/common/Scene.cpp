@@ -29,22 +29,34 @@ namespace samples {
         uploadCommandList->upload(vertexBuffer, &cubeVertices[0]);
         uploadCommandList->upload(indexBuffer, &cubeIndices[0]);
 
-        material.diffuseTextureIndex = textures.size();
+        models.resize(2);
+        materials.resize(2);
+
+        materials[MATERIAL_ROCKS].diffuseTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_SRGB,
             "gray_rocks_diff_1k.jpg"));
-        material.normalTextureIndex = textures.size();
+        materials[MATERIAL_ROCKS].normalTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM,
             "gray_rocks_nor_gl_1k.jpg"));
-        material.aoTextureIndex = textures.size();
+        materials[MATERIAL_ROCKS].aoTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
             "gray_rocks_ao_1k.jpg"));
+
+        materials[MATERIAL_PLATE].diffuseTextureIndex = textures.size();
+        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_SRGB,
+            "metal_plate_diff_1k.jpg"));
+        materials[MATERIAL_PLATE].normalTextureIndex = textures.size();
+        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM,
+            "metal_plate_nor_gl_1k.jpg"));
+        materials[MATERIAL_PLATE].aoTextureIndex = textures.size();
+        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
+            "metal_plate_ao_1k.jpg"));
 
         global.view = glm::lookAt(global.cameraPosition, cameraTarget, up);
         global.viewInverse = glm::inverse(global.view);
         global.projection = glm::perspective(glm::radians(75.0f), aspectRatio, 0.1f, 100.0f);
 
         static constexpr float angle = glm::radians(-45.0f);
-        models.resize(2);
         for (auto& model : models) {
             model.transform = glm::rotate(model.transform, angle, AXIS_X);
             model.transform = glm::rotate(model.transform, angle, AXIS_Y);

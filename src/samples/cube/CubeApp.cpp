@@ -93,9 +93,9 @@ namespace samples {
             frame.colorBuffer);
 
         cmdList->barrier(
-            depthPrepass.getDepthBuffer(frameIndex),
-                    vireo::ResourceState::RENDER_TARGET_DEPTH_READ,
-            vireo::ResourceState::UNDEFINED);
+                depthPrepass.getDepthBuffer(frameIndex),
+                vireo::ResourceState::RENDER_TARGET_DEPTH,
+                vireo::ResourceState::UNDEFINED);
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::UNDEFINED,

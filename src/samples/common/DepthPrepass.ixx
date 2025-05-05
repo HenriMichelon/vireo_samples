@@ -60,11 +60,11 @@ export namespace samples {
             .stencilTestEnable   = false,
             .frontStencilOpState = {
                 .failOp      = vireo::StencilOp::KEEP,
-                .passOp      = vireo::StencilOp::REPLACE,
+                .passOp      = vireo::StencilOp::KEEP,
                 .depthFailOp = vireo::StencilOp::KEEP,
-                .compareOp   = vireo::CompareOp::ALWAYS,
+                .compareOp   = vireo::CompareOp::EQUAL,
                 .compareMask = 0xff,
-                .writeMask   = 0xff
+                .writeMask   = 0x00
             }
         };
         vireo::RenderingConfiguration renderingConfig {

@@ -16,6 +16,8 @@ export namespace samples {
     public:
         static constexpr auto MODEL_OPAQUE{0};
         static constexpr auto MODEL_TRANSPARENT{1};
+        static constexpr auto MATERIAL_ROCKS{0};
+        static constexpr auto MATERIAL_PLATE{1};
 
         void onInit(
             const std::shared_ptr<vireo::Vireo>& vireo,
@@ -26,15 +28,14 @@ export namespace samples {
 
         void drawCube(const std::shared_ptr<vireo::CommandList>& cmdList) const;
 
-        auto& getModels() const { return models; }
-        auto& getGlobal() const { return global; }
-        const auto& getMaterial() const { return material; }
+        const auto& getGlobal() const { return global; }
+        const auto& getModels() const { return models; }
+        const auto& getMaterials() const { return materials; }
         const auto& getLight() const { return light; }
         const auto& getTextures() const { return textures; }
 
     private:
         Global     global{};
-        Material   material{};
         Light      light{};
         bool       rotateCube{true};
         float      cubeYRotationAngle{0.0f};
@@ -42,6 +43,7 @@ export namespace samples {
         glm::vec3  cameraTarget{0.0f, 0.0f, 0.0f};
 
         std::vector<Model>                         models;
+        std::vector<Material>                      materials;
         std::shared_ptr<vireo::Vireo>              vireo;
         std::shared_ptr<vireo::Buffer>             vertexBuffer;
         std::shared_ptr<vireo::Buffer>             indexBuffer;

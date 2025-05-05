@@ -39,19 +39,20 @@ export namespace samples {
             std::shared_ptr<vireo::Buffer>        materialUniform;
             std::shared_ptr<vireo::Buffer>        lightUniform;
             std::shared_ptr<vireo::DescriptorSet> descriptorSet;
-            std::shared_ptr<vireo::DescriptorSet> modeDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> modelsDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> materialsDescriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex SET_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
-        static constexpr vireo::DescriptorIndex BINDING_MATERIAL{1};
-        static constexpr vireo::DescriptorIndex BINDING_LIGHT{2};
-        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{3};
+        static constexpr vireo::DescriptorIndex BINDING_LIGHT{1};
+        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{2};
 
         static constexpr vireo::DescriptorIndex SET_SAMPLERS{1};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         static constexpr vireo::DescriptorIndex SET_MODELS{2};
+        static constexpr vireo::DescriptorIndex SET_MATERIALS{3};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
                 {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
@@ -63,7 +64,7 @@ export namespace samples {
             .colorBlendDesc   = {{}},
             .cullMode         = vireo::CullMode::BACK,
             .depthTestEnable  = true,
-            .depthWriteEnable = false,
+            .depthWriteEnable = true,
         };
         vireo::RenderingConfiguration renderingConfig {
              .colorRenderTargets = {{
@@ -77,7 +78,8 @@ export namespace samples {
         std::shared_ptr<vireo::Pipeline>         opaquePipeline;
         std::shared_ptr<vireo::Sampler>          sampler;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        std::shared_ptr<vireo::DescriptorLayout> modelDescriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> modelsDescriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> materialsDescriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
         std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
     };

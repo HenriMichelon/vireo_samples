@@ -52,9 +52,9 @@ namespace samples {
             frame.globalUniform->map();
             frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model) * scene.getModels().size());
             frame.modelUniform->map();
-            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material));
+            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material) * scene.getMaterials().size());
             frame.materialUniform->map();
-            frame.materialUniform->write(&scene.getMaterial());
+            frame.materialUniform->write(scene.getMaterials().data());
             frame.materialUniform->unmap();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"GBuffer");
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
@@ -100,9 +100,7 @@ namespace samples {
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
 
         pushConstants.modelIndex = Scene::MODEL_OPAQUE;
-        cmdList->pushConstants(pipelineConfig.resources, pushConstantsDesc, &pushConstants);
-        scene.drawCube(cmdList);
-        pushConstants.modelIndex = Scene::MODEL_TRANSPARENT;
+        pushConstants.materialIndex = Scene::MATERIAL_ROCKS;
         cmdList->pushConstants(pipelineConfig.resources, pushConstantsDesc, &pushConstants);
         scene.drawCube(cmdList);
 

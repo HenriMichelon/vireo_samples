@@ -47,15 +47,15 @@ export namespace samples {
     };
 
     struct Light {
-        glm::vec3 direction{1.0f, -.25f, -.5f};
+        alignas(16) glm::vec3 direction{1.0f, -.25f, -.5f};
         alignas(16) glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f}; // RGB + strength
     };
 
     struct Material {
-        float   shininess{128.f};
-        int32_t diffuseTextureIndex{-1};
-        int32_t normalTextureIndex{-1};
-        int32_t aoTextureIndex{-1};
+        alignas(16) float   shininess{128.f};
+        alignas(4) int32_t diffuseTextureIndex{-1};
+        alignas(4) int32_t normalTextureIndex{-1};
+        alignas(4) int32_t aoTextureIndex{-1};
     };
 
 }

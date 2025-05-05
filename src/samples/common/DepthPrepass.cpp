@@ -85,9 +85,6 @@ namespace samples {
         cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE);
         scene.drawCube(cmdList);
-        cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, SET_MODELS,
-            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT);
-        scene.drawCube(cmdList);
         cmdList->endRendering();
         cmdList->end();
         graphicQueue->submit(

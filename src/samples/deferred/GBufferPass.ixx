@@ -48,6 +48,7 @@ export namespace samples {
 
         struct PushConstants {
             uint32_t modelIndex;
+            uint32_t materialIndex;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
@@ -62,7 +63,7 @@ export namespace samples {
         static constexpr int BUFFER_MATERIAL{3};
 
         static constexpr auto pushConstantsDesc = vireo::PushConstantsDesc {
-            .stage = vireo::ShaderStage::VERTEX,
+            .stage = vireo::ShaderStage::ALL,
             .size = sizeof(PushConstants),
         };
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes {
@@ -84,11 +85,11 @@ export namespace samples {
             .depthWriteEnable    = false,
             .frontStencilOpState = {
                 .failOp      = vireo::StencilOp::KEEP,
-                .passOp      = vireo::StencilOp::KEEP,
+                .passOp      = vireo::StencilOp::REPLACE,
                 .depthFailOp = vireo::StencilOp::KEEP,
-                .compareOp   = vireo::CompareOp::EQUAL,
+                .compareOp   = vireo::CompareOp::GREATER_OR_EQUAL,
                 .compareMask = 0xff,
-                .writeMask   = 0x00
+                .writeMask   = 0xff
             }
         };
         vireo::RenderingConfiguration renderingConfig {
