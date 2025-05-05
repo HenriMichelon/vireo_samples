@@ -46,7 +46,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_MATERIAL{1};
         static constexpr vireo::DescriptorIndex BINDING_LIGHT{2};
         static constexpr vireo::DescriptorIndex BINDING_TEXTURES{3};
-        static constexpr vireo::DescriptorIndex BINDING_MODEL{0};
+        static constexpr vireo::DescriptorIndex BINDING_MODELS{0};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{

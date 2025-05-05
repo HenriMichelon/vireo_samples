@@ -21,9 +21,7 @@ namespace samples {
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->build();
 
-        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
-        modelDescriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM_DYNAMIC);
-        modelDescriptorLayout->build();
+        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout(BINDING_MODEL);
 
         if (withStencil) {
             this->withStencil = true;

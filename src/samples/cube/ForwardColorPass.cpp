@@ -29,9 +29,7 @@ namespace samples {
         samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplerDescriptorLayout->build();
 
-        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
-        modelDescriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM_DYNAMIC);
-        modelDescriptorLayout->build();
+        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout(BINDING_MODELS);
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
@@ -69,7 +67,7 @@ namespace samples {
             frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
             frame.modeDescriptorSet = vireo->createDescriptorSet(modelDescriptorLayout);
-            frame.modeDescriptorSet->update(BINDING_MODEL, frame.modelUniform);
+            frame.modeDescriptorSet->update(BINDING_MODELS, frame.modelUniform);
         }
 
         samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
