@@ -30,7 +30,7 @@ namespace samples {
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM, scene.getModels().size());
+        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
@@ -38,7 +38,9 @@ namespace samples {
         pipelineConfig.depthImageFormat = depthPrepass.getFormat();
         pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
         pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
-        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
+        pipelineConfig.resources = vireo->createPipelineResources(
+            { descriptorLayout, samplerDescriptorLayout },
+            pushConstantsDesc);
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred_gbuffer.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/deferred_gbuffer.frag");
@@ -48,7 +50,7 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalUniform->map();
-            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), scene.getModels().size());
+            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model) * scene.getModels().size());
             frame.modelUniform->map();
             frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material));
             frame.materialUniform->map();
@@ -96,7 +98,14 @@ namespace samples {
         cmdList->setStencilReference(1);
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
+
+        pushConstants.modelIndex = Scene::MODEL_OPAQUE;
+        cmdList->pushConstants(pipelineConfig.resources, pushConstantsDesc, &pushConstants);
         scene.drawCube(cmdList);
+        pushConstants.modelIndex = Scene::MODEL_TRANSPARENT;
+        cmdList->pushConstants(pipelineConfig.resources, pushConstantsDesc, &pushConstants);
+        scene.drawCube(cmdList);
+
         cmdList->endRendering();
         cmdList->barrier(
             {renderTargets.begin(), renderTargets.end()},

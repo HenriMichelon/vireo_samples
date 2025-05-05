@@ -49,9 +49,11 @@ The samples demonstrate the following features, in order of complexity:
   - Cubemap and skybox
   - Post-processing example for FXAA and a voronoi effect
   - Semaphore synchronization
+  - Dynamic uniform buffers
   - Slang examples for an MVP vertex shader, a Phong fragment shader, a skybox, a FXAA post-processing effect and a voronoi post-processing effect.
 - Deferred, same as Cube with :
   - Gbuffers and deferred lighting passes
   - Stencil buffer
   - Post-processing example for gamma correction
+  - Push constants used in replacement of dynamic uniform buffers
   - Slang examples for the gbuffers pass, the lighting pass and the gamma post-processing

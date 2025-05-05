@@ -46,6 +46,10 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  materialBuffer;
         };
 
+        struct PushConstants {
+            uint32_t modelIndex;
+        };
+
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
         static constexpr vireo::DescriptorIndex BINDING_MATERIAL{2};
@@ -57,6 +61,10 @@ export namespace samples {
         static constexpr int BUFFER_ALBEDO{2};
         static constexpr int BUFFER_MATERIAL{3};
 
+        static constexpr auto pushConstantsDesc = vireo::PushConstantsDesc {
+            .stage = vireo::ShaderStage::VERTEX,
+            .size = sizeof(PushConstants),
+        };
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes {
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
             {"NORMAL",   vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
@@ -92,6 +100,7 @@ export namespace samples {
             },
         };
 
+        PushConstants                            pushConstants{};
         std::vector<FrameData>                   framesData;
         std::shared_ptr<vireo::Vireo>            vireo;
         std::shared_ptr<vireo::Pipeline>         pipeline;
