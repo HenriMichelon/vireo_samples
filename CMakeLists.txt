@@ -168,12 +168,14 @@ set(DEFERRED_SRC
         ${SRC_DIR}/samples/deferred/DeferredAppMain.cpp
         ${SRC_DIR}/samples/deferred/GBufferPass.cpp
         ${SRC_DIR}/samples/deferred/LightingPass.cpp
+        ${SRC_DIR}/samples/deferred/TransparencyPass.cpp
         ${SCENE_COMMON_SRC}
 )
 set(DEFERRED_MODULES
         ${SRC_DIR}/samples/deferred/DeferredApp.ixx
         ${SRC_DIR}/samples/deferred/GBufferPass.ixx
         ${SRC_DIR}/samples/deferred/LightingPass.ixx
+        ${SRC_DIR}/samples/deferred/TransparencyPass.ixx
         ${SCENE_COMMON_MODULES}
 )
 build_target(deferred "${DEFERRED_SRC}" "${DEFERRED_MODULES}")

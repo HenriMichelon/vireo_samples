@@ -1,0 +1,125 @@
+/*
+* Copyright (c) 2025-present Henri Michelon
+*
+* This software is released under the MIT License.
+* https://opensource.org/licenses/MIT
+*/
+module;
+#include "Libraries.h"
+export module samples.deferred.oitpass;
+
+import samples.common.global;
+import samples.common.depthprepass;
+import samples.common.scene;
+import samples.deferred.gbuffer;
+
+export namespace samples {
+    class TransparencyPass {
+    public:
+        void onInit(
+           const std::shared_ptr<vireo::Vireo>& vireo,
+           vireo::ImageFormat renderFormat,
+           const Scene& scene,
+           const DepthPrepass& depthPrepass,
+           uint32_t framesInFlight);
+        void onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList);
+        void onRender(
+            uint32_t frameIndex,
+            const vireo::Extent& extent,
+            const Scene& scene,
+            const DepthPrepass& depthPrepass,
+            const GBufferPass& gBufferPass,
+            const std::shared_ptr<vireo::CommandList>& cmdList,
+            const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
+        void onDestroy();
+
+    private:
+        struct FrameData {
+            std::shared_ptr<vireo::Buffer>        globalUniform;
+            std::shared_ptr<vireo::Buffer>        lightUniform;
+            std::shared_ptr<vireo::DescriptorSet> oitDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> compositeDescriptorSet;
+            std::shared_ptr<vireo::RenderTarget>  accumColorBuffer;
+            std::shared_ptr<vireo::RenderTarget>  accumAlphaBuffer;
+        };
+
+        struct PushConstants {
+            uint32_t modelIndex;
+            uint32_t materialIndex;
+        };
+
+        static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
+        static constexpr vireo::DescriptorIndex BINDING_LIGHT{1};
+
+        static constexpr vireo::DescriptorIndex BINDING_COLOR_BUFFER{0};
+        static constexpr vireo::DescriptorIndex BINDING_ALPHA_BUFFER{1};
+
+        static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
+
+        static constexpr auto pushConstantsDesc = vireo::PushConstantsDesc {
+            .stage = vireo::ShaderStage::ALL,
+            .size = sizeof(PushConstants),
+        };
+        const std::vector<vireo::VertexAttributeDesc> vertexAttributes {
+                {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
+                {"NORMAL",   vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
+                {"UV",       vireo::AttributeFormat::R32G32_FLOAT,    offsetof(Vertex, uv)},
+                {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,   offsetof(Vertex, tangent)},
+            };
+
+        vireo::GraphicPipelineConfiguration oitPipelineConfig {
+            .colorRenderFormats  = {
+                vireo::ImageFormat::R16G16B16A16_SFLOAT, // Color accumulation
+                vireo::ImageFormat::R16_SFLOAT,          // Alpha accumulation
+            },
+            .colorBlendDesc = {
+                {
+                    .blendEnable = true,
+                    .srcColorBlendFactor = vireo::BlendFactor::ONE,
+                    .dstColorBlendFactor = vireo::BlendFactor::ONE,
+                    .colorBlendOp = vireo::BlendOp::ADD,
+                    .srcAlphaBlendFactor = vireo::BlendFactor::ZERO,
+                    .dstAlphaBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
+                    .alphaBlendOp = vireo::BlendOp::ADD,
+                    .colorWriteMask = vireo::ColorWriteMask::ALL,
+                },
+                {
+                    .blendEnable = true,
+                    .srcColorBlendFactor = vireo::BlendFactor::ZERO,
+                    .dstColorBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
+                    .colorBlendOp = vireo::BlendOp::ADD,
+                    .srcAlphaBlendFactor = vireo::BlendFactor::ONE,
+                    .dstAlphaBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
+                    .alphaBlendOp = vireo::BlendOp::ADD,
+                    .colorWriteMask = vireo::ColorWriteMask::RED,
+                }},
+            .depthTestEnable = true,
+            .depthWriteEnable = false
+        };
+        vireo::RenderingConfiguration oitRenderingConfig {
+            .colorRenderTargets = {{}},
+            .depthTestEnable = oitPipelineConfig.depthTestEnable,
+            .discardDepthStencilAfterRender = true,
+        };
+
+        vireo::GraphicPipelineConfiguration compositePipelineConfig {
+            .colorBlendDesc = {{}},
+            .depthTestEnable = true,
+            .depthWriteEnable = false
+        };
+        vireo::RenderingConfiguration compositeRenderingConfig {
+            .colorRenderTargets = {{}},
+        };
+
+        PushConstants                            pushConstants{};
+        std::vector<FrameData>                   framesData;
+        std::shared_ptr<vireo::Vireo>            vireo;
+        std::shared_ptr<vireo::Pipeline>         oitPipeline;
+        std::shared_ptr<vireo::Pipeline>         compositePipeline;
+        std::shared_ptr<vireo::Sampler>          sampler;
+        std::shared_ptr<vireo::DescriptorLayout> oitDescriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> compositeDescriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
+        std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
+    };
+}
