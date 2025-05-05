@@ -41,7 +41,7 @@ namespace samples {
             { descriptorLayout, samplerDescriptorLayout },
             pushConstantsDesc);
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
-        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred_gbuffer.vert");
+        pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/deferred_gbuffer.frag");
         pipeline = vireo->createGraphicPipeline(pipelineConfig);
 

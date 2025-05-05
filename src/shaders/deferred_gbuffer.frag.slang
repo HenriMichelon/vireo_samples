@@ -14,10 +14,6 @@ struct FragmentOutput {
     float2   material : SV_TARGET3; // r=shininess, g=AO
 };
 
-struct Models {
-    Model models[2];
-}
-
 struct Materials {
     Material materials[2];
 }
@@ -30,34 +26,9 @@ struct PushConstants {
 [[push_constant]]
 PushConstants pushConstants : register(b0, space2);
 
-ConstantBuffer<Global>    global      : register(b0);
-ConstantBuffer<Models>    models      : register(b1);
 ConstantBuffer<Materials> materials   : register(b2);
 Texture2D                 textures[5] : register(t3);
 SamplerState              sampler     : register(s0, space1);
-
-VertexOutput vertexMain(VertexInput input) {
-    VertexOutput output;
-    float4x4 model = models.models[pushConstants.modelIndex].transform;
-
-    float4 localPos = float4(input.position, 1.0);
-    float4 worldPos = mul(model, localPos);
-    output.worldPos = worldPos.xyz;
-
-    float4 viewPos = mul(global.view, worldPos);
-    output.position = mul(global.projection, viewPos);
-
-    float3 normalW = mul((float3x3)model, input.normal);
-    output.normal = normalize(normalW);
-
-    float3 tangentW = mul((float3x3)model, input.tangent);
-    float3 bitangentW = normalize(cross(normalW, tangentW));
-    output.tangent = normalize(tangentW);
-    output.bitangent = bitangentW;
-
-    output.uv = input.uv;
-    return output;
-}
 
 FragmentOutput fragmentMain(VertexOutput input) {
     FragmentOutput output;

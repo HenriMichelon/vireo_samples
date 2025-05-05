@@ -62,7 +62,6 @@ export namespace samples {
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{}},
             .stencilTestEnable = pipelineConfig.stencilTestEnable,
-            .discardDepthStencilAfterRender = true,
         };
 
         std::vector<FrameData>                   framesData;
