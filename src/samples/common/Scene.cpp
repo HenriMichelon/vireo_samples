@@ -54,21 +54,21 @@ namespace samples {
         global.projection = glm::perspective(glm::radians(75.0f), aspectRatio, 0.1f, 100.0f);
 
         static constexpr float angle = glm::radians(-45.0f);
-        for (auto& model : models) {
-            model.transform = glm::rotate(model.transform, angle, AXIS_X);
-            model.transform = glm::rotate(model.transform, angle, AXIS_Y);
-        }
+        models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle, AXIS_X);
+        models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle, AXIS_Y);
+        models[MODEL_TRANSPARENT].transform =
+                glm::rotate(glm::mat4{1.0f}, cubeYRotationAngle, AXIS_Y) *
+                glm::translate(glm::mat4{1.0f}, radius_transparent) *
+                glm::scale(glm::mat4{1.0f}, scale_transparent) *
+                glm::rotate(models[MODEL_OPAQUE].transform, -angle, AXIS_X) *
+                glm::rotate(models[MODEL_OPAQUE].transform, -angle, AXIS_X);
     }
 
     void Scene::onUpdate() {
         if (rotateCube) {
-            static constexpr float angle_opaque = glm::radians(-0.1);
             models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle_opaque, AXIS_X);
             models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle_opaque, AXIS_Y);
 
-            static constexpr float angle_transparent = glm::radians(1.0);
-            static constexpr auto scale_transparent = glm::vec3{0.25f, 0.25f, 0.25f};
-            static constexpr auto radius_transparent = glm::vec3{1.25f, 0.0f, 0.0f};
             cubeYRotationAngle += angle_transparent;
             models[MODEL_TRANSPARENT].transform =
                 glm::rotate(glm::mat4{1.0f}, cubeYRotationAngle, AXIS_Y) *

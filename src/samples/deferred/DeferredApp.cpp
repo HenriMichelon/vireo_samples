@@ -41,6 +41,7 @@ namespace samples {
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
         depthPrepass.onInit(vireo, scene, true, swapChain->getFramesInFlight());
         lightingPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, swapChain->getFramesInFlight());
+        transparencyPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, swapChain->getFramesInFlight());
         skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});
@@ -99,6 +100,13 @@ namespace samples {
             gbufferPass,
             cmdList,
             frame.colorBuffer);
+        transparencyPass.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            scene,
+            depthPrepass,
+            cmdList,
+            frame.colorBuffer);
         cmdList->barrier(
            frame.colorBuffer,
            vireo::ResourceState::RENDER_TARGET_COLOR,
@@ -154,6 +162,7 @@ namespace samples {
         depthPrepass.onResize(extent);
         postProcessing.onResize(extent);
         gbufferPass.onResize(extent, cmdList);
+        transparencyPass.onResize(extent, cmdList);
         cmdList->end();
         graphicQueue->submit({cmdList});
         graphicQueue->waitIdle();

@@ -11,7 +11,7 @@ Texture2D inputImage           : register(t1);
 SamplerState sampler           : register(s0, space1);
 
 float3 fxaa(Texture2D tex, const float2 uv, const float2 texelSize) {
-    const float spanMax   = 8.0;
+    const float spanMax   = 6.0;
     const float reduceMul = 1.0/8.0;
     const float reduceMin = 1.0/128.0;
 

@@ -35,10 +35,16 @@ export namespace samples {
         const auto& getTextures() const { return textures; }
 
     private:
+        static constexpr float angle_opaque = glm::radians(-0.1);
+        static constexpr float angle_transparent = glm::radians(0.5);
+        static constexpr auto scale_transparent = glm::vec3{0.25f, 0.25f, 0.25f};
+        static constexpr auto radius_transparent = glm::vec3{1.25f, 0.0f, 0.0f};
+
+
         Global     global{};
         Light      light{};
-        bool       rotateCube{true};
-        float      cubeYRotationAngle{0.0f};
+        bool       rotateCube{false};
+        float      cubeYRotationAngle{glm::radians(-45.0f)};
         float      cameraYRotationAngle{0.0f};
         glm::vec3  cameraTarget{0.0f, 0.0f, 0.0f};
 

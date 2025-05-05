@@ -31,7 +31,10 @@ namespace samples {
 
         oitDescriptorLayout = vireo->createDescriptorLayout();
         oitDescriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
+        oitDescriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM);
         oitDescriptorLayout->add(BINDING_LIGHT, vireo::DescriptorType::UNIFORM);
+        oitDescriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::UNIFORM);
+        oitDescriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         oitDescriptorLayout->build();
 
         oitPipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
@@ -58,6 +61,12 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalUniform->map();
+            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model) * scene.getModels().size());
+            frame.modelUniform->map();
+            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material) * scene.getMaterials().size());
+            frame.materialUniform->map();
+            frame.materialUniform->write(scene.getMaterials().data());
+            frame.materialUniform->unmap();
             frame.lightUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light));
             frame.lightUniform->map();
             auto light = scene.getLight();
@@ -65,7 +74,10 @@ namespace samples {
             frame.lightUniform->unmap();
             frame.oitDescriptorSet = vireo->createDescriptorSet(oitDescriptorLayout);
             frame.oitDescriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
+            frame.oitDescriptorSet->update(BINDING_MODEL, frame.modelUniform);
             frame.oitDescriptorSet->update(BINDING_LIGHT, frame.lightUniform);
+            frame.oitDescriptorSet->update(BINDING_MATERIAL, frame.materialUniform);
+            frame.oitDescriptorSet->update(BINDING_TEXTURES, scene.getTextures());
             frame.compositeDescriptorSet = vireo->createDescriptorSet(compositeDescriptorLayout);
         }
 
@@ -78,15 +90,16 @@ namespace samples {
         const vireo::Extent& extent,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
-        const GBufferPass& gBufferPass,
         const std::shared_ptr<vireo::CommandList>& cmdList,
         const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
 
         frame.globalUniform->write(&scene.getGlobal());
+        frame.modelUniform->write(scene.getModels().data());
 
         oitRenderingConfig.colorRenderTargets[BINDING_COLOR_BUFFER].renderTarget = frame.accumColorBuffer;
         oitRenderingConfig.colorRenderTargets[BINDING_ALPHA_BUFFER].renderTarget = frame.accumAlphaBuffer;
+        oitRenderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         cmdList->barrier(
             {frame.accumColorBuffer, frame.accumAlphaBuffer},
@@ -110,24 +123,20 @@ namespace samples {
             {frame.accumColorBuffer, frame.accumAlphaBuffer},
             vireo::ResourceState::RENDER_TARGET_COLOR,
             vireo::ResourceState::SHADER_READ);
-/*
-        frame.descriptorSet->update(BINDING_POSITION_BUFFER, gBufferPass.getPositionBuffer(frameIndex)->getImage());
-        frame.descriptorSet->update(BINDING_NORMAL_BUFFER, gBufferPass.getNormalBuffer(frameIndex)->getImage());
-        frame.descriptorSet->update(BINDING_ALBEDO_BUFFER, gBufferPass.getAlbedoBuffer(frameIndex)->getImage());
-        frame.descriptorSet->update(BINDING_MATERIAL_BUFFER, gBufferPass.getMaterialBuffer(frameIndex)->getImage());
 
-        renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
-        renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
+        frame.compositeDescriptorSet->update(BINDING_COLOR_BUFFER, frame.accumColorBuffer->getImage());
+        frame.compositeDescriptorSet->update(BINDING_ALPHA_BUFFER, frame.accumAlphaBuffer->getImage());
 
-        cmdList->beginRendering(renderingConfig);
+        compositeRenderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
+
+        cmdList->beginRendering(compositeRenderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
-        cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
-        cmdList->bindPipeline(pipeline);
-        cmdList->setStencilReference(1);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
+        cmdList->setDescriptors({frame.compositeDescriptorSet, samplerDescriptorSet});
+        cmdList->bindPipeline(compositePipeline);
+        cmdList->bindDescriptors(compositePipeline, {frame.compositeDescriptorSet, samplerDescriptorSet});
         cmdList->draw(3);
-        cmdList->endRendering();*/
+        cmdList->endRendering();
     }
 
     void TransparencyPass::onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList) {

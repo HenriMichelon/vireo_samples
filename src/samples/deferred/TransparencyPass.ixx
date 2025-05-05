@@ -28,7 +28,6 @@ export namespace samples {
             const vireo::Extent& extent,
             const Scene& scene,
             const DepthPrepass& depthPrepass,
-            const GBufferPass& gBufferPass,
             const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
         void onDestroy();
@@ -36,7 +35,9 @@ export namespace samples {
     private:
         struct FrameData {
             std::shared_ptr<vireo::Buffer>        globalUniform;
+            std::shared_ptr<vireo::Buffer>        modelUniform;
             std::shared_ptr<vireo::Buffer>        lightUniform;
+            std::shared_ptr<vireo::Buffer>        materialUniform;
             std::shared_ptr<vireo::DescriptorSet> oitDescriptorSet;
             std::shared_ptr<vireo::DescriptorSet> compositeDescriptorSet;
             std::shared_ptr<vireo::RenderTarget>  accumColorBuffer;
@@ -49,7 +50,10 @@ export namespace samples {
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
-        static constexpr vireo::DescriptorIndex BINDING_LIGHT{1};
+        static constexpr vireo::DescriptorIndex BINDING_MODEL{1};
+        static constexpr vireo::DescriptorIndex BINDING_LIGHT{2};
+        static constexpr vireo::DescriptorIndex BINDING_MATERIAL{3};
+        static constexpr vireo::DescriptorIndex BINDING_TEXTURES{4};
 
         static constexpr vireo::DescriptorIndex BINDING_COLOR_BUFFER{0};
         static constexpr vireo::DescriptorIndex BINDING_ALPHA_BUFFER{1};
@@ -78,18 +82,18 @@ export namespace samples {
                     .srcColorBlendFactor = vireo::BlendFactor::ONE,
                     .dstColorBlendFactor = vireo::BlendFactor::ONE,
                     .colorBlendOp = vireo::BlendOp::ADD,
-                    .srcAlphaBlendFactor = vireo::BlendFactor::ZERO,
-                    .dstAlphaBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
+                    .srcAlphaBlendFactor = vireo::BlendFactor::ONE,
+                    .dstAlphaBlendFactor = vireo::BlendFactor::ONE,
                     .alphaBlendOp = vireo::BlendOp::ADD,
                     .colorWriteMask = vireo::ColorWriteMask::ALL,
                 },
                 {
                     .blendEnable = true,
                     .srcColorBlendFactor = vireo::BlendFactor::ZERO,
-                    .dstColorBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
+                    .dstColorBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_COLOR,
                     .colorBlendOp = vireo::BlendOp::ADD,
                     .srcAlphaBlendFactor = vireo::BlendFactor::ONE,
-                    .dstAlphaBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
+                    .dstAlphaBlendFactor = vireo::BlendFactor::ONE,
                     .alphaBlendOp = vireo::BlendOp::ADD,
                     .colorWriteMask = vireo::ColorWriteMask::RED,
                 }},
@@ -97,14 +101,34 @@ export namespace samples {
             .depthWriteEnable = false
         };
         vireo::RenderingConfiguration oitRenderingConfig {
-            .colorRenderTargets = {{}},
+            .colorRenderTargets = {
+                {
+                    .clear = true,
+                    .clearValue = {0.0f, 0.0f, 0.0f, 0.0f},
+                },
+                {
+                    .clear = true,
+                    .clearValue = {1.0f, 0.0f, 0.0f, 0.0f},
+                }
+            },
             .depthTestEnable = oitPipelineConfig.depthTestEnable,
             .discardDepthStencilAfterRender = true,
         };
 
         vireo::GraphicPipelineConfiguration compositePipelineConfig {
-            .colorBlendDesc = {{}},
-            .depthTestEnable = true,
+            .colorBlendDesc = {
+                {
+                        .blendEnable = true,
+                        .srcColorBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
+                        .dstColorBlendFactor = vireo::BlendFactor::ONE,
+                        .colorBlendOp = vireo::BlendOp::ADD,
+                        .srcAlphaBlendFactor = vireo::BlendFactor::ONE,
+                        .dstAlphaBlendFactor = vireo::BlendFactor::ONE,
+                        .alphaBlendOp = vireo::BlendOp::ADD,
+                        .colorWriteMask = vireo::ColorWriteMask::ALL,
+                }
+            },
+            .depthTestEnable = false,
             .depthWriteEnable = false
         };
         vireo::RenderingConfiguration compositeRenderingConfig {

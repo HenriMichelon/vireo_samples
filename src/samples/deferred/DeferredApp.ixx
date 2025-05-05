@@ -15,6 +15,7 @@ import samples.common.skybox;
 import samples.common.postprocessing;
 import samples.deferred.gbuffer;
 import samples.deferred.lightingpass;
+import samples.deferred.oitpass;
 
 export namespace samples {
 
@@ -43,6 +44,7 @@ export namespace samples {
         PostProcessing                      postProcessing;
         GBufferPass                         gbufferPass;
         LightingPass                        lightingPass;
+        TransparencyPass                    transparencyPass;
         std::vector<FrameData>              framesData;
         std::shared_ptr<vireo::SwapChain>   swapChain;
         std::shared_ptr<vireo::SubmitQueue> graphicQueue;
