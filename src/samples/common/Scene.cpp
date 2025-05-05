@@ -42,15 +42,12 @@ namespace samples {
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
             "gray_rocks_ao_1k.jpg"));
 
-        materials[MATERIAL_PLATE].diffuseTextureIndex = textures.size();
+        materials[MATERIAL_GRID].diffuseTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_SRGB,
-            "metal_plate_diff_1k.jpg"));
-        materials[MATERIAL_PLATE].normalTextureIndex = textures.size();
+            "Net004A_1K-JPG_Color.png"));
+        materials[MATERIAL_GRID].normalTextureIndex = textures.size();
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM,
-            "metal_plate_nor_gl_1k.jpg"));
-        materials[MATERIAL_PLATE].aoTextureIndex = textures.size();
-        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
-            "metal_plate_ao_1k.jpg"));
+            "Net004A_1K-JPG_NormalGL.jpg"));
 
         global.view = glm::lookAt(global.cameraPosition, cameraTarget, up);
         global.viewInverse = glm::inverse(global.view);
@@ -76,7 +73,9 @@ namespace samples {
             models[MODEL_TRANSPARENT].transform =
                 glm::rotate(glm::mat4{1.0f}, cubeYRotationAngle, AXIS_Y) *
                 glm::translate(glm::mat4{1.0f}, radius_transparent) *
-                glm::scale(glm::mat4{1.0f}, scale_transparent);
+                glm::scale(glm::mat4{1.0f}, scale_transparent) *
+                glm::rotate(models[MODEL_OPAQUE].transform, -angle_opaque, AXIS_X) *
+                glm::rotate(models[MODEL_OPAQUE].transform, -angle_opaque, AXIS_X);
         }
     }
 
@@ -84,7 +83,7 @@ namespace samples {
         const auto keyCode = static_cast<KeyCodes>(key);
         glm::vec3 axis;
         auto angle = glm::radians(2.0f);
-        // cout << "key: " << key << endl;
+        // std::cout << "key: " << key << std::endl;
         switch (keyCode) {
         case KeyCodes::SPACE:
             rotateCube = !rotateCube;
@@ -95,6 +94,14 @@ namespace samples {
             return;
         case KeyCodes::S:
             global.cameraPosition.z += 0.1f;
+            global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
+            return;
+        case KeyCodes::A:
+            global.cameraPosition.x -= 0.1f;
+            global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
+            return;
+        case KeyCodes::D:
+            global.cameraPosition.x += 0.1f;
             global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
             return;
         case KeyCodes::LEFT:

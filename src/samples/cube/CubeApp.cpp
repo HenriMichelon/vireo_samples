@@ -70,13 +70,10 @@ namespace samples {
         const auto cmdList = frame.commandList;
         cmdList->begin();
 
-        colorPass.onRender(
-            frameIndex,
-            swapChain->getExtent(),
-            scene,
-            depthPrepass,
-            cmdList,
-            frame.colorBuffer);
+        cmdList->barrier(
+         frame.colorBuffer,
+         vireo::ResourceState::UNDEFINED,
+         vireo::ResourceState::RENDER_TARGET_COLOR);
 
         skybox.onRender(
             frameIndex,
@@ -85,6 +82,14 @@ namespace samples {
             depthPrepass,
             frame.colorBuffer,
             cmdList);
+
+        colorPass.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            scene,
+            depthPrepass,
+            cmdList,
+            frame.colorBuffer);
 
         postProcessing.onRender(
             frameIndex,

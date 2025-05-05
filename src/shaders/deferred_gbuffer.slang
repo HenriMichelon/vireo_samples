@@ -33,7 +33,7 @@ PushConstants pushConstants : register(b0, space2);
 ConstantBuffer<Global>    global      : register(b0);
 ConstantBuffer<Models>    models      : register(b1);
 ConstantBuffer<Materials> materials   : register(b2);
-Texture2D                 textures[3] : register(t3);
+Texture2D                 textures[5] : register(t3);
 SamplerState              sampler     : register(s0, space1);
 
 VertexOutput vertexMain(VertexInput input) {
@@ -66,7 +66,12 @@ FragmentOutput fragmentMain(VertexOutput input) {
     float3x3 TBN = (float3x3(input.tangent, input.bitangent, input.normal));
     float4 color = textures[material.diffuseTextureIndex].Sample(sampler, input.uv);
     float3 normal = textures[material.normalTextureIndex].Sample(sampler, input.uv).rgb;
-    float ao = textures[material.aoTextureIndex].Sample(sampler, input.uv).r;
+    float ao;
+    if (material.aoTextureIndex != -1) {
+        ao = textures[material.aoTextureIndex].Sample(sampler, input.uv).r;
+    } else {
+        ao = 1.0;
+    }
     float3 N = normalize(normal * 2.0 - 1.0);
     N = normalize(mul(TBN, N));
 

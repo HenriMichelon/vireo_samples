@@ -17,7 +17,7 @@ export namespace samples {
         static constexpr auto MODEL_OPAQUE{0};
         static constexpr auto MODEL_TRANSPARENT{1};
         static constexpr auto MATERIAL_ROCKS{0};
-        static constexpr auto MATERIAL_PLATE{1};
+        static constexpr auto MATERIAL_GRID{1};
 
         void onInit(
             const std::shared_ptr<vireo::Vireo>& vireo,

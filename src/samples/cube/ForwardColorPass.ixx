@@ -61,21 +61,22 @@ export namespace samples {
                 {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,   offsetof(Vertex, tangent)},
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
-            .colorBlendDesc   = {{}},
+            .colorBlendDesc   = { { .blendEnable = true } },
             .cullMode         = vireo::CullMode::BACK,
             .depthTestEnable  = true,
-            .depthWriteEnable = true,
+            .depthWriteEnable = false,
         };
         vireo::RenderingConfiguration renderingConfig {
-             .colorRenderTargets = {{
-                .clear      = true,
+            .colorRenderTargets = {{
+                .clear = false,
                 .clearValue = {0.0f, 0.2f, 0.4f, 1.0f},
             }},
+            .discardDepthAfterRender = true,
         };
 
         std::vector<FrameData>                   framesData;
         std::shared_ptr<vireo::Vireo>            vireo;
-        std::shared_ptr<vireo::Pipeline>         opaquePipeline;
+        std::shared_ptr<vireo::Pipeline>         pipeline;
         std::shared_ptr<vireo::Sampler>          sampler;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> modelsDescriptorLayout;

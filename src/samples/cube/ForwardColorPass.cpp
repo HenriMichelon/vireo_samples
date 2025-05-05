@@ -21,9 +21,9 @@ namespace samples {
         sampler = vireo->createSampler(
              vireo::Filter::LINEAR,
              vireo::Filter::LINEAR,
-             vireo::AddressMode::CLAMP_TO_BORDER,
-             vireo::AddressMode::CLAMP_TO_BORDER,
-             vireo::AddressMode::CLAMP_TO_BORDER);
+             vireo::AddressMode::CLAMP_TO_EDGE,
+             vireo::AddressMode::CLAMP_TO_EDGE,
+             vireo::AddressMode::CLAMP_TO_EDGE);
 
         samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
         samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
@@ -45,7 +45,7 @@ namespace samples {
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
-        opaquePipeline = vireo->createGraphicPipeline(pipelineConfig);
+        pipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
@@ -94,31 +94,26 @@ namespace samples {
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
-        cmdList->barrier(
-          colorBuffer,
-          vireo::ResourceState::UNDEFINED,
-          vireo::ResourceState::RENDER_TARGET_COLOR);
-
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
         cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
-        cmdList->bindPipeline(opaquePipeline);
-        cmdList->bindDescriptor(opaquePipeline, frame.descriptorSet, SET_GLOBAL);
-        cmdList->bindDescriptor(opaquePipeline, samplerDescriptorSet, SET_SAMPLERS);
+        cmdList->bindPipeline(pipeline);
+        cmdList->bindDescriptor(pipeline, frame.descriptorSet, SET_GLOBAL);
+        cmdList->bindDescriptor(pipeline, samplerDescriptorSet, SET_SAMPLERS);
 
-        cmdList->bindDescriptor(opaquePipeline,
+        cmdList->bindDescriptor(pipeline,
             frame.materialsDescriptorSet,SET_MATERIALS,
             frame.materialUniform->getInstanceSizeAligned() * Scene::MATERIAL_ROCKS);
-        cmdList->bindDescriptor(opaquePipeline,
+        cmdList->bindDescriptor(pipeline,
             frame.modelsDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE);
         scene.drawCube(cmdList);
 
-        cmdList->bindDescriptor(opaquePipeline,
+        cmdList->bindDescriptor(pipeline,
             frame.materialsDescriptorSet, SET_MATERIALS,
-            frame.materialUniform->getInstanceSizeAligned() * Scene::MATERIAL_PLATE);
-        cmdList->bindDescriptor(opaquePipeline,
+            frame.materialUniform->getInstanceSizeAligned() * Scene::MATERIAL_GRID);
+        cmdList->bindDescriptor(pipeline,
             frame.modelsDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT);
         scene.drawCube(cmdList);

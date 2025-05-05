@@ -9,7 +9,7 @@
 
 ConstantBuffer<Global>    global      : register(b0, space0);
 ConstantBuffer<Light>     light       : register(b1, space0);
-Texture2D                 textures[6] : register(t2, space0);
+Texture2D                 textures[5] : register(t2, space0);
 SamplerState              sampler     : register(s0, space1);
 ConstantBuffer<Model>     model       : register(b0, space2);
 ConstantBuffer<Material>  material    : register(b0, space3);
@@ -41,7 +41,6 @@ float4 fragmentMain(VertexOutput input) : SV_TARGET {
 
     float4 color = textures[material.diffuseTextureIndex].Sample(sampler, input.uv);
     float3 normal = textures[material.normalTextureIndex].Sample(sampler, input.uv).rgb;
-    float ao = textures[material.aoTextureIndex].Sample(sampler, input.uv).r;
 
     float3 albedo = color.rgb;
     float3 N = normalize(normal * 2.0 - 1.0);
@@ -57,7 +56,12 @@ float4 fragmentMain(VertexOutput input) : SV_TARGET {
 
     float3 diffuse = diff * light.color.rgb * light.color.w;
     float3 specular = spec * light.color.rgb * light.color.w;
-    float3 ambient = global.ambientLight.rgb * global.ambientLight.w * ao;
+    float3 ambient = global.ambientLight.rgb * global.ambientLight.w;
+
+    if (material.aoTextureIndex != -1) {
+        float ao = textures[material.aoTextureIndex].Sample(sampler, input.uv).r;
+        ambient = ambient * ao;
+    }
 
     return float4((diffuse + specular + ambient) * albedo, color.a);
 //     return float4(ao, 0.0, 0.0, color.a);

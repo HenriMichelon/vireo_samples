@@ -22,7 +22,9 @@ export namespace samples {
         DOWN    = 40,
         P       = 80,
         W       = 87,
+        A       = 65,
         S       = 83,
+        D       = 68,
         SPACE   = 32,
     };
 #endif

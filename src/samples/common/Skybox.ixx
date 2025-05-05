@@ -65,8 +65,11 @@ export namespace samples {
             }
         };
         vireo::RenderingConfiguration renderingConfig {
-            .colorRenderTargets = {{}},
-            .discardDepthAfterRender = true,
+            .colorRenderTargets = {{
+                .clear      = true,
+                .clearValue = {0.0f, 0.2f, 0.4f, 1.0f},
+            }},
+            .discardDepthAfterRender = false,
         };
 
         Global                                   global{};
