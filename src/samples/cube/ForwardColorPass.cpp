@@ -39,7 +39,7 @@ namespace samples {
         descriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
-        pipelineConfig.depthImageFormat = depthPrepass.getFormat();
+        pipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         pipelineConfig.resources = vireo->createPipelineResources({
             descriptorLayout, samplerDescriptorLayout, modelsDescriptorLayout, materialsDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
@@ -92,7 +92,7 @@ namespace samples {
         frame.modelUniform->write(scene.getModels().data());
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
-        renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
+        renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);

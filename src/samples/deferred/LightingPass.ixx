@@ -49,6 +49,7 @@ export namespace samples {
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}},
+            .stencilTestEnable = true,
             .frontStencilOpState = {
                 .failOp = vireo::StencilOp::KEEP,
                 .passOp = vireo::StencilOp::KEEP,
@@ -60,7 +61,8 @@ export namespace samples {
         };
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{}},
-            .discardDepthAfterRender = true,
+            .stencilTestEnable = pipelineConfig.stencilTestEnable,
+            .discardDepthStencilAfterRender = true,
         };
 
         std::vector<FrameData>                   framesData;

@@ -83,13 +83,14 @@ export namespace samples {
             .cullMode            = vireo::CullMode::BACK,
             .depthTestEnable     = true,
             .depthWriteEnable    = false,
+            .stencilTestEnable   = true,
             .frontStencilOpState = {
                 .failOp      = vireo::StencilOp::KEEP,
-                .passOp      = vireo::StencilOp::REPLACE,
+                .passOp      = vireo::StencilOp::KEEP,
                 .depthFailOp = vireo::StencilOp::KEEP,
-                .compareOp   = vireo::CompareOp::GREATER_OR_EQUAL,
+                .compareOp   = vireo::CompareOp::EQUAL,
                 .compareMask = 0xff,
-                .writeMask   = 0xff
+                .writeMask   = 0x00
             }
         };
         vireo::RenderingConfiguration renderingConfig {
@@ -99,6 +100,8 @@ export namespace samples {
                 { .clear = true }, // Albedo
                 { .clear = true }, // Shininess/AO
             },
+            .depthTestEnable    = pipelineConfig.depthTestEnable,
+            .stencilTestEnable  = pipelineConfig.stencilTestEnable,
         };
 
         PushConstants                            pushConstants{};

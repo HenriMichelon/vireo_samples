@@ -69,9 +69,9 @@ export namespace samples {
         vireo::RenderingConfiguration renderingConfig {
             .colorRenderTargets = {{
                 .clear = false,
-                .clearValue = {0.0f, 0.2f, 0.4f, 1.0f},
             }},
-            .discardDepthAfterRender = true,
+            .depthTestEnable     = pipelineConfig.depthTestEnable,
+            .discardDepthStencilAfterRender = true,
         };
 
         std::vector<FrameData>                   framesData;

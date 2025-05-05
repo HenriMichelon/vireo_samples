@@ -78,10 +78,7 @@ namespace samples {
 
         frame.fxaaDescriptorSet->update(BINDING_INPUT, colorBuffer->getImage());
         renderingConfig.colorRenderTargets[0].renderTarget = frame.fxaaColorBuffer;
-        cmdList->barrier(
-            colorBuffer,
-            vireo::ResourceState::RENDER_TARGET_COLOR,
-            vireo::ResourceState::SHADER_READ);
+
         cmdList->barrier(
             frame.fxaaColorBuffer,
             vireo::ResourceState::UNDEFINED,

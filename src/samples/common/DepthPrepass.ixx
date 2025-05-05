@@ -30,7 +30,7 @@ export namespace samples {
 
         auto getSemaphore(const uint32_t frameIndex) const { return framesData[frameIndex].semaphore; }
         auto getDepthBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].depthBuffer; }
-        auto getFormat() const { return pipelineConfig.depthImageFormat; }
+        auto getFormat() const { return pipelineConfig.depthStencilImageFormat; }
         auto isWithStencil() const { return withStencil; }
 
     private:
@@ -57,18 +57,18 @@ export namespace samples {
             .cullMode            = vireo::CullMode::BACK,
             .depthTestEnable     = true,
             .depthWriteEnable    = true,
-            .stencilTestEnable   = false,
             .frontStencilOpState = {
                 .failOp      = vireo::StencilOp::KEEP,
-                .passOp      = vireo::StencilOp::KEEP,
+                .passOp      = vireo::StencilOp::REPLACE,
                 .depthFailOp = vireo::StencilOp::KEEP,
-                .compareOp   = vireo::CompareOp::EQUAL,
+                .compareOp   = vireo::CompareOp::ALWAYS,
                 .compareMask = 0xff,
-                .writeMask   = 0x00
+                .writeMask   = 0xff
             }
         };
         vireo::RenderingConfiguration renderingConfig {
-            .clearDepth = true,
+            .depthTestEnable   = pipelineConfig.depthTestEnable,
+            .clearDepthStencil = true,
         };
 
         bool                                     withStencil{false};

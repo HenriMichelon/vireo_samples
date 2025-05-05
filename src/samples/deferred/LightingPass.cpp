@@ -39,8 +39,7 @@ namespace samples {
         descriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
-        pipelineConfig.depthImageFormat = depthPrepass.getFormat();
-        pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
+        pipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
@@ -83,18 +82,14 @@ namespace samples {
         frame.descriptorSet->update(BINDING_MATERIAL_BUFFER, gBufferPass.getMaterialBuffer(frameIndex)->getImage());
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
-        renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
-
-        cmdList->barrier(
-           colorBuffer,
-           vireo::ResourceState::UNDEFINED,
-           vireo::ResourceState::RENDER_TARGET_COLOR);
+        renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
         cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
         cmdList->bindPipeline(pipeline);
+        cmdList->setStencilReference(1);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
         cmdList->draw(3);
         cmdList->endRendering();

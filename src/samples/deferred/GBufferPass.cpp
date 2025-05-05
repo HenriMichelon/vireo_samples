@@ -20,9 +20,9 @@ namespace samples {
         sampler = vireo->createSampler(
              vireo::Filter::LINEAR,
              vireo::Filter::LINEAR,
-             vireo::AddressMode::CLAMP_TO_BORDER,
-             vireo::AddressMode::CLAMP_TO_BORDER,
-             vireo::AddressMode::CLAMP_TO_BORDER);
+             vireo::AddressMode::CLAMP_TO_EDGE,
+             vireo::AddressMode::CLAMP_TO_EDGE,
+             vireo::AddressMode::CLAMP_TO_EDGE);
 
         samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
         samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
@@ -35,8 +35,7 @@ namespace samples {
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
 
-        pipelineConfig.depthImageFormat = depthPrepass.getFormat();
-        pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
+        pipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources(
             { descriptorLayout, samplerDescriptorLayout },
@@ -82,7 +81,7 @@ namespace samples {
         renderingConfig.colorRenderTargets[BUFFER_NORMAL].renderTarget = frame.normalBuffer;
         renderingConfig.colorRenderTargets[BUFFER_ALBEDO].renderTarget = frame.albedoBuffer;
         renderingConfig.colorRenderTargets[BUFFER_MATERIAL].renderTarget = frame.materialBuffer;
-        renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
+        renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         auto renderTargets = std::views::transform(renderingConfig.colorRenderTargets, [](const auto& colorRenderTarget) {
             return colorRenderTarget.renderTarget;
@@ -95,8 +94,8 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
-        cmdList->setStencilReference(1);
         cmdList->bindPipeline(pipeline);
+        cmdList->setStencilReference(1);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
 
         pushConstants.modelIndex = Scene::MODEL_OPAQUE;

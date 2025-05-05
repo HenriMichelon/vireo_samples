@@ -71,9 +71,9 @@ namespace samples {
         cmdList->begin();
 
         cmdList->barrier(
-         frame.colorBuffer,
-         vireo::ResourceState::UNDEFINED,
-         vireo::ResourceState::RENDER_TARGET_COLOR);
+            frame.colorBuffer,
+            vireo::ResourceState::UNDEFINED,
+            vireo::ResourceState::RENDER_TARGET_COLOR);
 
         skybox.onRender(
             frameIndex,
@@ -90,6 +90,11 @@ namespace samples {
             depthPrepass,
             cmdList,
             frame.colorBuffer);
+
+        cmdList->barrier(
+           frame.colorBuffer,
+           vireo::ResourceState::RENDER_TARGET_COLOR,
+           vireo::ResourceState::SHADER_READ);
 
         postProcessing.onRender(
             frameIndex,

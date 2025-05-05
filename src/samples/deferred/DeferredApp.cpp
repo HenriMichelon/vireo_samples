@@ -80,6 +80,17 @@ namespace samples {
             scene,
             depthPrepass,
             cmdList);
+        cmdList->barrier(
+           frame.colorBuffer,
+           vireo::ResourceState::UNDEFINED,
+           vireo::ResourceState::RENDER_TARGET_COLOR);
+        skybox.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            false,
+            depthPrepass,
+            frame.colorBuffer,
+            cmdList);
         lightingPass.onRender(
             frameIndex,
             swapChain->getExtent(),
@@ -88,13 +99,10 @@ namespace samples {
             gbufferPass,
             cmdList,
             frame.colorBuffer);
-        skybox.onRender(
-            frameIndex,
-            swapChain->getExtent(),
-            false,
-            depthPrepass,
-            frame.colorBuffer,
-            cmdList);
+        cmdList->barrier(
+           frame.colorBuffer,
+           vireo::ResourceState::RENDER_TARGET_COLOR,
+           vireo::ResourceState::SHADER_READ);
         postProcessing.onRender(
             frameIndex,
             swapChain->getExtent(),

@@ -44,7 +44,7 @@ namespace samples {
         samplerDescriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
-        pipelineConfig.depthImageFormat = depthPrepass.getFormat();
+        pipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
         pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
@@ -80,13 +80,13 @@ namespace samples {
         const auto& frame = framesData[frameIndex];
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
-        renderingConfig.depthRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
+        renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         frame.globalBuffer->write(&global);
 
         if (depthIsReadOnly && depthPrepass.isWithStencil()) {
             cmdList->barrier(
-                renderingConfig.depthRenderTarget,
+                renderingConfig.depthStencilRenderTarget,
                 vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
                 vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
         }

@@ -25,8 +25,9 @@ namespace samples {
 
         if (withStencil) {
             this->withStencil = true;
+            renderingConfig.stencilTestEnable = true;
             pipelineConfig.stencilTestEnable = true;
-            pipelineConfig.depthImageFormat = vireo::ImageFormat::D32_SFLOAT_S8_UINT;
+            pipelineConfig.depthStencilImageFormat = vireo::ImageFormat::D32_SFLOAT_S8_UINT;
             pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         }
         pipelineConfig.resources = vireo->createPipelineResources(
@@ -64,23 +65,23 @@ namespace samples {
         frame.globalUniform->write(&scene.getGlobal());
         frame.modelUniform->write(scene.getModels().data());
 
-        renderingConfig.depthRenderTarget = frame.depthBuffer;
+        renderingConfig.depthStencilRenderTarget = frame.depthBuffer;
 
         frame.commandAllocator->reset();
         auto cmdList = frame.commandList;
         cmdList->begin();
         cmdList->barrier(
-            renderingConfig.depthRenderTarget,
+            renderingConfig.depthStencilRenderTarget,
             vireo::ResourceState::UNDEFINED,
             withStencil ? vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL : vireo::ResourceState::RENDER_TARGET_DEPTH);
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
+        cmdList->setDescriptors({frame.descriptorSet});
+        cmdList->bindPipeline(pipeline);
         if (withStencil) {
             cmdList->setStencilReference(1);
         }
-        cmdList->setDescriptors({frame.descriptorSet});
-        cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptor(pipeline, frame.descriptorSet, SET_GLOBAL);
         cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE);
@@ -96,11 +97,11 @@ namespace samples {
     void DepthPrepass::onResize(const vireo::Extent& extent) {
         for (auto& frame : framesData) {
             frame.depthBuffer = vireo->createRenderTarget(
-                pipelineConfig.depthImageFormat,
+                pipelineConfig.depthStencilImageFormat,
                 extent.width,
                 extent.height,
                 withStencil ? vireo::RenderTargetType::DEPTH_STENCIL : vireo::RenderTargetType::DEPTH,
-                renderingConfig.depthClearValue);
+                renderingConfig.depthStencilClearValue);
         }
     }
 
