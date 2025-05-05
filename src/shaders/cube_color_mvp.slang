@@ -4,7 +4,7 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-#include "global.inc.slang"
+#include "lighting.inc.slang"
 #include "scene_input.inc.slang"
 
 ConstantBuffer<Global>    global      : register(b0, space0);
@@ -38,31 +38,12 @@ VertexOutput vertexMain(VertexInput input) {
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
     float3x3 TBN = (float3x3(input.tangent, input.bitangent, input.normal));
-
     float4 color = textures[material.diffuseTextureIndex].Sample(sampler, input.uv);
     float3 normal = textures[material.normalTextureIndex].Sample(sampler, input.uv).rgb;
-
+    float ao = material.aoTextureIndex != -1 ? textures[material.aoTextureIndex].Sample(sampler, input.uv).r : 1.0;
     float3 albedo = color.rgb;
     float3 N = normalize(normal * 2.0 - 1.0);
     N = normalize(mul(TBN, N));
-//     float3 N = normalize(input.normal);
-
-    float3 L = normalize(-light.direction);
-    float3 V = normalize(global.cameraPosition - input.worldPos);
-    float3 R = reflect(-L, N);
-
-    float diff = max(dot(N, L), 0.0);
-    float spec = pow(max(dot(V, R), 0.0), material.shininess);
-
-    float3 diffuse = diff * light.color.rgb * light.color.w;
-    float3 specular = spec * light.color.rgb * light.color.w;
-    float3 ambient = global.ambientLight.rgb * global.ambientLight.w;
-
-    if (material.aoTextureIndex != -1) {
-        float ao = textures[material.aoTextureIndex].Sample(sampler, input.uv).r;
-        ambient = ambient * ao;
-    }
-
-    return float4((diffuse + specular + ambient) * albedo, color.a);
-//     return float4(ao, 0.0, 0.0, color.a);
+    float3 lit = calcLighting(global, light, input.worldPos, N, material.shininess, ao);
+    return float4(lit * albedo, color.a);
 }

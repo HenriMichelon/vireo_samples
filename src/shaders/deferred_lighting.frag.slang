@@ -4,7 +4,7 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-#include "global.inc.slang"
+#include "lighting.inc.slang"
 
 struct VertexOutput {
     float4 position : SV_POSITION;
@@ -22,21 +22,8 @@ SamplerState sampler          : register(s0, space1);
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
     float3 worldPos = positionBuffer.Sample(sampler, input.uv).rgb;
     float3 normal = normalBuffer.Sample(sampler, input.uv).rgb;
-    float3 albedo = albedoBuffer.Sample(sampler, input.uv).rgb;
     float2 material = materialBuffer.Sample(sampler, input.uv).rg;
-    float shininess = material.r;
-    float ao = material.g;
-
-    float3 L = normalize(-light.direction);
-    float3 V = normalize(global.cameraPosition - worldPos);
-    float3 R = reflect(-L, normal);
-
-    float diff = max(dot(normal, L), 0.0);
-    float spec = pow(max(dot(V, R), 0.0), shininess);
-
-    float3 diffuse = diff * light.color.rgb * light.color.w;
-    float3 specular = spec * light.color.rgb * light.color.w;
-    float3 ambient = global.ambientLight.rgb * global.ambientLight.w * ao;
-
-    return float4((diffuse + specular + ambient) * albedo, 1.0);
+    float3 albedo = albedoBuffer.Sample(sampler, input.uv).rgb;
+    float3 lit = calcLighting(global, light, worldPos, normal, material.r, material.g);
+    return float4(lit * albedo, 1.0);
 }
