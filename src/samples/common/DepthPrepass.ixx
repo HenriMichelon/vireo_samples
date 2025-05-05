@@ -45,8 +45,10 @@ export namespace samples {
             std::shared_ptr<vireo::DescriptorSet>    modelDescriptorSet;
         };
 
+        static constexpr vireo::DescriptorIndex SET_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
-        static constexpr vireo::DescriptorIndex BINDING_MODEL{0};
+
+        static constexpr vireo::DescriptorIndex SET_MODELS{1};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },

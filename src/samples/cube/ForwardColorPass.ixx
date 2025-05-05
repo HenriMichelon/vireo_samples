@@ -42,12 +42,16 @@ export namespace samples {
             std::shared_ptr<vireo::DescriptorSet> modeDescriptorSet;
         };
 
+        static constexpr vireo::DescriptorIndex SET_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_MATERIAL{1};
         static constexpr vireo::DescriptorIndex BINDING_LIGHT{2};
         static constexpr vireo::DescriptorIndex BINDING_TEXTURES{3};
-        static constexpr vireo::DescriptorIndex BINDING_MODELS{0};
+
+        static constexpr vireo::DescriptorIndex SET_SAMPLERS{1};
         static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
+
+        static constexpr vireo::DescriptorIndex SET_MODELS{2};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
                 {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },

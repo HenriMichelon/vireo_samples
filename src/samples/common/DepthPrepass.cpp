@@ -21,7 +21,7 @@ namespace samples {
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->build();
 
-        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout(BINDING_MODEL);
+        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
 
         if (withStencil) {
             this->withStencil = true;
@@ -46,7 +46,7 @@ namespace samples {
             frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), scene.getModels().size());
             frame.modelUniform->map();
             frame.modelDescriptorSet = vireo->createDescriptorSet(modelDescriptorLayout);
-            frame.modelDescriptorSet->update(BINDING_MODEL, frame.modelUniform);
+            frame.modelDescriptorSet->update(frame.modelUniform);
 
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
@@ -81,14 +81,12 @@ namespace samples {
         }
         cmdList->setDescriptors({frame.descriptorSet});
         cmdList->bindPipeline(pipeline);
-        cmdList->bindDescriptor(pipeline, frame.descriptorSet, 0);
-        cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, 1, {
-            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE,
-        });
+        cmdList->bindDescriptor(pipeline, frame.descriptorSet, SET_GLOBAL);
+        cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, SET_MODELS,
+            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE);
         scene.drawCube(cmdList);
-        cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, 1, {
-            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT,
-        });
+        cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, SET_MODELS,
+            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT);
         scene.drawCube(cmdList);
         cmdList->endRendering();
         cmdList->end();

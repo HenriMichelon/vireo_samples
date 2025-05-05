@@ -30,7 +30,7 @@ namespace samples {
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
-        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM);
+        descriptorLayout->add(BINDING_MODEL, vireo::DescriptorType::UNIFORM, scene.getModels().size());
         descriptorLayout->add(BINDING_MATERIAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, scene.getTextures().size());
         descriptorLayout->build();
@@ -46,11 +46,11 @@ namespace samples {
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
-            frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global), 1, L"GLobal");
+            frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalUniform->map();
-            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), 1, L"Model");
+            frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model), scene.getModels().size());
             frame.modelUniform->map();
-            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material), 1, L"Material");
+            frame.materialUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Material));
             frame.materialUniform->map();
             frame.materialUniform->write(&scene.getMaterial());
             frame.materialUniform->unmap();
@@ -74,6 +74,7 @@ namespace samples {
         const auto& frame = framesData[frameIndex];
 
         frame.globalUniform->write(&scene.getGlobal());
+        frame.modelUniform->write(scene.getModels().data());
 
         renderingConfig.colorRenderTargets[BUFFER_POSITION].renderTarget = frame.positionBuffer;
         renderingConfig.colorRenderTargets[BUFFER_NORMAL].renderTarget = frame.normalBuffer;
@@ -95,7 +96,6 @@ namespace samples {
         cmdList->setStencilReference(1);
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
-        frame.modelUniform->write(scene.getModels().data());
         scene.drawCube(cmdList);
         cmdList->endRendering();
         cmdList->barrier(

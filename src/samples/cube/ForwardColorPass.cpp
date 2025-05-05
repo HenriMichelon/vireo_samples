@@ -29,7 +29,7 @@ namespace samples {
         samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplerDescriptorLayout->build();
 
-        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout(BINDING_MODELS);
+        modelDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
@@ -40,7 +40,8 @@ namespace samples {
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.depthImageFormat = depthPrepass.getFormat();
-        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout, modelDescriptorLayout });
+        pipelineConfig.resources = vireo->createPipelineResources({
+            descriptorLayout, samplerDescriptorLayout, modelDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
@@ -67,7 +68,7 @@ namespace samples {
             frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
             frame.modeDescriptorSet = vireo->createDescriptorSet(modelDescriptorLayout);
-            frame.modeDescriptorSet->update(BINDING_MODELS, frame.modelUniform);
+            frame.modeDescriptorSet->update(frame.modelUniform);
         }
 
         samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
@@ -110,15 +111,13 @@ namespace samples {
         cmdList->setScissors(extent);
         cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
         cmdList->bindPipeline(opaquePipeline);
-        cmdList->bindDescriptor(opaquePipeline, frame.descriptorSet, 0);
-        cmdList->bindDescriptor(opaquePipeline, samplerDescriptorSet, 1);
-        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, 2, {
-            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE,
-        });
+        cmdList->bindDescriptor(opaquePipeline, frame.descriptorSet, SET_GLOBAL);
+        cmdList->bindDescriptor(opaquePipeline, samplerDescriptorSet, SET_SAMPLERS);
+        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, SET_MODELS,
+            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE);
         scene.drawCube(cmdList);
-        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, 2, {
-            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT,
-        });
+        cmdList->bindDescriptor(opaquePipeline, frame.modeDescriptorSet, SET_MODELS,
+            frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT);
         scene.drawCube(cmdList);
         cmdList->endRendering();
     }
