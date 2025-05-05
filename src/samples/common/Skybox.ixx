@@ -54,7 +54,6 @@ export namespace samples {
             .cullMode            = vireo::CullMode::BACK,
             .depthTestEnable     = true,
             .depthWriteEnable    = false,
-            .stencilTestEnable   = false,
             .frontStencilOpState = {
                 .failOp      = vireo::StencilOp::KEEP,
                 .passOp      = vireo::StencilOp::KEEP,

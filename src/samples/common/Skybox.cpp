@@ -46,6 +46,7 @@ namespace samples {
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
+        renderingConfig.stencilTestEnable = depthPrepass.isWithStencil();
         pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(float) * 3, vertexAttributes);
