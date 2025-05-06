@@ -31,8 +31,8 @@ Texture2D                 textures[5] : register(t4);
 SamplerState              sampler     : register(s0, space1);
 
 
- float weightDepth(float z, float a) {
-    return clamp(pow(min(1.0, a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - z * 0.9, 3.0), 1e-2, 3e3);
+ float weightDepth(float z, float4 color) {
+    return clamp(pow(min(1.0, color.a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - z * 0.9, 3.0), 1e-2, 3e3);
 }
 
 float weightColor(float z, float4 color) {
@@ -52,7 +52,7 @@ FragmentOutput fragmentMain(VertexOutput input) {
     float3 lit = calcLighting(global, light, input.worldPos, N, material.shininess, ao);
     color = float4(lit * color.rgb, color.a);
 
-    float weight = weightColor(input.position.z, color);
+    float weight = weightDepth(input.position.z, color);
 
     output.accum = float4(color.rgb * color.a, color.a) * weight;
     output.reveal = color.a;
