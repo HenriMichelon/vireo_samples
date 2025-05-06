@@ -31,7 +31,6 @@ export namespace samples {
             const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
-        void onDestroy();
 
         auto getClearValue() const { return renderingConfig.colorRenderTargets[0].clearValue; }
 

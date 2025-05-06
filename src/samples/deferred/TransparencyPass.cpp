@@ -147,10 +147,4 @@ namespace samples {
         }
     }
 
-    void TransparencyPass::onDestroy() {
-        for (const auto& frame : framesData) {
-            frame.globalUniform->unmap();
-        }
-    }
-
 }

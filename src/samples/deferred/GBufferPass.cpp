@@ -127,11 +127,4 @@ namespace samples {
         }
     }
 
-    void GBufferPass::onDestroy() {
-        for (const auto& frame : framesData) {
-            frame.modelUniform->unmap();
-            frame.globalUniform->unmap();
-        }
-    }
-
 }

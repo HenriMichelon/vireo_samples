@@ -105,11 +105,4 @@ namespace samples {
         }
     }
 
-    void DepthPrepass::onDestroy() {
-        for (const auto& frame : framesData) {
-            frame.modelUniform->unmap();
-            frame.globalUniform->unmap();
-        }
-    }
-
 }

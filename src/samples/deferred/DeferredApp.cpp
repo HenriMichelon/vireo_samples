@@ -180,9 +180,6 @@ namespace samples {
     void DeferredApp::onDestroy() {
         graphicQueue->waitIdle();
         swapChain->waitIdle();
-        gbufferPass.onDestroy();
-        depthPrepass.onDestroy();
-        skybox.onDestroy();
     }
 
 }

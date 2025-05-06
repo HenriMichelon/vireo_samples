@@ -84,10 +84,4 @@ namespace samples {
         cmdList->endRendering();
     }
 
-    void LightingPass::onDestroy() {
-        for (const auto& frame : framesData) {
-            frame.globalUniform->unmap();
-        }
-    }
-
 }

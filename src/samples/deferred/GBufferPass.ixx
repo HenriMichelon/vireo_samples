@@ -30,7 +30,6 @@ export namespace samples {
             const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList);
         void onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList);
-        void onDestroy();
 
         auto getPositionBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].positionBuffer; }
         auto getNormalBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].normalBuffer; }

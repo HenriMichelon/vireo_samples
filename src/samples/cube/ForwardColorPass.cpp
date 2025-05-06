@@ -109,11 +109,4 @@ namespace samples {
         cmdList->endRendering();
     }
 
-    void ColorPass::onDestroy() {
-        for (const auto& frame : framesData) {
-            frame.modelUniform->unmap();
-            frame.globalUniform->unmap();
-        }
-    }
-
 }

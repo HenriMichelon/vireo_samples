@@ -96,12 +96,6 @@ namespace samples {
         cmdList->endRendering();
     }
 
-    void Skybox::onDestroy() {
-        for (const auto& frame : framesData) {
-            frame.globalBuffer->unmap();
-        }
-    }
-
     std::shared_ptr<vireo::Image> Skybox::loadCubemap(
         const std::shared_ptr<vireo::CommandList>& cmdList,
         const std::string& filepath,

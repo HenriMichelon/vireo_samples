@@ -21,7 +21,6 @@ export namespace samples {
             bool withStencil,
             uint32_t framesInFlight);
         void onResize(const vireo::Extent& extent);
-        void onDestroy();
         void onRender(
             uint32_t frameIndex,
             const vireo::Extent& extent,
