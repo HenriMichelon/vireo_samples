@@ -109,25 +109,34 @@ namespace samples {
             cmdList,
             frame.colorBuffer);
 
+        auto colorBuffer = postProcessing.getColorBuffer(frameIndex);
+        if (colorBuffer == nullptr) {
+            colorBuffer = frame.colorBuffer;
+        }
         cmdList->barrier(
             depthPrepass.getDepthBuffer(frameIndex),
             depthPrepass.isWithStencil() ?
                     vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL :
                     vireo::ResourceState::RENDER_TARGET_DEPTH,
             vireo::ResourceState::UNDEFINED);
+
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::UNDEFINED,
             vireo::ResourceState::COPY_DST);
-        cmdList->copy(postProcessing.getColorBuffer(frameIndex), swapChain);
+        cmdList->barrier(
+            colorBuffer,
+            vireo::ResourceState::RENDER_TARGET_COLOR,
+            vireo::ResourceState::COPY_SRC);
+        cmdList->copy(colorBuffer, swapChain);
+        cmdList->barrier(
+            colorBuffer,
+            vireo::ResourceState::COPY_SRC,
+            vireo::ResourceState::UNDEFINED);
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::COPY_DST,
             vireo::ResourceState::PRESENT);
-        cmdList->barrier(
-            postProcessing.getColorBuffer(frameIndex),
-            vireo::ResourceState::COPY_SRC,
-            vireo::ResourceState::UNDEFINED);
         cmdList->end();
 
         graphicQueue->submit(

@@ -30,12 +30,14 @@ export namespace samples {
         auto getColorBuffer(const uint32_t frameIndex) const {
             return applyGammaCorrection ? framesData[frameIndex].gammaCorrectionColorBuffer :
                    applyEffect ? framesData[frameIndex].effectColorBuffer :
-                   framesData[frameIndex].fxaaColorBuffer;
+                   applyFXAA ? framesData[frameIndex].fxaaColorBuffer:
+                   nullptr;
         }
 
         auto toggleDisplayEffect() { applyEffect = !applyEffect; }
         auto toggleGammaCorrection() { applyGammaCorrection = !applyGammaCorrection; }
         auto toggleFXAA() { applyFXAA = !applyFXAA; }
+        auto toggleSMAA() { applySMAA = !applySMAA; }
 
     private:
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
@@ -52,6 +54,7 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  effectColorBuffer;
             std::shared_ptr<vireo::DescriptorSet> gammaCorrectionDescriptorSet;
             std::shared_ptr<vireo::RenderTarget>  gammaCorrectionColorBuffer;
+            std::shared_ptr<vireo::DescriptorSet> smaaDescriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_PARAMS{0};
@@ -64,9 +67,10 @@ export namespace samples {
             .colorRenderTargets = {{}}
         };
 
-        bool                                     applyFXAA{true};
+        bool                                     applySMAA{true};
+        bool                                     applyFXAA{false};
         bool                                     applyEffect{false};
-        bool                                     applyGammaCorrection{true};
+        bool                                     applyGammaCorrection{false};
         std::shared_ptr<vireo::Vireo>            vireo;
         std::vector<FrameData>                   framesData;
         PostProcessingParams                     params{};

@@ -92,7 +92,6 @@ namespace samples {
        const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
 
-
         if (applyFXAA) {
             cmdList->barrier(
                colorBuffer,
@@ -158,39 +157,45 @@ namespace samples {
             cmdList->draw(3);
             cmdList->endRendering();
             cmdList->barrier(
-                frame.gammaCorrectionColorBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::COPY_SRC);
-            cmdList->barrier(
                 colorInput,
                 vireo::ResourceState::SHADER_READ,
                 vireo::ResourceState::UNDEFINED);
             if (applyEffect) {
+                if (applyFXAA) {
+                    cmdList->barrier(
+                        frame.fxaaColorBuffer,
+                        vireo::ResourceState::SHADER_READ,
+                        vireo::ResourceState::UNDEFINED);
+                } else {
+                    cmdList->barrier(
+                        colorBuffer,
+                        vireo::ResourceState::SHADER_READ,
+                        vireo::ResourceState::UNDEFINED);
+                }
+
+            } else if (applyFXAA) {
+                cmdList->barrier(
+                    colorBuffer,
+                    vireo::ResourceState::SHADER_READ,
+                    vireo::ResourceState::UNDEFINED);
+            }
+        } else if (applyEffect) {
+            if (applyFXAA) {
                 cmdList->barrier(
                     frame.fxaaColorBuffer,
                     vireo::ResourceState::SHADER_READ,
                     vireo::ResourceState::UNDEFINED);
             }
-        } else if (applyEffect) {
             cmdList->barrier(
-                frame.fxaaColorBuffer,
+                colorBuffer,
                 vireo::ResourceState::SHADER_READ,
                 vireo::ResourceState::UNDEFINED);
+        } else if (applyFXAA) {
             cmdList->barrier(
-                frame.effectColorBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::COPY_SRC);
-        } else {
-            cmdList->barrier(
-                frame.fxaaColorBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::COPY_SRC);
+                colorBuffer,
+                vireo::ResourceState::SHADER_READ,
+                vireo::ResourceState::UNDEFINED);
         }
-
-        cmdList->barrier(
-            colorBuffer,
-            vireo::ResourceState::SHADER_READ,
-            vireo::ResourceState::UNDEFINED);
     }
 
     void PostProcessing::onResize(const vireo::Extent& extent) {
