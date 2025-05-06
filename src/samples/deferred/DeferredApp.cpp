@@ -81,10 +81,6 @@ namespace samples {
             depthPrepass,
             samplers,
             cmdList);
-        cmdList->barrier(
-           frame.colorBuffer,
-           vireo::ResourceState::UNDEFINED,
-           vireo::ResourceState::RENDER_TARGET_COLOR);
         skybox.onRender(
             frameIndex,
             swapChain->getExtent(),

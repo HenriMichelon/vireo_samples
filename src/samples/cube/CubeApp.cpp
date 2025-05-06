@@ -70,11 +70,6 @@ namespace samples {
         const auto cmdList = frame.commandList;
         cmdList->begin();
 
-        cmdList->barrier(
-            frame.colorBuffer,
-            vireo::ResourceState::UNDEFINED,
-            vireo::ResourceState::RENDER_TARGET_COLOR);
-
         skybox.onRender(
             frameIndex,
             swapChain->getExtent(),
@@ -153,9 +148,6 @@ namespace samples {
     void CubeApp::onDestroy() {
         graphicQueue->waitIdle();
         swapChain->waitIdle();
-        colorPass.onDestroy();
-        depthPrepass.onDestroy();
-        skybox.onDestroy();
     }
 
 }
