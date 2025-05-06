@@ -139,6 +139,7 @@ set(SCENE_COMMON_SRC
         ${SRC_DIR}/samples/common/DepthPrepass.cpp
         ${SRC_DIR}/samples/common/Skybox.cpp
         ${SRC_DIR}/samples/common/PostProcessing.cpp
+        ${SRC_DIR}/samples/common/Samplers.cpp
 )
 set(SCENE_COMMON_MODULES
         ${SRC_DIR}/samples/common/Global.ixx
@@ -146,6 +147,7 @@ set(SCENE_COMMON_MODULES
         ${SRC_DIR}/samples/common/DepthPrepass.ixx
         ${SRC_DIR}/samples/common/Skybox.ixx
         ${SRC_DIR}/samples/common/PostProcessing.ixx
+        ${SRC_DIR}/samples/common/Samplers.ixx
 )
 
 #######################################################

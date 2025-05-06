@@ -17,7 +17,7 @@ Texture2D    positionBuffer   : register(t2);
 Texture2D    normalBuffer     : register(t3);
 Texture2D    albedoBuffer     : register(t4);
 Texture2D    materialBuffer   : register(t5);
-SamplerState sampler          : register(s0, space1);
+SamplerState sampler          : register(SAMPLER_NEAREST_BORDER, space1);
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
     float3 worldPos = positionBuffer.Sample(sampler, input.uv).rgb;

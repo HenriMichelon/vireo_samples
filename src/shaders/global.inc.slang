@@ -27,3 +27,6 @@ struct Material {
     int   normalTextureIndex;
     int   aoTextureIndex;
 }
+
+#define SAMPLER_NEAREST_BORDER s0
+#define SAMPLER_LINEAR_EDGE    s1

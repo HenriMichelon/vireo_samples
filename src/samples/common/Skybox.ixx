@@ -11,6 +11,7 @@ export module samples.common.skybox;
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;
+import samples.common.samplers;
 
 export namespace samples {
 
@@ -22,6 +23,7 @@ export namespace samples {
             const std::shared_ptr<vireo::CommandList>& uploadCommandList,
             vireo::ImageFormat renderFormat,
             const DepthPrepass& depthPrepass,
+            const Samplers& samplers,
             uint32_t framesInFlight);
         void onDestroy();
         void onRender(
@@ -29,6 +31,7 @@ export namespace samples {
             const vireo::Extent& extent,
             bool depthIsReadOnly,
             const DepthPrepass& depthPrepass,
+            const Samplers& samplers,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
             const std::shared_ptr<vireo::CommandList>& cmdList);
 
@@ -44,7 +47,6 @@ export namespace samples {
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_CUBEMAP{1};
-        static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
             {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, 0 },
@@ -79,9 +81,6 @@ export namespace samples {
         std::shared_ptr<vireo::Image>            cubeMap;
         std::shared_ptr<vireo::Pipeline>         pipeline;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        std::shared_ptr<vireo::Sampler>          sampler;
-        std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
 
         std::vector<float> cubemapVertices{
             -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f,

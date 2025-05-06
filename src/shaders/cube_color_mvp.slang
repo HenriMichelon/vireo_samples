@@ -10,7 +10,7 @@
 ConstantBuffer<Global>    global      : register(b0, space0);
 ConstantBuffer<Light>     light       : register(b1, space0);
 Texture2D                 textures[5] : register(t2, space0);
-SamplerState              sampler     : register(s0, space1);
+SamplerState              sampler     : register(SAMPLER_LINEAR_EDGE, space1);
 ConstantBuffer<Model>     model       : register(b0, space2);
 ConstantBuffer<Material>  material    : register(b0, space3);
 

@@ -28,7 +28,7 @@ PushConstants pushConstants : register(b0, space2);
 
 ConstantBuffer<Materials> materials   : register(b2);
 Texture2D                 textures[5] : register(t3);
-SamplerState              sampler     : register(s0, space1);
+SamplerState              sampler     : register(SAMPLER_LINEAR_EDGE, space1);
 
 FragmentOutput fragmentMain(VertexOutput input) {
     FragmentOutput output;

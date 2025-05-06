@@ -15,19 +15,9 @@ namespace samples {
         const vireo::ImageFormat renderFormat,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
+        const Samplers& samplers,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
-
-        sampler = vireo->createSampler(
-             vireo::Filter::LINEAR,
-             vireo::Filter::LINEAR,
-             vireo::AddressMode::CLAMP_TO_EDGE,
-             vireo::AddressMode::CLAMP_TO_EDGE,
-             vireo::AddressMode::CLAMP_TO_EDGE);
-
-        samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
-        samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
-        samplerDescriptorLayout->build();
 
         modelsDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
         materialsDescriptorLayout = vireo->createDynamicUniformDescriptorLayout();
@@ -41,7 +31,7 @@ namespace samples {
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         pipelineConfig.resources = vireo->createPipelineResources({
-            descriptorLayout, samplerDescriptorLayout, modelsDescriptorLayout, materialsDescriptorLayout });
+            descriptorLayout, samplers.getDescriptorLayout(), modelsDescriptorLayout, materialsDescriptorLayout });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/cube_color_mvp.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/cube_color_mvp.frag");
@@ -74,9 +64,6 @@ namespace samples {
             frame.lightUniform->unmap();
 
         }
-
-        samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
-        samplerDescriptorSet->update(BINDING_SAMPLERS, sampler);
     }
 
     void ColorPass::onRender(
@@ -84,6 +71,7 @@ namespace samples {
        const vireo::Extent& extent,
        const Scene& scene,
        const DepthPrepass& depthPrepass,
+       const Samplers& samplers,
        const std::shared_ptr<vireo::CommandList>& cmdList,
        const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
@@ -97,10 +85,10 @@ namespace samples {
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
-        cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
+        cmdList->setDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptor(pipeline, frame.descriptorSet, SET_GLOBAL);
-        cmdList->bindDescriptor(pipeline, samplerDescriptorSet, SET_SAMPLERS);
+        cmdList->bindDescriptor(pipeline, samplers.getDescriptorSet(), SET_SAMPLERS);
 
         cmdList->bindDescriptor(pipeline,
             frame.materialsDescriptorSet,SET_MATERIALS,

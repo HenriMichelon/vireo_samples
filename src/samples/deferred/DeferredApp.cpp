@@ -33,19 +33,21 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
 
+        samplers.onInit(vireo);
+
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
         depthPrepass.onInit(vireo, scene, true, swapChain->getFramesInFlight());
-        lightingPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, swapChain->getFramesInFlight());
-        transparencyPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, swapChain->getFramesInFlight());
-        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, swapChain->getFramesInFlight());
+        lightingPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, samplers, swapChain->getFramesInFlight());
+        transparencyPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, samplers, swapChain->getFramesInFlight());
+        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, samplers, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});
 
-        gbufferPass.onInit(vireo, scene, depthPrepass, swapChain->getFramesInFlight());
-        postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
+        gbufferPass.onInit(vireo, scene, depthPrepass, samplers, swapChain->getFramesInFlight());
+        postProcessing.onInit(vireo, RENDER_FORMAT, samplers, swapChain->getFramesInFlight());
 
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
@@ -77,6 +79,7 @@ namespace samples {
             swapChain->getExtent(),
             scene,
             depthPrepass,
+            samplers,
             cmdList);
         cmdList->barrier(
            frame.colorBuffer,
@@ -87,6 +90,7 @@ namespace samples {
             swapChain->getExtent(),
             false,
             depthPrepass,
+            samplers,
             frame.colorBuffer,
             cmdList);
         lightingPass.onRender(
@@ -95,6 +99,7 @@ namespace samples {
             scene,
             depthPrepass,
             gbufferPass,
+            samplers,
             cmdList,
             frame.colorBuffer);
         transparencyPass.onRender(
@@ -102,11 +107,13 @@ namespace samples {
             swapChain->getExtent(),
             scene,
             depthPrepass,
+            samplers,
             cmdList,
             frame.colorBuffer);
         postProcessing.onRender(
             frameIndex,
             swapChain->getExtent(),
+            samplers,
             cmdList,
             frame.colorBuffer);
 

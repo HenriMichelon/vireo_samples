@@ -17,7 +17,7 @@ struct VertexOutput {
 
 ConstantBuffer<Global> global : register(b0);
 TextureCube<float4> cubemap   : register(t1);
-SamplerState sampler          : register(s0, space1);
+SamplerState sampler          : register(SAMPLER_NEAREST_BORDER, space1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;

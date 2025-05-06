@@ -14,19 +14,9 @@ namespace samples {
         const std::shared_ptr<vireo::Vireo>& vireo,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
+        const Samplers& samplers,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
-
-        sampler = vireo->createSampler(
-             vireo::Filter::LINEAR,
-             vireo::Filter::LINEAR,
-             vireo::AddressMode::CLAMP_TO_EDGE,
-             vireo::AddressMode::CLAMP_TO_EDGE,
-             vireo::AddressMode::CLAMP_TO_EDGE);
-
-        samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
-        samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
-        samplerDescriptorLayout->build();
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
@@ -38,7 +28,7 @@ namespace samples {
         pipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
         pipelineConfig.resources = vireo->createPipelineResources(
-            { descriptorLayout, samplerDescriptorLayout },
+            { descriptorLayout, samplers.getDescriptorLayout() },
             pushConstantsDesc);
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred.vert");
@@ -61,9 +51,6 @@ namespace samples {
             frame.descriptorSet->update(BINDING_MATERIAL, frame.materialUniform);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
         }
-
-        samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
-        samplerDescriptorSet->update(BINDING_SAMPLERS, sampler);
     }
 
     void GBufferPass::onRender(
@@ -71,6 +58,7 @@ namespace samples {
         const vireo::Extent& extent,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
+        const Samplers& samplers,
         const std::shared_ptr<vireo::CommandList>& cmdList) {
         const auto& frame = framesData[frameIndex];
 
@@ -90,13 +78,13 @@ namespace samples {
             {renderTargets.begin(), renderTargets.end()},
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
-        cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
+        cmdList->setDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
         cmdList->bindPipeline(pipeline);
         cmdList->setStencilReference(1);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
+        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplers.getDescriptorSet()});
 
         pushConstants.modelIndex = Scene::MODEL_OPAQUE;
         pushConstants.materialIndex = Scene::MATERIAL_ROCKS;

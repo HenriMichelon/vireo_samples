@@ -31,17 +31,19 @@ namespace samples {
             windowHandle,
             vireo::PresentMode::VSYNC);
 
+        samplers.onInit(vireo);
+
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
         scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
         depthPrepass.onInit(vireo, scene, false, swapChain->getFramesInFlight());
-        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, swapChain->getFramesInFlight());
+        skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, samplers, swapChain->getFramesInFlight());
         uploadCommandList->end();
         graphicQueue->submit({uploadCommandList});
 
-        colorPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, swapChain->getFramesInFlight());
-        postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
+        colorPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, samplers, swapChain->getFramesInFlight());
+        postProcessing.onInit(vireo, RENDER_FORMAT, samplers, swapChain->getFramesInFlight());
 
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
@@ -78,6 +80,7 @@ namespace samples {
             swapChain->getExtent(),
             true,
             depthPrepass,
+            samplers,
             frame.colorBuffer,
             cmdList);
 
@@ -86,12 +89,14 @@ namespace samples {
             swapChain->getExtent(),
             scene,
             depthPrepass,
+            samplers,
             cmdList,
             frame.colorBuffer);
 
         postProcessing.onRender(
             frameIndex,
             swapChain->getExtent(),
+            samplers,
             cmdList,
             frame.colorBuffer);
 

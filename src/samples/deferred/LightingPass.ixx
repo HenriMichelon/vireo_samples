@@ -11,6 +11,7 @@ export module samples.deferred.lightingpass;
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;
+import samples.common.samplers;
 import samples.deferred.gbuffer;
 
 export namespace samples {
@@ -21,6 +22,7 @@ export namespace samples {
            vireo::ImageFormat renderFormat,
            const Scene& scene,
            const DepthPrepass& depthPrepass,
+           const Samplers& samplers,
            uint32_t framesInFlight);
         void onRender(
             uint32_t frameIndex,
@@ -28,6 +30,7 @@ export namespace samples {
             const Scene& scene,
             const DepthPrepass& depthPrepass,
             const GBufferPass& gBufferPass,
+            const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
         void onDestroy();
@@ -45,7 +48,6 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_NORMAL_BUFFER{3};
         static constexpr vireo::DescriptorIndex BINDING_ALBEDO_BUFFER{4};
         static constexpr vireo::DescriptorIndex BINDING_MATERIAL_BUFFER{5};
-        static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}},
@@ -67,9 +69,6 @@ export namespace samples {
         std::vector<FrameData>                   framesData;
         std::shared_ptr<vireo::Vireo>            vireo;
         std::shared_ptr<vireo::Pipeline>         pipeline;
-        std::shared_ptr<vireo::Sampler>          sampler;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
-        std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
     };
 }

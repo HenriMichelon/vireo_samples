@@ -11,6 +11,7 @@ export module samples.deferred.oitpass;
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;
+import samples.common.samplers;
 import samples.deferred.gbuffer;
 
 export namespace samples {
@@ -21,6 +22,7 @@ export namespace samples {
            vireo::ImageFormat renderFormat,
            const Scene& scene,
            const DepthPrepass& depthPrepass,
+           const Samplers& samplers,
            uint32_t framesInFlight);
         void onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList);
         void onRender(
@@ -28,6 +30,7 @@ export namespace samples {
             const vireo::Extent& extent,
             const Scene& scene,
             const DepthPrepass& depthPrepass,
+            const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
         void onDestroy();
@@ -57,8 +60,6 @@ export namespace samples {
 
         static constexpr vireo::DescriptorIndex BINDING_ACCUM_BUFFER{0};
         static constexpr vireo::DescriptorIndex BINDING_REVEALAGE_BUFFER{1};
-
-        static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
         static constexpr auto pushConstantsDesc = vireo::PushConstantsDesc {
             .stage = vireo::ShaderStage::ALL,
@@ -140,10 +141,7 @@ export namespace samples {
         std::shared_ptr<vireo::Vireo>            vireo;
         std::shared_ptr<vireo::Pipeline>         oitPipeline;
         std::shared_ptr<vireo::Pipeline>         compositePipeline;
-        std::shared_ptr<vireo::Sampler>          sampler;
         std::shared_ptr<vireo::DescriptorLayout> oitDescriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> compositeDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
     };
 }

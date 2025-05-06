@@ -8,7 +8,7 @@
 
 ConstantBuffer<Params> params  : register(b0);
 Texture2D inputImage           : register(t1);
-SamplerState sampler           : register(s0, space1);
+SamplerState sampler           : register(SAMPLER_LINEAR_EDGE, space1);
 
 float3 fxaa(Texture2D tex, const float2 uv, const float2 texelSize) {
     const float spanMax   = 3.0;

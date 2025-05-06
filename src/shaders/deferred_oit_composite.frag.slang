@@ -13,7 +13,7 @@ struct VertexOutput {
 
 Texture2D    accumBuffer  : register(t0);
 Texture2D    revealBuffer : register(t1);
-SamplerState sampler      : register(s0, space1);
+SamplerState sampler      : register(SAMPLER_NEAREST_BORDER, space1);
 
 // https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended
 bool isApproximatelyEqual(float a, float b) {

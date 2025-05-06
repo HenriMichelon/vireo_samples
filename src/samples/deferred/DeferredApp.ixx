@@ -13,6 +13,7 @@ import samples.common.depthprepass;
 import samples.common.scene;
 import samples.common.skybox;
 import samples.common.postprocessing;
+import samples.common.samplers;
 import samples.deferred.gbuffer;
 import samples.deferred.lightingpass;
 import samples.deferred.oitpass;
@@ -45,6 +46,7 @@ export namespace samples {
         GBufferPass                         gbufferPass;
         LightingPass                        lightingPass;
         TransparencyPass                    transparencyPass;
+        Samplers                            samplers;
         std::vector<FrameData>              framesData;
         std::shared_ptr<vireo::SwapChain>   swapChain;
         std::shared_ptr<vireo::SubmitQueue> graphicQueue;

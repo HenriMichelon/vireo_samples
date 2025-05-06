@@ -22,33 +22,25 @@ namespace samples {
         const std::shared_ptr<vireo::CommandList>& uploadCommandList,
         const vireo::ImageFormat renderFormat,
         const DepthPrepass& depthPrepass,
+        const Samplers& samplers,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(float) * 3,cubemapVertices.size() / 3);
         uploadCommandList->upload(vertexBuffer, &cubemapVertices[0]);
 
-        sampler = vireo->createSampler(
-            vireo::Filter::NEAREST,
-            vireo::Filter::NEAREST,
-            vireo::AddressMode::CLAMP_TO_BORDER,
-            vireo::AddressMode::CLAMP_TO_BORDER,
-            vireo::AddressMode::CLAMP_TO_BORDER);
-
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
         descriptorLayout->add(BINDING_CUBEMAP, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->build();
-        samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
-        samplerDescriptorLayout->add(BINDING_SAMPLER, vireo::DescriptorType::SAMPLER);
-        samplerDescriptorLayout->build();
 
         pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         pipelineConfig.stencilTestEnable = depthPrepass.isWithStencil();
         renderingConfig.stencilTestEnable = depthPrepass.isWithStencil();
         pipelineConfig.backStencilOpState = pipelineConfig.frontStencilOpState;
-        pipelineConfig.resources = vireo->createPipelineResources({ descriptorLayout, samplerDescriptorLayout });
+        pipelineConfig.resources = vireo->createPipelineResources(
+            { descriptorLayout, samplers.getDescriptorLayout() });
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(float) * 3, vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/skybox.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/skybox.frag");
@@ -66,16 +58,14 @@ namespace samples {
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalBuffer);
             frame.descriptorSet->update(BINDING_CUBEMAP, cubeMap);
         }
-
-        samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
-        samplerDescriptorSet->update(BINDING_SAMPLER, sampler);
     }
 
     void Skybox::onRender(
         const uint32_t frameIndex,
         const vireo::Extent& extent,
-        bool depthIsReadOnly,
+        const bool depthIsReadOnly,
         const DepthPrepass& depthPrepass,
+        const Samplers& samplers,
         const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
         const std::shared_ptr<vireo::CommandList>& cmdList) {
         const auto& frame = framesData[frameIndex];
@@ -98,10 +88,10 @@ namespace samples {
         if (depthPrepass.isWithStencil()) {
             cmdList->setStencilReference(0);
         }
-        cmdList->setDescriptors({frame.descriptorSet, samplerDescriptorSet});
+        cmdList->setDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplerDescriptorSet});
+        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(cubemapVertices.size() / 3);
         cmdList->endRendering();
     }

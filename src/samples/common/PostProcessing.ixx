@@ -9,6 +9,7 @@ module;
 export module samples.common.postprocessing;
 
 import samples.common.global;
+import samples.common.samplers;
 
 export namespace samples {
 
@@ -18,12 +19,14 @@ export namespace samples {
         void onInit(
             const std::shared_ptr<vireo::Vireo>& vireo,
             vireo::ImageFormat renderFormat,
+            const Samplers& samplers,
             uint32_t framesInFlight);
         void onKeyDown(KeyScanCodes keyCode);
         void onResize(const vireo::Extent& extent);
         void onRender(
             uint32_t frameIndex,
             const vireo::Extent& extent,
+            const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
 
@@ -89,11 +92,8 @@ export namespace samples {
         std::shared_ptr<vireo::Pipeline>         fxaaPipeline;
         std::shared_ptr<vireo::Pipeline>         effectPipeline;
         std::shared_ptr<vireo::Pipeline>         gammaCorrectionPipeline;
-        std::shared_ptr<vireo::Sampler>          sampler;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> smaaDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
 
         static float getCurrentTimeMilliseconds();
     };

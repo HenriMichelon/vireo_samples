@@ -11,6 +11,7 @@ export module samples.cube.colorpass;
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;
+import samples.common.samplers;
 
 export namespace samples {
     class ColorPass {
@@ -20,12 +21,14 @@ export namespace samples {
            vireo::ImageFormat renderFormat,
            const Scene& scene,
            const DepthPrepass& depthPrepass,
+           const Samplers& samplers,
            uint32_t framesInFlight);
         void onRender(
             uint32_t frameIndex,
             const vireo::Extent& extent,
             const Scene& scene,
             const DepthPrepass& depthPrepass,
+            const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
         void onDestroy();
@@ -44,15 +47,13 @@ export namespace samples {
         };
 
         static constexpr vireo::DescriptorIndex SET_GLOBAL{0};
+        static constexpr vireo::DescriptorIndex SET_SAMPLERS{1};
+        static constexpr vireo::DescriptorIndex SET_MODELS{2};
+        static constexpr vireo::DescriptorIndex SET_MATERIALS{3};
+
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_LIGHT{1};
         static constexpr vireo::DescriptorIndex BINDING_TEXTURES{2};
-
-        static constexpr vireo::DescriptorIndex SET_SAMPLERS{1};
-        static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
-
-        static constexpr vireo::DescriptorIndex SET_MODELS{2};
-        static constexpr vireo::DescriptorIndex SET_MATERIALS{3};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
                 {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
@@ -76,11 +77,8 @@ export namespace samples {
         std::vector<FrameData>                   framesData;
         std::shared_ptr<vireo::Vireo>            vireo;
         std::shared_ptr<vireo::Pipeline>         pipeline;
-        std::shared_ptr<vireo::Sampler>          sampler;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> modelsDescriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> materialsDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
     };
 }

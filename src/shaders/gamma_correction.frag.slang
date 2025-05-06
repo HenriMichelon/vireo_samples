@@ -8,7 +8,7 @@
 
 ConstantBuffer<Params> params : register(b0);
 Texture2D inputImage          : register(t1);
-SamplerState sampler          : register(s0, space1);
+SamplerState sampler          : register(SAMPLER_NEAREST_BORDER, space1);
 
 float3 linearToSrgb(float3 c) {
     return select(

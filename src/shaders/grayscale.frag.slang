@@ -8,7 +8,7 @@
 
 ConstantBuffer<Params> params : register(b0);
 Texture2D inputImage          : register(t1);
-SamplerState sampler          : register(s0, space1);
+SamplerState sampler          : register(SAMPLER_NEAREST_BORDER, space1);
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
     float4 color = inputImage.Sample(sampler, input.uv);

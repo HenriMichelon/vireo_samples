@@ -15,19 +15,9 @@ namespace samples {
         const vireo::ImageFormat renderFormat,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
+        const Samplers& samplers,
         const uint32_t framesInFlight) {
         this->vireo = vireo;
-
-        sampler = vireo->createSampler(
-             vireo::Filter::NEAREST,
-             vireo::Filter::NEAREST,
-             vireo::AddressMode::CLAMP_TO_BORDER,
-             vireo::AddressMode::CLAMP_TO_BORDER,
-             vireo::AddressMode::CLAMP_TO_BORDER);
-
-        samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
-        samplerDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
-        samplerDescriptorLayout->build();
 
         oitDescriptorLayout = vireo->createDescriptorLayout();
         oitDescriptorLayout->add(BINDING_GLOBAL, vireo::DescriptorType::UNIFORM);
@@ -39,7 +29,7 @@ namespace samples {
 
         oitPipelineConfig.depthStencilImageFormat = depthPrepass.getFormat();
         oitPipelineConfig.resources = vireo->createPipelineResources(
-            { oitDescriptorLayout, samplerDescriptorLayout },
+            { oitDescriptorLayout, samplers.getDescriptorLayout() },
             pushConstantsDesc);
         oitPipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         oitPipelineConfig.vertexShader = vireo->createShaderModule("shaders/deferred.vert");
@@ -52,7 +42,8 @@ namespace samples {
         compositeDescriptorLayout->build();
 
         compositePipelineConfig.colorRenderFormats.push_back(renderFormat);
-        compositePipelineConfig.resources = vireo->createPipelineResources({ compositeDescriptorLayout, samplerDescriptorLayout });
+        compositePipelineConfig.resources = vireo->createPipelineResources(
+            { compositeDescriptorLayout, samplers.getDescriptorLayout() });
         compositePipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
         compositePipelineConfig.fragmentShader = vireo->createShaderModule("shaders/deferred_oit_composite.frag");
         compositePipeline = vireo->createGraphicPipeline(compositePipelineConfig);
@@ -80,9 +71,6 @@ namespace samples {
             frame.oitDescriptorSet->update(BINDING_TEXTURES, scene.getTextures());
             frame.compositeDescriptorSet = vireo->createDescriptorSet(compositeDescriptorLayout);
         }
-
-        samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
-        samplerDescriptorSet->update(BINDING_SAMPLERS, sampler);
     }
 
     void TransparencyPass::onRender(
@@ -90,6 +78,7 @@ namespace samples {
         const vireo::Extent& extent,
         const Scene& scene,
         const DepthPrepass& depthPrepass,
+        const Samplers& samplers,
         const std::shared_ptr<vireo::CommandList>& cmdList,
         const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
@@ -106,12 +95,12 @@ namespace samples {
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
 
-        cmdList->setDescriptors({frame.oitDescriptorSet, samplerDescriptorSet});
+        cmdList->setDescriptors({frame.oitDescriptorSet, samplers.getDescriptorSet()});
         cmdList->beginRendering(oitRenderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
         cmdList->bindPipeline(oitPipeline);
-        cmdList->bindDescriptors(oitPipeline, {frame.oitDescriptorSet, samplerDescriptorSet});
+        cmdList->bindDescriptors(oitPipeline, {frame.oitDescriptorSet, samplers.getDescriptorSet()});
 
         pushConstants.modelIndex = Scene::MODEL_TRANSPARENT;
         pushConstants.materialIndex = Scene::MATERIAL_GRID;
@@ -132,9 +121,9 @@ namespace samples {
         cmdList->beginRendering(compositeRenderingConfig);
         cmdList->setViewport(extent);
         cmdList->setScissors(extent);
-        cmdList->setDescriptors({frame.compositeDescriptorSet, samplerDescriptorSet});
+        cmdList->setDescriptors({frame.compositeDescriptorSet, samplers.getDescriptorSet()});
         cmdList->bindPipeline(compositePipeline);
-        cmdList->bindDescriptors(compositePipeline, {frame.compositeDescriptorSet, samplerDescriptorSet});
+        cmdList->bindDescriptors(compositePipeline, {frame.compositeDescriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(3);
         cmdList->endRendering();
     }

@@ -13,6 +13,7 @@ import samples.common.depthprepass;
 import samples.common.scene;
 import samples.common.skybox;
 import samples.common.postprocessing;
+import samples.common.samplers;
 import samples.cube.colorpass;
 
 export namespace samples {
@@ -41,6 +42,7 @@ export namespace samples {
         Skybox                              skybox;
         ColorPass                           colorPass;
         PostProcessing                      postProcessing;
+        Samplers                            samplers;
         std::vector<FrameData>              framesData;
         std::shared_ptr<vireo::SwapChain>   swapChain;
         std::shared_ptr<vireo::SubmitQueue> graphicQueue;

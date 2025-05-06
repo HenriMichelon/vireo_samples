@@ -4,9 +4,11 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
+#include "global.inc.slang"
+
 struct VertexOutput {
     float4 position : SV_POSITION;
-    float2 uv : TEXCOORD;
+    float2 uv       : TEXCOORD;
 };
 
 struct Params {

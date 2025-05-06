@@ -41,22 +41,12 @@ namespace samples {
     void PostProcessing::onInit(
            const std::shared_ptr<vireo::Vireo>& vireo,
            const vireo::ImageFormat renderFormat,
+           const Samplers& samplers,
            const uint32_t framesInFlight) {
         this->vireo = vireo;
 
-        sampler = vireo->createSampler(
-            vireo::Filter::NEAREST,
-            vireo::Filter::NEAREST,
-            vireo::AddressMode::CLAMP_TO_BORDER,
-            vireo::AddressMode::CLAMP_TO_BORDER,
-            vireo::AddressMode::CLAMP_TO_BORDER);
-
         paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(PostProcessingParams));
         paramsBuffer->map();
-
-        samplerDescriptorLayout = vireo->createSamplerDescriptorLayout();
-        samplerDescriptorLayout->add(BINDING_SAMPLER, vireo::DescriptorType::SAMPLER);
-        samplerDescriptorLayout->build();
 
         descriptorLayout = vireo->createDescriptorLayout();
         descriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::UNIFORM);
@@ -73,10 +63,10 @@ namespace samples {
 
         auto resources = vireo->createPipelineResources({
             descriptorLayout,
-            samplerDescriptorLayout });
+            samplers.getDescriptorLayout() });
         auto smaaResources = vireo->createPipelineResources({
             smaaDescriptorLayout,
-            samplerDescriptorLayout });
+            samplers.getDescriptorLayout() });
 
         pipelineConfig.colorRenderFormats.push_back(vireo::ImageFormat::R16G16_SFLOAT);
         pipelineConfig.resources = resources;
@@ -113,14 +103,12 @@ namespace samples {
             frame.smaaBlendDescriptorSet = vireo->createDescriptorSet(smaaDescriptorLayout);
             frame.smaaBlendDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
         }
-
-        samplerDescriptorSet = vireo->createDescriptorSet(samplerDescriptorLayout);
-        samplerDescriptorSet->update(BINDING_SAMPLER, sampler);
     }
 
     void PostProcessing::onRender(
        const uint32_t frameIndex,
        const vireo::Extent& extent,
+       const Samplers& samplers,
        const std::shared_ptr<vireo::CommandList>& cmdList,
        const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
@@ -140,9 +128,9 @@ namespace samples {
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(extent);
             cmdList->setScissors(extent);
-            cmdList->setDescriptors({frame.smaaEdgeDescriptorSet, samplerDescriptorSet});
+            cmdList->setDescriptors({frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaEdgePipeline);
-            cmdList->bindDescriptors(smaaEdgePipeline, {frame.smaaEdgeDescriptorSet, samplerDescriptorSet});
+            cmdList->bindDescriptors(smaaEdgePipeline, {frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorBuffer->getImage());
@@ -160,9 +148,9 @@ namespace samples {
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(extent);
             cmdList->setScissors(extent);
-            cmdList->setDescriptors({frame.smaaBlendWeightDescriptorSet, samplerDescriptorSet});
+            cmdList->setDescriptors({frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaBlendWeightPipeline);
-            cmdList->bindDescriptors(smaaBlendWeightPipeline, {frame.smaaBlendWeightDescriptorSet, samplerDescriptorSet});
+            cmdList->bindDescriptors(smaaBlendWeightPipeline, {frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(frame.smaaEdgeBuffer->getImage());
@@ -181,9 +169,9 @@ namespace samples {
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(extent);
             cmdList->setScissors(extent);
-            cmdList->setDescriptors({frame.smaaBlendDescriptorSet, samplerDescriptorSet});
+            cmdList->setDescriptors({frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaBlendPipeline);
-            cmdList->bindDescriptors(smaaBlendPipeline, {frame.smaaBlendDescriptorSet, samplerDescriptorSet});
+            cmdList->bindDescriptors(smaaBlendPipeline, {frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(frame.smaaBlendBuffer->getImage());
@@ -206,9 +194,9 @@ namespace samples {
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(extent);
             cmdList->setScissors(extent);
-            cmdList->setDescriptors({frame.fxaaDescriptorSet, samplerDescriptorSet});
+            cmdList->setDescriptors({frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(fxaaPipeline);
-            cmdList->bindDescriptors(fxaaPipeline, {frame.fxaaDescriptorSet, samplerDescriptorSet});
+            cmdList->bindDescriptors(fxaaPipeline, {frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorInput);
@@ -229,10 +217,10 @@ namespace samples {
                 frame.effectColorBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->setDescriptors({frame.effectDescriptorSet, samplerDescriptorSet});
+            cmdList->setDescriptors({frame.effectDescriptorSet, samplers.getDescriptorSet()});
             cmdList->beginRendering(renderingConfig);
             cmdList->bindPipeline(effectPipeline);
-            cmdList->bindDescriptors(effectPipeline, {frame.effectDescriptorSet, samplerDescriptorSet});
+            cmdList->bindDescriptors(effectPipeline, {frame.effectDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorInput);
@@ -254,10 +242,10 @@ namespace samples {
                 frame.gammaCorrectionColorBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->setDescriptors({frame.gammaCorrectionDescriptorSet, samplerDescriptorSet});
+            cmdList->setDescriptors({frame.gammaCorrectionDescriptorSet, samplers.getDescriptorSet()});
             cmdList->beginRendering(renderingConfig);
             cmdList->bindPipeline(gammaCorrectionPipeline);
-            cmdList->bindDescriptors(gammaCorrectionPipeline, {frame.gammaCorrectionDescriptorSet, samplerDescriptorSet});
+            cmdList->bindDescriptors(gammaCorrectionPipeline, {frame.gammaCorrectionDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorInput);
