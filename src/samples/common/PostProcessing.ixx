@@ -31,6 +31,7 @@ export namespace samples {
             return applyGammaCorrection ? framesData[frameIndex].gammaCorrectionColorBuffer :
                    applyEffect ? framesData[frameIndex].effectColorBuffer :
                    applyFXAA ? framesData[frameIndex].fxaaColorBuffer:
+                   applySMAA ? framesData[frameIndex].smaaColorBuffer:
                    nullptr;
         }
 
@@ -41,6 +42,9 @@ export namespace samples {
 
     private:
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
+        static constexpr vireo::DescriptorIndex BINDING_PARAMS{0};
+        static constexpr vireo::DescriptorIndex BINDING_INPUT{1};
+        static constexpr vireo::DescriptorIndex BINDING_SMAA_INPUT{2};
 
         struct PostProcessingParams {
             glm::ivec2 imageSize{};
@@ -54,11 +58,14 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  effectColorBuffer;
             std::shared_ptr<vireo::DescriptorSet> gammaCorrectionDescriptorSet;
             std::shared_ptr<vireo::RenderTarget>  gammaCorrectionColorBuffer;
-            std::shared_ptr<vireo::DescriptorSet> smaaDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> smaaEdgeDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> smaaBlendWeightDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> smaaBlendDescriptorSet;
+            std::shared_ptr<vireo::RenderTarget>  smaaColorBuffer;
+            std::shared_ptr<vireo::RenderTarget>  smaaEdgeBuffer;
+            std::shared_ptr<vireo::RenderTarget>  smaaBlendBuffer;
         };
 
-        static constexpr vireo::DescriptorIndex BINDING_PARAMS{0};
-        static constexpr vireo::DescriptorIndex BINDING_INPUT{1};
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}}
@@ -71,15 +78,20 @@ export namespace samples {
         bool                                     applyFXAA{false};
         bool                                     applyEffect{false};
         bool                                     applyGammaCorrection{true};
+
         std::shared_ptr<vireo::Vireo>            vireo;
         std::vector<FrameData>                   framesData;
         PostProcessingParams                     params{};
         std::shared_ptr<vireo::Buffer>           paramsBuffer;
+        std::shared_ptr<vireo::Pipeline>         smaaEdgePipeline;
+        std::shared_ptr<vireo::Pipeline>         smaaBlendWeightPipeline;
+        std::shared_ptr<vireo::Pipeline>         smaaBlendPipeline;
         std::shared_ptr<vireo::Pipeline>         fxaaPipeline;
         std::shared_ptr<vireo::Pipeline>         effectPipeline;
         std::shared_ptr<vireo::Pipeline>         gammaCorrectionPipeline;
         std::shared_ptr<vireo::Sampler>          sampler;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> smaaDescriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> samplerDescriptorLayout;
         std::shared_ptr<vireo::DescriptorSet>    samplerDescriptorSet;
 

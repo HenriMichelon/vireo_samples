@@ -7,8 +7,7 @@
 #include "postprocess.inc.slang"
 
 ConstantBuffer<Params> params  : register(b0);
-Texture2D inputImage           : register(t1);
-Texture2D edgeBuffer           : register(t2);
+Texture2D edgeBuffer           : register(t1);
 SamplerState sampler           : register(s0, space1);
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {

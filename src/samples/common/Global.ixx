@@ -20,6 +20,7 @@ export namespace samples {
         UP      = 72,
         RIGHT   = 77,
         DOWN    = 80,
+        M       = 39,
         F       = 33,
         P       = 25,
         G       = 34,

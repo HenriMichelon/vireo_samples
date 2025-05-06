@@ -20,6 +20,7 @@ namespace samples {
 
     void DeferredApp::onKeyDown(const uint32_t key) {
         const auto keyCode = static_cast<KeyScanCodes>(key);
+        graphicQueue->waitIdle();
         postProcessing.onKeyDown(keyCode);
         scene.onKeyDown(keyCode);
     }

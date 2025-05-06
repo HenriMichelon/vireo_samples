@@ -82,7 +82,7 @@ namespace samples {
     void Scene::onKeyDown(const KeyScanCodes keyCode) {
         glm::vec3 axis;
         auto angle = glm::radians(2.0f);
-        std::cout << "key: " << static_cast<int>(keyCode) << std::endl;
+        // std::cout << "key: " << static_cast<int>(keyCode) << std::endl;
         switch (keyCode) {
         case KeyScanCodes::SPACE:
             rotateCube = !rotateCube;
