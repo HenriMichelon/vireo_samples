@@ -9,8 +9,8 @@ struct Params {
     float time;
 };
 
-ConstantBuffer<Params> params  : register(b0);
-RWTexture2D outputImage        : register(u1);
+ConstantBuffer<Params> params : register(b0);
+RWTexture2D outputImage       : register(u1);
 
 [shader("compute")]
 [numthreads(8, 8, 1)]

@@ -6,9 +6,9 @@
 */
 #include "postprocess.inc.slang"
 
-ConstantBuffer<Params> params  : register(b0);
-Texture2D inputImage           : register(t1);
-SamplerState sampler           : register(SAMPLER_LINEAR_EDGE, space1);
+ConstantBuffer<Params> params : register(b0);
+Texture2D inputImage          : register(t1);
+SamplerState sampler          : register(SAMPLER_LINEAR_EDGE, space1);
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
     float3 lumaWeight = float3(0.299, 0.587, 0.114);

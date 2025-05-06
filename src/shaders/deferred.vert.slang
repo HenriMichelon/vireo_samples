@@ -19,8 +19,8 @@ struct PushConstants {
 [[push_constant]]
 PushConstants pushConstants : register(b0, space2);
 
-ConstantBuffer<Global>    global      : register(b0);
-ConstantBuffer<Models>    models      : register(b1);
+ConstantBuffer<Global> global : register(b0);
+ConstantBuffer<Models> models : register(b1);
 
 VertexOutput vertexMain(VertexInput input) {
     VertexOutput output;

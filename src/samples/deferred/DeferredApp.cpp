@@ -73,6 +73,15 @@ namespace samples {
             frame.semaphore,
             graphicQueue);
 
+        gbufferPass.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            scene,
+            depthPrepass,
+            samplers,
+            frame.semaphore,
+            graphicQueue);
+
         skybox.onRender(
             frameIndex,
             swapChain->getExtent(),
@@ -80,15 +89,6 @@ namespace samples {
             depthPrepass,
             samplers,
             frame.colorBuffer,
-            frame.semaphore,
-            graphicQueue);
-
-        gbufferPass.onRender(
-            frameIndex,
-            swapChain->getExtent(),
-            scene,
-            depthPrepass,
-            samplers,
             frame.semaphore,
             graphicQueue);
 

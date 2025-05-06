@@ -6,9 +6,9 @@
 */
 #include "postprocess.inc.slang"
 
-ConstantBuffer<Params> params  : register(b0);
-Texture2D edgeBuffer           : register(t1);
-SamplerState sampler           : register(SAMPLER_NEAREST_BORDER, space1);
+ConstantBuffer<Params> params : register(b0);
+Texture2D edgeBuffer          : register(t1);
+SamplerState sampler          : register(SAMPLER_NEAREST_BORDER, space1);
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
     float2 edge = edgeBuffer.Sample(sampler, input.uv).rg;
