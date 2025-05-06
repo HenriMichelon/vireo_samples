@@ -8,8 +8,8 @@
 #include "scene_input.inc.slang"
 
 struct FragmentOutput {
-    float4 color : SV_TARGET0;
-    float  alpha : SV_TARGET1;
+    float4 accum  : SV_TARGET0;
+    float  reveal : SV_TARGET1;
 };
 
 struct Materials {
@@ -31,8 +31,13 @@ Texture2D                 textures[5] : register(t4);
 SamplerState              sampler     : register(s0, space1);
 
 
- float weight(float z, float a) {
+ float weightDepth(float z, float a) {
     return clamp(pow(min(1.0, a * 10.0) + 0.01, 3.0) * 1e8 * pow(1.0 - z * 0.9, 3.0), 1e-2, 3e3);
+}
+
+float weightColor(float z, float4 color) {
+    return max(min(1.0, max(max(color.r, color.g), color.b) * color.a), color.a) *
+        clamp(0.03 / (1e-5 + pow(z / 200, 4.0)), 1e-2, 3e3);
 }
 
 FragmentOutput fragmentMain(VertexOutput input) {
@@ -45,9 +50,11 @@ FragmentOutput fragmentMain(VertexOutput input) {
     float3 N = normalize(normal * 2.0 - 1.0);
     N = normalize(mul(TBN, N));
     float3 lit = calcLighting(global, light, input.worldPos, N, material.shininess, ao);
+    color = float4(lit * color.rgb, color.a);
 
-    float w = weight(input.position.z, color.a);
-    output.color = float4(color.rgb * w, color.a);
-    output.alpha = color.a * w;
+    float weight = weightColor(input.position.z, color);
+
+    output.accum = float4(color.rgb * color.a, color.a) * weight;
+    output.reveal = color.a;
     return output;
 }

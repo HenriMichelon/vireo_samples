@@ -36,7 +36,7 @@ export namespace samples {
 
     private:
         static constexpr float angle_opaque = glm::radians(-0.1);
-        static constexpr float angle_transparent = glm::radians(0.5);
+        static constexpr float angle_transparent = glm::radians(-0.5);
         static constexpr auto scale_transparent = glm::vec3{0.25f, 0.25f, 0.25f};
         static constexpr auto radius_transparent = glm::vec3{1.25f, 0.0f, 0.0f};
 
@@ -44,7 +44,7 @@ export namespace samples {
         Global     global{};
         Light      light{};
         bool       rotateCube{false};
-        float      cubeYRotationAngle{glm::radians(-45.0f)};
+        float      cubeYRotationAngle{glm::radians(-90.0f)};
         float      cameraYRotationAngle{0.0f};
         glm::vec3  cameraTarget{0.0f, 0.0f, 0.0f};
 

@@ -47,8 +47,8 @@ namespace samples {
         oitPipeline = vireo->createGraphicPipeline(oitPipelineConfig);
 
         compositeDescriptorLayout = vireo->createDescriptorLayout();
-        compositeDescriptorLayout->add(BINDING_COLOR_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
-        compositeDescriptorLayout->add(BINDING_ALPHA_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
+        compositeDescriptorLayout->add(BINDING_ACCUM_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
+        compositeDescriptorLayout->add(BINDING_REVEALAGE_BUFFER, vireo::DescriptorType::SAMPLED_IMAGE);
         compositeDescriptorLayout->build();
 
         compositePipelineConfig.colorRenderFormats.push_back(renderFormat);
@@ -97,12 +97,12 @@ namespace samples {
         frame.globalUniform->write(&scene.getGlobal());
         frame.modelUniform->write(scene.getModels().data());
 
-        oitRenderingConfig.colorRenderTargets[BINDING_COLOR_BUFFER].renderTarget = frame.accumColorBuffer;
-        oitRenderingConfig.colorRenderTargets[BINDING_ALPHA_BUFFER].renderTarget = frame.accumAlphaBuffer;
+        oitRenderingConfig.colorRenderTargets[BINDING_ACCUM_BUFFER].renderTarget = frame.accumBuffer;
+        oitRenderingConfig.colorRenderTargets[BINDING_REVEALAGE_BUFFER].renderTarget = frame.revealageBuffer;
         oitRenderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         cmdList->barrier(
-            {frame.accumColorBuffer, frame.accumAlphaBuffer},
+            {frame.accumBuffer, frame.revealageBuffer},
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
 
@@ -120,12 +120,12 @@ namespace samples {
 
         cmdList->endRendering();
         cmdList->barrier(
-            {frame.accumColorBuffer, frame.accumAlphaBuffer},
+            {frame.accumBuffer, frame.revealageBuffer},
             vireo::ResourceState::RENDER_TARGET_COLOR,
             vireo::ResourceState::SHADER_READ);
 
-        frame.compositeDescriptorSet->update(BINDING_COLOR_BUFFER, frame.accumColorBuffer->getImage());
-        frame.compositeDescriptorSet->update(BINDING_ALPHA_BUFFER, frame.accumAlphaBuffer->getImage());
+        frame.compositeDescriptorSet->update(BINDING_ACCUM_BUFFER, frame.accumBuffer->getImage());
+        frame.compositeDescriptorSet->update(BINDING_REVEALAGE_BUFFER, frame.revealageBuffer->getImage());
 
         compositeRenderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
 
@@ -141,18 +141,18 @@ namespace samples {
 
     void TransparencyPass::onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList) {
         for (auto& frame : framesData) {
-            frame.accumColorBuffer = vireo->createRenderTarget(
-                oitPipelineConfig.colorRenderFormats[BINDING_COLOR_BUFFER],
+            frame.accumBuffer = vireo->createRenderTarget(
+                oitPipelineConfig.colorRenderFormats[BINDING_ACCUM_BUFFER],
                 extent.width,extent.height,
                 vireo::RenderTargetType::COLOR,
-                oitRenderingConfig.colorRenderTargets[BINDING_COLOR_BUFFER].clearValue);
-            frame.accumAlphaBuffer = vireo->createRenderTarget(
-                oitPipelineConfig.colorRenderFormats[BINDING_ALPHA_BUFFER],
+                oitRenderingConfig.colorRenderTargets[BINDING_ACCUM_BUFFER].clearValue);
+            frame.revealageBuffer = vireo->createRenderTarget(
+                oitPipelineConfig.colorRenderFormats[BINDING_REVEALAGE_BUFFER],
                 extent.width,extent.height,
                 vireo::RenderTargetType::COLOR,
-                oitRenderingConfig.colorRenderTargets[BINDING_ALPHA_BUFFER].clearValue);
+                oitRenderingConfig.colorRenderTargets[BINDING_REVEALAGE_BUFFER].clearValue);
             cmdList->barrier(
-                {frame.accumColorBuffer, frame.accumAlphaBuffer},
+                {frame.accumBuffer, frame.revealageBuffer},
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::SHADER_READ);
         }

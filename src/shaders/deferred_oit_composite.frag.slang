@@ -11,13 +11,12 @@ struct VertexOutput {
     float2 uv : TEXCOORD;
 };
 
-Texture2D    colorBuffer : register(t0);
-Texture2D    alphaBuffer : register(t1);
+Texture2D    accumBuffer : register(t0);
+Texture2D    revealBuffer : register(t1);
 SamplerState sampler     : register(s0, space1);
 
 float4 fragmentMain(VertexOutput input) : SV_TARGET {
-    float4 accum = colorBuffer.Sample(sampler, input.uv);
-    float a = 1.0 - accum.a;
-    accum.a = alphaBuffer.Sample(sampler, input.uv).r;
-    return float4(a * accum.rgb / clamp(accum.a, 0.001, 50000.0), a);
+    float4 accum = accumBuffer.Sample(sampler, input.uv);
+    float reveal = revealBuffer.Sample(sampler, input.uv).r;
+    return float4(accum.rgb / max(accum.a, 1e-5), reveal);
 }

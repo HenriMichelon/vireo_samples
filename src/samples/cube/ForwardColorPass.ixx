@@ -62,7 +62,6 @@ export namespace samples {
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc   = { { .blendEnable = true } },
-            .cullMode         = vireo::CullMode::BACK,
             .depthTestEnable  = true,
             .depthWriteEnable = false,
         };

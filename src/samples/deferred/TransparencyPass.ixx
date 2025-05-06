@@ -40,8 +40,8 @@ export namespace samples {
             std::shared_ptr<vireo::Buffer>        materialUniform;
             std::shared_ptr<vireo::DescriptorSet> oitDescriptorSet;
             std::shared_ptr<vireo::DescriptorSet> compositeDescriptorSet;
-            std::shared_ptr<vireo::RenderTarget>  accumColorBuffer;
-            std::shared_ptr<vireo::RenderTarget>  accumAlphaBuffer;
+            std::shared_ptr<vireo::RenderTarget>  accumBuffer;
+            std::shared_ptr<vireo::RenderTarget>  revealageBuffer;
         };
 
         struct PushConstants {
@@ -55,8 +55,8 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_MATERIAL{3};
         static constexpr vireo::DescriptorIndex BINDING_TEXTURES{4};
 
-        static constexpr vireo::DescriptorIndex BINDING_COLOR_BUFFER{0};
-        static constexpr vireo::DescriptorIndex BINDING_ALPHA_BUFFER{1};
+        static constexpr vireo::DescriptorIndex BINDING_ACCUM_BUFFER{0};
+        static constexpr vireo::DescriptorIndex BINDING_REVEALAGE_BUFFER{1};
 
         static constexpr vireo::DescriptorIndex BINDING_SAMPLERS{0};
 
@@ -120,10 +120,10 @@ export namespace samples {
                 {
                         .blendEnable = true,
                         .srcColorBlendFactor = vireo::BlendFactor::ONE_MINUS_SRC_ALPHA,
-                        .dstColorBlendFactor = vireo::BlendFactor::ONE,
+                        .dstColorBlendFactor = vireo::BlendFactor::SRC_ALPHA,
                         .colorBlendOp = vireo::BlendOp::ADD,
                         .srcAlphaBlendFactor = vireo::BlendFactor::ONE,
-                        .dstAlphaBlendFactor = vireo::BlendFactor::ONE,
+                        .dstAlphaBlendFactor = vireo::BlendFactor::ZERO,
                         .alphaBlendOp = vireo::BlendOp::ADD,
                         .colorWriteMask = vireo::ColorWriteMask::ALL,
                 }
