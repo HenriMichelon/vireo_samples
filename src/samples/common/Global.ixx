@@ -63,4 +63,9 @@ export namespace samples {
         alignas(4) int32_t aoTextureIndex{-1};
     };
 
+    struct FrameDataCommand {
+        std::shared_ptr<vireo::CommandAllocator> commandAllocator;
+        std::shared_ptr<vireo::CommandList>      commandList;
+    };
+
 }

@@ -9,6 +9,7 @@ module;
 export module samples.deferred;
 
 import samples.app;
+import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;
 import samples.common.skybox;
@@ -32,12 +33,10 @@ export namespace samples {
     private:
         static constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_UNORM;
 
-        struct FrameData {
-            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
-            std::shared_ptr<vireo::CommandList>      commandList;
-            std::shared_ptr<vireo::Fence>            inFlightFence;
-            std::shared_ptr<vireo::RenderTarget>     colorBuffer;
-            std::shared_ptr<vireo::Semaphore>        semaphore;
+        struct FrameData : FrameDataCommand {
+            std::shared_ptr<vireo::Fence>        inFlightFence;
+            std::shared_ptr<vireo::RenderTarget> colorBuffer;
+            std::shared_ptr<vireo::Semaphore>    semaphore;
         };
 
         Scene                               scene;

@@ -33,19 +33,16 @@ export namespace samples {
         auto isWithStencil() const { return withStencil; }
 
     private:
-        struct FrameData {
-            std::shared_ptr<vireo::Buffer>           globalUniform;
-            std::shared_ptr<vireo::Buffer>           modelUniform;
-            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
-            std::shared_ptr<vireo::CommandList>      commandList;
-            std::shared_ptr<vireo::RenderTarget>     depthBuffer;
-            std::shared_ptr<vireo::DescriptorSet>    descriptorSet;
-            std::shared_ptr<vireo::DescriptorSet>    modelDescriptorSet;
+        struct FrameData : FrameDataCommand {
+            std::shared_ptr<vireo::Buffer>        globalUniform;
+            std::shared_ptr<vireo::Buffer>        modelUniform;
+            std::shared_ptr<vireo::RenderTarget>  depthBuffer;
+            std::shared_ptr<vireo::DescriptorSet> descriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> modelDescriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex SET_GLOBAL{0};
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
-
         static constexpr vireo::DescriptorIndex SET_MODELS{1};
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{

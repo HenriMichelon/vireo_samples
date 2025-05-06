@@ -38,11 +38,6 @@ export namespace samples {
                    nullptr;
         }
 
-        auto toggleDisplayEffect() { applyEffect = !applyEffect; }
-        auto toggleGammaCorrection() { applyGammaCorrection = !applyGammaCorrection; }
-        auto toggleFXAA() { applyFXAA = !applyFXAA; }
-        auto toggleSMAA() { applySMAA = !applySMAA; }
-
     private:
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
         static constexpr vireo::DescriptorIndex BINDING_PARAMS{0};
@@ -69,7 +64,6 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  smaaBlendBuffer;
         };
 
-
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorBlendDesc = {{}}
         };
@@ -77,10 +71,10 @@ export namespace samples {
             .colorRenderTargets = {{}}
         };
 
-        bool                                     applySMAA{true};
-        bool                                     applyFXAA{false};
-        bool                                     applyEffect{false};
-        bool                                     applyGammaCorrection{true};
+        bool applySMAA{true};
+        bool applyFXAA{false};
+        bool applyEffect{false};
+        bool applyGammaCorrection{true};
 
         std::shared_ptr<vireo::Vireo>            vireo;
         std::vector<FrameData>                   framesData;
@@ -96,6 +90,13 @@ export namespace samples {
         std::shared_ptr<vireo::DescriptorLayout> smaaDescriptorLayout;
 
         static float getCurrentTimeMilliseconds();
+
+        auto toggleDisplayEffect() { applyEffect = !applyEffect; }
+        auto toggleGammaCorrection() { applyGammaCorrection = !applyGammaCorrection; }
+        auto toggleFXAA() { applyFXAA = !applyFXAA; }
+        auto toggleSMAA() { applySMAA = !applySMAA; }
+
+
     };
 
 }

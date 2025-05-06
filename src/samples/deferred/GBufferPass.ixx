@@ -38,7 +38,7 @@ export namespace samples {
         auto getMaterialBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].materialBuffer; }
 
     private:
-        struct FrameData {
+        struct FrameData : FrameDataCommand {
             std::shared_ptr<vireo::Buffer>        globalUniform;
             std::shared_ptr<vireo::Buffer>        modelUniform;
             std::shared_ptr<vireo::Buffer>        materialUniform;
@@ -47,8 +47,6 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  normalBuffer;
             std::shared_ptr<vireo::RenderTarget>  albedoBuffer;
             std::shared_ptr<vireo::RenderTarget>  materialBuffer;
-            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
-            std::shared_ptr<vireo::CommandList>      commandList;
         };
 
         struct PushConstants {

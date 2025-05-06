@@ -38,11 +38,9 @@ export namespace samples {
         auto getClearValue() const { return renderingConfig.colorRenderTargets[0].clearValue; }
 
     private:
-        struct FrameData {
-            std::shared_ptr<vireo::Buffer>           globalBuffer;
-            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
-            std::shared_ptr<vireo::CommandList>      commandList;
-            std::shared_ptr<vireo::DescriptorSet>    descriptorSet;
+        struct FrameData : FrameDataCommand {
+            std::shared_ptr<vireo::Buffer>        globalBuffer;
+            std::shared_ptr<vireo::DescriptorSet> descriptorSet;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};
