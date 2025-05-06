@@ -67,13 +67,18 @@ namespace samples {
         const DepthPrepass& depthPrepass,
         const Samplers& samplers,
         const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
-        const std::shared_ptr<vireo::CommandList>& cmdList) {
+        const std::shared_ptr<vireo::Semaphore>& semaphore,
+        const std::shared_ptr<vireo::SubmitQueue>& graphicQueue) {
         const auto& frame = framesData[frameIndex];
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         frame.globalBuffer->write(&global);
+
+        frame.commandAllocator->reset();
+        const auto cmdList = frame.commandList;
+        cmdList->begin();
 
         if (depthIsReadOnly && depthPrepass.isWithStencil()) {
             cmdList->barrier(
@@ -98,6 +103,14 @@ namespace samples {
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(cubemapVertices.size() / 3);
         cmdList->endRendering();
+
+        cmdList->end();
+        graphicQueue->submit(
+           semaphore,
+           vireo::WaitStage::FRAGMENT_SHADER,
+           vireo::WaitStage::FRAGMENT_SHADER,
+           semaphore,
+           {cmdList});
     }
 
     std::shared_ptr<vireo::Image> Skybox::loadCubemap(

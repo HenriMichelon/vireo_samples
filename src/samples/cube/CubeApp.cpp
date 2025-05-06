@@ -50,6 +50,7 @@ namespace samples {
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
+            frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::TIMELINE, L"Main ");
         }
         graphicQueue->waitIdle();
     }
@@ -64,11 +65,8 @@ namespace samples {
             frameIndex,
             swapChain->getExtent(),
             scene,
+            frame.semaphore,
             graphicQueue);
-
-        frame.commandAllocator->reset();
-        const auto cmdList = frame.commandList;
-        cmdList->begin();
 
         skybox.onRender(
             frameIndex,
@@ -77,7 +75,12 @@ namespace samples {
             depthPrepass,
             samplers,
             frame.colorBuffer,
-            cmdList);
+            frame.semaphore,
+            graphicQueue);
+
+        frame.commandAllocator->reset();
+        const auto cmdList = frame.commandList;
+        cmdList->begin();
 
         colorPass.onRender(
             frameIndex,
@@ -123,14 +126,16 @@ namespace samples {
             vireo::ResourceState::UNDEFINED);
         cmdList->end();
 
+        frame.semaphore->decrementValue();
         graphicQueue->submit(
-            depthPrepass.getSemaphore(frameIndex),
-            vireo::WaitStage::TRANSFER,
+            frame.semaphore,
+            {vireo::WaitStage::VERTEX_SHADER, vireo::WaitStage::FRAGMENT_SHADER},
             frame.inFlightFence,
             swapChain,
             {cmdList});
         swapChain->present();
         swapChain->nextFrameIndex();
+        frame.semaphore->incrementValue();
     }
 
     void CubeApp::onResize() {

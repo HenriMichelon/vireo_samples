@@ -51,7 +51,6 @@ namespace samples {
 
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
-            frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::BINARY);
         }
     }
 
@@ -59,6 +58,7 @@ namespace samples {
         const uint32_t frameIndex,
         const vireo::Extent& extent,
         const Scene& scene,
+        const std::shared_ptr<vireo::Semaphore>& semaphore,
         const std::shared_ptr<vireo::SubmitQueue>& graphicQueue) {
         const auto& frame = framesData[frameIndex];
 
@@ -68,7 +68,7 @@ namespace samples {
         renderingConfig.depthStencilRenderTarget = frame.depthBuffer;
 
         frame.commandAllocator->reset();
-        auto cmdList = frame.commandList;
+        const auto cmdList = frame.commandList;
         cmdList->begin();
         cmdList->barrier(
             renderingConfig.depthStencilRenderTarget,
@@ -88,9 +88,10 @@ namespace samples {
         scene.drawCube(cmdList);
         cmdList->endRendering();
         cmdList->end();
+
         graphicQueue->submit(
-            vireo::WaitStage::DEPTH_STENCIL_TEST_BEFORE_FRAGMENT_SHADER,
-            frame.semaphore,
+            vireo::WaitStage::VERTEX_SHADER,
+            semaphore,
             {cmdList});
     }
 

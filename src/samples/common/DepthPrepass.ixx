@@ -25,9 +25,9 @@ export namespace samples {
             uint32_t frameIndex,
             const vireo::Extent& extent,
             const Scene& scene,
+            const std::shared_ptr<vireo::Semaphore>& semaphore,
             const std::shared_ptr<vireo::SubmitQueue>& graphicQueue);
 
-        auto getSemaphore(const uint32_t frameIndex) const { return framesData[frameIndex].semaphore; }
         auto getDepthBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].depthBuffer; }
         auto getFormat() const { return pipelineConfig.depthStencilImageFormat; }
         auto isWithStencil() const { return withStencil; }
@@ -38,7 +38,6 @@ export namespace samples {
             std::shared_ptr<vireo::Buffer>           modelUniform;
             std::shared_ptr<vireo::CommandAllocator> commandAllocator;
             std::shared_ptr<vireo::CommandList>      commandList;
-            std::shared_ptr<vireo::Semaphore>        semaphore;
             std::shared_ptr<vireo::RenderTarget>     depthBuffer;
             std::shared_ptr<vireo::DescriptorSet>    descriptorSet;
             std::shared_ptr<vireo::DescriptorSet>    modelDescriptorSet;

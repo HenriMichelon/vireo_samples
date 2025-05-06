@@ -65,11 +65,11 @@ namespace samples {
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
 
-        depthPrepass.onRender(
-            frameIndex,
-            swapChain->getExtent(),
-            scene,
-            graphicQueue);
+        // depthPrepass.onRender(
+        //     frameIndex,
+        //     swapChain->getExtent(),
+        //     scene,
+        //     graphicQueue);
 
         frame.commandAllocator->reset();
         const auto cmdList = frame.commandList;
@@ -81,14 +81,14 @@ namespace samples {
             depthPrepass,
             samplers,
             cmdList);
-        skybox.onRender(
-            frameIndex,
-            swapChain->getExtent(),
-            false,
-            depthPrepass,
-            samplers,
-            frame.colorBuffer,
-            cmdList);
+        // skybox.onRender(
+        //     frameIndex,
+        //     swapChain->getExtent(),
+        //     false,
+        //     depthPrepass,
+        //     samplers,
+        //     frame.colorBuffer,
+        //     cmdList);
         lightingPass.onRender(
             frameIndex,
             swapChain->getExtent(),
@@ -143,12 +143,12 @@ namespace samples {
             vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        graphicQueue->submit(
-            depthPrepass.getSemaphore(frameIndex),
-            vireo::WaitStage::TRANSFER,
-            frame.inFlightFence,
-            swapChain,
-            {cmdList});
+        // graphicQueue->submit(
+        //     depthPrepass.getSemaphore(frameIndex),
+        //     vireo::WaitStage::TRANSFER,
+        //     frame.inFlightFence,
+        //     swapChain,
+        //     {cmdList});
         swapChain->present();
         swapChain->nextFrameIndex();
     }
