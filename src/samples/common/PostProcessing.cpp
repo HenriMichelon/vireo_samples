@@ -92,6 +92,8 @@ namespace samples {
        const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
 
+        std::vector<std::shared_ptr<vireo::Image>> shaderReadTargets;
+
         if (applyFXAA) {
             cmdList->barrier(
                colorBuffer,
@@ -111,6 +113,7 @@ namespace samples {
             cmdList->bindDescriptors(fxaaPipeline, {frame.fxaaDescriptorSet, samplerDescriptorSet});
             cmdList->draw(3);
             cmdList->endRendering();
+            shaderReadTargets.push_back(colorBuffer->getImage());
         }
 
         if (applyEffect) {
@@ -133,6 +136,7 @@ namespace samples {
             cmdList->bindDescriptors(effectPipeline, {frame.effectDescriptorSet, samplerDescriptorSet});
             cmdList->draw(3);
             cmdList->endRendering();
+            shaderReadTargets.push_back(colorInput);
         }
 
         if (applyGammaCorrection) {
@@ -156,43 +160,12 @@ namespace samples {
             cmdList->bindDescriptors(gammaCorrectionPipeline, {frame.gammaCorrectionDescriptorSet, samplerDescriptorSet});
             cmdList->draw(3);
             cmdList->endRendering();
-            cmdList->barrier(
-                colorInput,
-                vireo::ResourceState::SHADER_READ,
-                vireo::ResourceState::UNDEFINED);
-            if (applyEffect) {
-                if (applyFXAA) {
-                    cmdList->barrier(
-                        frame.fxaaColorBuffer,
-                        vireo::ResourceState::SHADER_READ,
-                        vireo::ResourceState::UNDEFINED);
-                } else {
-                    cmdList->barrier(
-                        colorBuffer,
-                        vireo::ResourceState::SHADER_READ,
-                        vireo::ResourceState::UNDEFINED);
-                }
+            shaderReadTargets.push_back(colorInput);
+        }
 
-            } else if (applyFXAA) {
-                cmdList->barrier(
-                    colorBuffer,
-                    vireo::ResourceState::SHADER_READ,
-                    vireo::ResourceState::UNDEFINED);
-            }
-        } else if (applyEffect) {
-            if (applyFXAA) {
-                cmdList->barrier(
-                    frame.fxaaColorBuffer,
-                    vireo::ResourceState::SHADER_READ,
-                    vireo::ResourceState::UNDEFINED);
-            }
+        for (const auto& image : shaderReadTargets) {
             cmdList->barrier(
-                colorBuffer,
-                vireo::ResourceState::SHADER_READ,
-                vireo::ResourceState::UNDEFINED);
-        } else if (applyFXAA) {
-            cmdList->barrier(
-                colorBuffer,
+                image,
                 vireo::ResourceState::SHADER_READ,
                 vireo::ResourceState::UNDEFINED);
         }

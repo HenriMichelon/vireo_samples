@@ -70,7 +70,7 @@ export namespace samples {
         bool                                     applySMAA{true};
         bool                                     applyFXAA{false};
         bool                                     applyEffect{false};
-        bool                                     applyGammaCorrection{false};
+        bool                                     applyGammaCorrection{true};
         std::shared_ptr<vireo::Vireo>            vireo;
         std::vector<FrameData>                   framesData;
         PostProcessingParams                     params{};

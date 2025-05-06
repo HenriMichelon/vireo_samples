@@ -43,7 +43,7 @@ export namespace samples {
 
         Global     global{};
         Light      light{};
-        bool       rotateCube{false};
+        bool       rotateCube{true};
         float      cubeYRotationAngle{glm::radians(-45.0f)};
         float      cameraYRotationAngle{0.0f};
         glm::vec3  cameraTarget{0.0f, 0.0f, 0.0f};

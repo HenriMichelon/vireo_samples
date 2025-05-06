@@ -109,10 +109,6 @@ namespace samples {
             cmdList,
             frame.colorBuffer);
 
-        auto colorBuffer = postProcessing.getColorBuffer(frameIndex);
-        if (colorBuffer == nullptr) {
-            colorBuffer = frame.colorBuffer;
-        }
         cmdList->barrier(
             depthPrepass.getDepthBuffer(frameIndex),
             depthPrepass.isWithStencil() ?
@@ -120,6 +116,10 @@ namespace samples {
                     vireo::ResourceState::RENDER_TARGET_DEPTH,
             vireo::ResourceState::UNDEFINED);
 
+        auto colorBuffer = postProcessing.getColorBuffer(frameIndex);
+        if (colorBuffer == nullptr) {
+            colorBuffer = frame.colorBuffer;
+        }
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::UNDEFINED,

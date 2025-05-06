@@ -98,17 +98,26 @@ namespace samples {
                 depthPrepass.getDepthBuffer(frameIndex),
                 vireo::ResourceState::RENDER_TARGET_DEPTH,
                 vireo::ResourceState::UNDEFINED);
+
+        auto colorBuffer = postProcessing.getColorBuffer(frameIndex);
+        if (colorBuffer == nullptr) {
+            colorBuffer = frame.colorBuffer;
+        }
+        cmdList->barrier(
+           colorBuffer,
+           vireo::ResourceState::RENDER_TARGET_COLOR,
+           vireo::ResourceState::COPY_SRC);
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::UNDEFINED,
             vireo::ResourceState::COPY_DST);
-        cmdList->copy(postProcessing.getColorBuffer(frameIndex), swapChain);
+        cmdList->copy(colorBuffer, swapChain);
         cmdList->barrier(
             swapChain,
             vireo::ResourceState::COPY_DST,
             vireo::ResourceState::PRESENT);
         cmdList->barrier(
-            postProcessing.getColorBuffer(frameIndex),
+            colorBuffer,
             vireo::ResourceState::COPY_SRC,
             vireo::ResourceState::UNDEFINED);
         cmdList->end();
