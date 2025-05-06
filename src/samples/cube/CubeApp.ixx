@@ -27,7 +27,7 @@ export namespace samples {
         void onKeyDown(uint32_t key) override;
 
     private:
-        static constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_SRGB;
+        static constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_UNORM;
 
         struct FrameData {
             std::shared_ptr<vireo::CommandAllocator> commandAllocator;

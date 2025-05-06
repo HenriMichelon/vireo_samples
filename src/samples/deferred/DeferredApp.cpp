@@ -19,12 +19,9 @@ namespace samples {
     }
 
     void DeferredApp::onKeyDown(const uint32_t key) {
-        const auto keyCode = static_cast<KeyCodes>(key);
-        if (keyCode == KeyCodes::P) {
-            postProcessing.toggleDisplayEffect();
-            return;
-        }
-        scene.onKeyDown(key);
+        const auto keyCode = static_cast<KeyScanCodes>(key);
+        postProcessing.onKeyDown(keyCode);
+        scene.onKeyDown(keyCode);
     }
 
     void DeferredApp::onInit() {
@@ -48,7 +45,6 @@ namespace samples {
 
         gbufferPass.onInit(vireo, scene, depthPrepass, swapChain->getFramesInFlight());
         postProcessing.onInit(vireo, RENDER_FORMAT, swapChain->getFramesInFlight());
-        postProcessing.toggleGammaCorrection();
 
         framesData.resize(swapChain->getFramesInFlight());
         for (auto& frame : framesData) {
@@ -107,10 +103,6 @@ namespace samples {
             depthPrepass,
             cmdList,
             frame.colorBuffer);
-        cmdList->barrier(
-           frame.colorBuffer,
-           vireo::ResourceState::RENDER_TARGET_COLOR,
-           vireo::ResourceState::SHADER_READ);
         postProcessing.onRender(
             frameIndex,
             swapChain->getExtent(),

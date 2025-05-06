@@ -49,9 +49,9 @@ namespace samples {
         textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM,
             "Net004A_1K-JPG_NormalGL.jpg"));
 
-        global.view = glm::lookAt(global.cameraPosition, cameraTarget, up);
+        global.view = glm::lookAt(global.cameraPosition, cameraTarget, AXIS_UP);
         global.viewInverse = glm::inverse(global.view);
-        global.projection = glm::perspective(glm::radians(75.0f), aspectRatio, 0.1f, 100.0f);
+        global.projection = glm::perspective(glm::radians(75.0f), aspectRatio, 0.05f, 50.0f);
 
         static constexpr float angle = glm::radians(-45.0f);
         models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle, AXIS_X);
@@ -79,45 +79,44 @@ namespace samples {
         }
     }
 
-    void Scene::onKeyDown(const uint32_t key) {
-        const auto keyCode = static_cast<KeyCodes>(key);
+    void Scene::onKeyDown(const KeyScanCodes keyCode) {
         glm::vec3 axis;
         auto angle = glm::radians(2.0f);
-        // std::cout << "key: " << key << std::endl;
+        std::cout << "key: " << static_cast<int>(keyCode) << std::endl;
         switch (keyCode) {
-        case KeyCodes::SPACE:
+        case KeyScanCodes::SPACE:
             rotateCube = !rotateCube;
             return;
-        case KeyCodes::W:
+        case KeyScanCodes::W:
             global.cameraPosition.z -= 0.1f;
             global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
             return;
-        case KeyCodes::S:
+        case KeyScanCodes::S:
             global.cameraPosition.z += 0.1f;
             global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
             return;
-        case KeyCodes::A:
+        case KeyScanCodes::A:
             global.cameraPosition.x -= 0.1f;
             global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
             return;
-        case KeyCodes::D:
+        case KeyScanCodes::D:
             global.cameraPosition.x += 0.1f;
             global.view = lookAt(global.cameraPosition, cameraTarget, AXIS_Y);
             return;
-        case KeyCodes::LEFT:
+        case KeyScanCodes::LEFT:
             axis = AXIS_Y;
             break;
-        case KeyCodes::RIGHT:
+        case KeyScanCodes::RIGHT:
             axis = AXIS_Y;
             angle *= -1.0f;
             break;
-        case KeyCodes::UP:
+        case KeyScanCodes::UP:
             if (cameraYRotationAngle <= glm::radians(-60.f)) { return; }
             axis = AXIS_X;
             angle *= -1.0f;
             cameraYRotationAngle += angle;
             break;
-        case KeyCodes::DOWN:
+        case KeyScanCodes::DOWN:
             if (cameraYRotationAngle >= glm::radians(60.0f)) { return; }
             axis = AXIS_X;
             cameraYRotationAngle += angle;

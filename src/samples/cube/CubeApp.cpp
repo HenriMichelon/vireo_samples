@@ -17,12 +17,9 @@ namespace samples {
     }
 
     void CubeApp::onKeyDown(const uint32_t key) {
-        const auto keyCode = static_cast<KeyCodes>(key);
-        if (keyCode == KeyCodes::P) {
-            postProcessing.toggleDisplayEffect();
-            return;
-        }
-        scene.onKeyDown(key);
+        const auto keyCode = static_cast<KeyScanCodes>(key);
+        postProcessing.onKeyDown(keyCode);
+        scene.onKeyDown(keyCode);
     }
 
     void CubeApp::onInit() {
@@ -90,11 +87,6 @@ namespace samples {
             depthPrepass,
             cmdList,
             frame.colorBuffer);
-
-        cmdList->barrier(
-           frame.colorBuffer,
-           vireo::ResourceState::RENDER_TARGET_COLOR,
-           vireo::ResourceState::SHADER_READ);
 
         postProcessing.onRender(
             frameIndex,

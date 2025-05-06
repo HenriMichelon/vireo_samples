@@ -24,7 +24,7 @@ export namespace samples {
             const std::shared_ptr<vireo::CommandList>& uploadCommandList,
             float aspectRatio);
         void onUpdate();
-        void onKeyDown(uint32_t key);
+        void onKeyDown(KeyScanCodes keyCode);
 
         void drawCube(const std::shared_ptr<vireo::CommandList>& cmdList) const;
 
@@ -43,8 +43,8 @@ export namespace samples {
 
         Global     global{};
         Light      light{};
-        bool       rotateCube{true};
-        float      cubeYRotationAngle{glm::radians(-90.0f)};
+        bool       rotateCube{false};
+        float      cubeYRotationAngle{glm::radians(-45.0f)};
         float      cameraYRotationAngle{0.0f};
         glm::vec3  cameraTarget{0.0f, 0.0f, 0.0f};
 

@@ -12,20 +12,22 @@ export namespace samples {
     constexpr auto AXIS_X = glm::vec3{1.0f, 0.0f, 0.0f};
     constexpr auto AXIS_Y = glm::vec3{0.0f, 1.0f, 0.0f};
     constexpr auto AXIS_Z = glm::vec3{0.0f, 0.0f, 1.0f};
-    constexpr auto up = AXIS_Y;
+    constexpr auto AXIS_UP = AXIS_Y;
 
 #ifdef _WIN32
-    enum class KeyCodes : uint32_t {
-        LEFT    = 37,
-        UP      = 38,
-        RIGHT   = 39,
-        DOWN    = 40,
-        P       = 80,
-        W       = 87,
-        A       = 65,
-        S       = 83,
-        D       = 68,
-        SPACE   = 32,
+    enum class KeyScanCodes : uint32_t {
+        LEFT    = 75,
+        UP      = 72,
+        RIGHT   = 77,
+        DOWN    = 80,
+        F       = 33,
+        P       = 25,
+        G       = 34,
+        W       = 17,
+        A       = 30,
+        S       = 31,
+        D       = 32,
+        SPACE   = 57,
     };
 #endif
 
@@ -54,7 +56,7 @@ export namespace samples {
     };
 
     struct Material {
-        alignas(16) float   shininess{128.f};
+        alignas(16) float  shininess{128.f};
         alignas(4) int32_t diffuseTextureIndex{-1};
         alignas(4) int32_t normalTextureIndex{-1};
         alignas(4) int32_t aoTextureIndex{-1};

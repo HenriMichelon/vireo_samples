@@ -19,6 +19,7 @@ export namespace samples {
             const std::shared_ptr<vireo::Vireo>& vireo,
             vireo::ImageFormat renderFormat,
             uint32_t framesInFlight);
+        void onKeyDown(KeyScanCodes keyCode);
         void onResize(const vireo::Extent& extent);
         void onRender(
             uint32_t frameIndex,
@@ -34,6 +35,7 @@ export namespace samples {
 
         auto toggleDisplayEffect() { applyEffect = !applyEffect; }
         auto toggleGammaCorrection() { applyGammaCorrection = !applyGammaCorrection; }
+        auto toggleFXAA() { applyFXAA = !applyFXAA; }
 
     private:
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
@@ -62,8 +64,9 @@ export namespace samples {
             .colorRenderTargets = {{}}
         };
 
+        bool                                     applyFXAA{true};
         bool                                     applyEffect{false};
-        bool                                     applyGammaCorrection{false};
+        bool                                     applyGammaCorrection{true};
         std::shared_ptr<vireo::Vireo>            vireo;
         std::vector<FrameData>                   framesData;
         PostProcessingParams                     params{};

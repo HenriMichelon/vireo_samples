@@ -59,8 +59,6 @@ namespace samples {
         };
         RegisterClassEx(&windowClass);
 
-        auto monitorData = MonitorEnumData {};
-
         int x = CW_USEDEFAULT;
         int y = CW_USEDEFAULT;
         int w = width;
@@ -70,11 +68,21 @@ namespace samples {
         if (width == 0 || height == 0) {
             exStyle = WS_EX_APPWINDOW;
             style = WS_POPUP | WS_MAXIMIZE;
-            EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
-            w = monitorData.monitorRect.right - monitorData.monitorRect.left;
-            h = monitorData.monitorRect.bottom - monitorData.monitorRect.top;
-            x = monitorData.monitorRect.left;
-            y = monitorData.monitorRect.top;
+            auto monitorRect = RECT{};
+            const auto hPrimary = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
+            auto monitorInfo = MONITORINFOEX{};
+            monitorInfo.cbSize = sizeof(MONITORINFOEX);
+            if (GetMonitorInfo(hPrimary, &monitorInfo)) {
+                monitorRect = monitorInfo.rcMonitor;
+            } else {
+                auto monitorData = MonitorEnumData {};
+                EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&monitorData));
+                monitorRect = monitorData.monitorRect;
+            }
+            w = monitorRect.right - monitorRect.left;
+            h = monitorRect.bottom - monitorRect.top;
+            x = monitorRect.left;
+            y = monitorRect.top;
         } else {
             style = WS_OVERLAPPEDWINDOW;
             exStyle = 0;
@@ -146,12 +154,12 @@ namespace samples {
                 return 0;
             case WM_KEYDOWN:
                 if (app) {
-                    app->onKeyDown(static_cast<uint32_t>(wParam));
+                    app->onKeyDown(static_cast<uint32_t>((lParam >> 16) & 0xFF));
                 }
                 return 0;
             case WM_KEYUP:
                 if (app) {
-                    app->onKeyUp(static_cast<uint32_t>(wParam));
+                    app->onKeyUp(static_cast<uint32_t>((lParam >> 16) & 0xFF));
                 }
                 return 0;
             case WM_PAINT:

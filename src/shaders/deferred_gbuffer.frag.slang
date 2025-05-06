@@ -37,12 +37,7 @@ FragmentOutput fragmentMain(VertexOutput input) {
     float3x3 TBN = (float3x3(input.tangent, input.bitangent, input.normal));
     float4 color = textures[material.diffuseTextureIndex].Sample(sampler, input.uv);
     float3 normal = textures[material.normalTextureIndex].Sample(sampler, input.uv).rgb;
-    float ao;
-    if (material.aoTextureIndex != -1) {
-        ao = textures[material.aoTextureIndex].Sample(sampler, input.uv).r;
-    } else {
-        ao = 1.0;
-    }
+    float ao = material.aoTextureIndex != -1 ? textures[material.aoTextureIndex].Sample(sampler, input.uv).r : 1.0;
     float3 N = normalize(normal * 2.0 - 1.0);
     N = normalize(mul(TBN, N));
 

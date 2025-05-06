@@ -41,9 +41,9 @@ float4 fragmentMain(VertexOutput input) : SV_TARGET {
     float4 color = textures[material.diffuseTextureIndex].Sample(sampler, input.uv);
     float3 normal = textures[material.normalTextureIndex].Sample(sampler, input.uv).rgb;
     float ao = material.aoTextureIndex != -1 ? textures[material.aoTextureIndex].Sample(sampler, input.uv).r : 1.0;
-    float3 albedo = color.rgb;
     float3 N = normalize(normal * 2.0 - 1.0);
     N = normalize(mul(TBN, N));
+
     float3 lit = calcLighting(global, light, input.worldPos, N, material.shininess, ao);
-    return float4(lit * albedo, color.a);
+    return float4(lit * color.rgb, color.a);
 }
