@@ -54,6 +54,7 @@ namespace samples {
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
+            frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::TIMELINE, L"Main timeline");
         }
 
         graphicQueue->waitIdle();
@@ -65,30 +66,36 @@ namespace samples {
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
 
-        // depthPrepass.onRender(
-        //     frameIndex,
-        //     swapChain->getExtent(),
-        //     scene,
-        //     graphicQueue);
+        depthPrepass.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            scene,
+            frame.semaphore,
+            graphicQueue);
 
-        frame.commandAllocator->reset();
-        const auto cmdList = frame.commandList;
-        cmdList->begin();
+        skybox.onRender(
+            frameIndex,
+            swapChain->getExtent(),
+            false,
+            depthPrepass,
+            samplers,
+            frame.colorBuffer,
+            frame.semaphore,
+            graphicQueue);
+
         gbufferPass.onRender(
             frameIndex,
             swapChain->getExtent(),
             scene,
             depthPrepass,
             samplers,
-            cmdList);
-        // skybox.onRender(
-        //     frameIndex,
-        //     swapChain->getExtent(),
-        //     false,
-        //     depthPrepass,
-        //     samplers,
-        //     frame.colorBuffer,
-        //     cmdList);
+            frame.semaphore,
+            graphicQueue);
+
+        frame.commandAllocator->reset();
+        const auto cmdList = frame.commandList;
+        cmdList->begin();
+
         lightingPass.onRender(
             frameIndex,
             swapChain->getExtent(),
@@ -143,14 +150,16 @@ namespace samples {
             vireo::ResourceState::PRESENT);
         cmdList->end();
 
-        // graphicQueue->submit(
-        //     depthPrepass.getSemaphore(frameIndex),
-        //     vireo::WaitStage::TRANSFER,
-        //     frame.inFlightFence,
-        //     swapChain,
-        //     {cmdList});
+        frame.semaphore->decrementValue();
+        graphicQueue->submit(
+            frame.semaphore,
+            {vireo::WaitStage::FRAGMENT_SHADER, vireo::WaitStage::FRAGMENT_SHADER},
+            frame.inFlightFence,
+            swapChain,
+            {cmdList});
         swapChain->present();
         swapChain->nextFrameIndex();
+        frame.semaphore->incrementValue();
     }
 
     void DeferredApp::onResize() {

@@ -28,7 +28,8 @@ export namespace samples {
             const Scene& scene,
             const DepthPrepass& depthPrepass,
             const Samplers& samplers,
-            const std::shared_ptr<vireo::CommandList>& cmdList);
+            const std::shared_ptr<vireo::Semaphore>& semaphore,
+            const std::shared_ptr<vireo::SubmitQueue>& graphicQueue);
         void onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList);
 
         auto getPositionBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].positionBuffer; }
@@ -46,6 +47,8 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  normalBuffer;
             std::shared_ptr<vireo::RenderTarget>  albedoBuffer;
             std::shared_ptr<vireo::RenderTarget>  materialBuffer;
+            std::shared_ptr<vireo::CommandAllocator> commandAllocator;
+            std::shared_ptr<vireo::CommandList>      commandList;
         };
 
         struct PushConstants {
@@ -68,10 +71,10 @@ export namespace samples {
             .size = sizeof(PushConstants),
         };
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes {
-            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position) },
+            {"POSITION", vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, position)},
             {"NORMAL",   vireo::AttributeFormat::R32G32B32_FLOAT, offsetof(Vertex, normal)},
             {"UV",       vireo::AttributeFormat::R32G32_FLOAT,    offsetof(Vertex, uv)},
-            {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,   offsetof(Vertex, tangent)},
+            {"TANGENT",  vireo::AttributeFormat::R32G32B32_FLOAT,  offsetof(Vertex, tangent)},
         };
         vireo::GraphicPipelineConfiguration pipelineConfig {
             .colorRenderFormats  = {

@@ -37,6 +37,7 @@ export namespace samples {
             std::shared_ptr<vireo::CommandList>      commandList;
             std::shared_ptr<vireo::Fence>            inFlightFence;
             std::shared_ptr<vireo::RenderTarget>     colorBuffer;
+            std::shared_ptr<vireo::Semaphore>        semaphore;
         };
 
         Scene                               scene;

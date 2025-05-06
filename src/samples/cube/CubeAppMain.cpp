@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.cube;
 
-APP(std::make_shared<samples::CubeApp>(), L"Cube", 0, 0);
+APP(std::make_shared<samples::CubeApp>(), L"Cube", 1280, 720);

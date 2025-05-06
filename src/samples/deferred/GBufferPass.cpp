@@ -37,6 +37,8 @@ namespace samples {
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
+            frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
+            frame.commandList = frame.commandAllocator->createCommandList();
             frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalUniform->map();
             frame.modelUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Model) * scene.getModels().size());
@@ -59,7 +61,8 @@ namespace samples {
         const Scene& scene,
         const DepthPrepass& depthPrepass,
         const Samplers& samplers,
-        const std::shared_ptr<vireo::CommandList>& cmdList) {
+        const std::shared_ptr<vireo::Semaphore>& semaphore,
+        const std::shared_ptr<vireo::SubmitQueue>& graphicQueue) {
         const auto& frame = framesData[frameIndex];
 
         frame.globalUniform->write(&scene.getGlobal());
@@ -70,6 +73,10 @@ namespace samples {
         renderingConfig.colorRenderTargets[BUFFER_ALBEDO].renderTarget = frame.albedoBuffer;
         renderingConfig.colorRenderTargets[BUFFER_MATERIAL].renderTarget = frame.materialBuffer;
         renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
+
+        frame.commandAllocator->reset();
+        const auto cmdList = frame.commandList;
+        cmdList->begin();
 
         auto renderTargets = std::views::transform(renderingConfig.colorRenderTargets, [](const auto& colorRenderTarget) {
             return colorRenderTarget.renderTarget;
@@ -96,6 +103,14 @@ namespace samples {
             {renderTargets.begin(), renderTargets.end()},
             vireo::ResourceState::RENDER_TARGET_COLOR,
             vireo::ResourceState::SHADER_READ);
+
+        cmdList->end();
+        graphicQueue->submit(
+           semaphore,
+           vireo::WaitStage::VERTEX_SHADER,
+           vireo::WaitStage::FRAGMENT_SHADER,
+           semaphore,
+           {cmdList});
     }
 
     void GBufferPass::onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList) {

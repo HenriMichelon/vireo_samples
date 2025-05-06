@@ -39,14 +39,14 @@ namespace samples {
 
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
-            frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global), 1, L"GLobal");
+            frame.globalUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Global));
             frame.globalUniform->map();
-            frame.lightUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light), 1, L"Light");
+            frame.lightUniform = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(Light));
             frame.lightUniform->map();
             auto light = scene.getLight();
             frame.lightUniform->write(&light);
             frame.lightUniform->unmap();
-            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"ColorPass");
+            frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
             frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
         }

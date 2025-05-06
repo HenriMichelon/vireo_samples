@@ -50,7 +50,7 @@ namespace samples {
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
-            frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::TIMELINE, L"Main ");
+            frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::TIMELINE, L"Main timeline");
         }
         graphicQueue->waitIdle();
     }
