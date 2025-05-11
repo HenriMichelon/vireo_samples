@@ -5,9 +5,6 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include <sys/stat.h>
-
-
 #include "Libraries.h"
 module samples.hellotexture;
 
