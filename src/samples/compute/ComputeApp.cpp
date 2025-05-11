@@ -36,7 +36,7 @@ namespace samples {
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.descriptorSet->update(BINDING_PARAMS, paramsBuffer);
-            frame.inFlightFence =vireo->createFence(true);
+            frame.inFlightFence = vireo->createFence(true);
         }
     }
 
