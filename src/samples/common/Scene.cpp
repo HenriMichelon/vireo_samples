@@ -144,7 +144,7 @@ namespace samples {
             throw std::runtime_error("Failed to load texture: " + filename);
         }
 
-        auto buffer = vireo->createBuffer(vireo::BufferType::IMAGE_TRANSFER, width * pixelSize, height);
+        auto buffer = vireo->createBuffer(vireo::BufferType::IMAGE_UPLOAD, width * pixelSize, height);
         buffer->map();
         buffer->write(pixels);
         stbi_image_free(pixels);
@@ -189,7 +189,7 @@ namespace samples {
                     }
                 }
             }
-            buffer = vireo->createBuffer(vireo::BufferType::IMAGE_TRANSFER, w * pixelSize, h);
+            buffer = vireo->createBuffer(vireo::BufferType::IMAGE_UPLOAD, w * pixelSize, h);
             buffer->map();
             buffer->write(data);
             uploadCommandList->copy(buffer, texture, 0, mipLevel);

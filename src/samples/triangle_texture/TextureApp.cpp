@@ -44,7 +44,7 @@ namespace samples {
             vireo::MipMapMode::NEAREST);
 
         const auto stagingBuffer = vireo->createBuffer(
-            vireo::BufferType::IMAGE_TRANSFER,
+            vireo::BufferType::IMAGE_UPLOAD,
             texture->getImageSize()
         );
         generateTextureData(stagingBuffer, texture->getWidth(), texture->getHeight());

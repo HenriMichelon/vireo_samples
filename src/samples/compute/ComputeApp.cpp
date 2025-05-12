@@ -5,6 +5,8 @@
 * https://opensource.org/licenses/MIT
 */
 module;
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 #include "Libraries.h"
 module samples.compute;
 
@@ -106,6 +108,32 @@ namespace samples {
 
     void ComputeApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
+
+        // Save to a file
+        const auto& frame = framesData[0];
+        frame.commandAllocator->reset();
+        frame.commandList->begin();
+        const auto buffer = vireo->createBuffer(vireo::BufferType::IMAGE_DOWNLOAD, frame.image->getAlignedImageSize());
+        frame.commandList->copy(frame.image, buffer);
+        frame.commandList->end();
+        graphicSubmitQueue->submit({frame.commandList});
+        graphicSubmitQueue->waitIdle();
+        buffer->map();
+        const auto rowPitch = frame.image->getRowPitch();
+        const auto alignedRowPitch = frame.image->getAlignedRowPitch();
+        std::vector<uint8_t> imageData(frame.image->getImageSize());
+        const auto* source = static_cast<uint8_t*>(buffer->getMappedAddress());
+        for (int y = 0; y < frame.image->getHeight(); ++y) {
+            memcpy(&imageData[y * rowPitch], &source[y * alignedRowPitch], rowPitch);
+        }
+        buffer->unmap();
+        stbi_write_png("output.png",
+            frame.image->getWidth(),
+            frame.image->getHeight(),
+            frame.image->getPixelSize(frame.image->getFormat()),
+            imageData.data(),
+            rowPitch);
+
         swapChain->waitIdle();
         paramsBuffer->unmap();
     }
