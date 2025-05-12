@@ -22,6 +22,7 @@ export namespace samples {
         void onInit(
             const std::shared_ptr<vireo::Vireo>& vireo,
             const std::shared_ptr<vireo::CommandList>& uploadCommandList,
+            std::vector<std::shared_ptr<vireo::Buffer>>& stagingBuffers,
             float aspectRatio);
         void onUpdate();
         void onKeyDown(KeyScanCodes keyCode);
@@ -39,7 +40,6 @@ export namespace samples {
         static constexpr float angle_transparent = glm::radians(-0.5);
         static constexpr auto scale_transparent = glm::vec3{0.25f, 0.25f, 0.25f};
         static constexpr auto radius_transparent = glm::vec3{1.25f, 0.0f, 0.0f};
-
 
         Global     global{};
         Light      light{};
@@ -105,6 +105,7 @@ export namespace samples {
 
         std::shared_ptr<vireo::Image> uploadTexture(
             const std::shared_ptr<vireo::CommandList>& uploadCommandList,
+            std::vector<std::shared_ptr<vireo::Buffer>>& stagingBuffer,
             vireo::ImageFormat format,
             const std::string& filename) const;
     };

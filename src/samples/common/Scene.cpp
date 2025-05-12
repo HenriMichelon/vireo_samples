@@ -21,6 +21,7 @@ namespace samples {
     void Scene::onInit(
         const std::shared_ptr<vireo::Vireo>& vireo,
         const std::shared_ptr<vireo::CommandList>& uploadCommandList,
+        std::vector<std::shared_ptr<vireo::Buffer>>& stagingBuffers,
         const float aspectRatio) {
         this->vireo = vireo;
 
@@ -33,20 +34,20 @@ namespace samples {
         materials.resize(2);
 
         materials[MATERIAL_ROCKS].diffuseTextureIndex = textures.size();
-        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_SRGB,
+        textures.push_back(uploadTexture(uploadCommandList, stagingBuffers, vireo::ImageFormat::R8G8B8A8_SRGB,
             "gray_rocks_diff_1k.jpg"));
         materials[MATERIAL_ROCKS].normalTextureIndex = textures.size();
-        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM,
+        textures.push_back(uploadTexture(uploadCommandList, stagingBuffers, vireo::ImageFormat::R8G8B8A8_UNORM,
             "gray_rocks_nor_gl_1k.jpg"));
         materials[MATERIAL_ROCKS].aoTextureIndex = textures.size();
-        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8_UNORM,
+        textures.push_back(uploadTexture(uploadCommandList, stagingBuffers, vireo::ImageFormat::R8_UNORM,
             "gray_rocks_ao_1k.jpg"));
 
         materials[MATERIAL_GRID].diffuseTextureIndex = textures.size();
-        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_SRGB,
+        textures.push_back(uploadTexture(uploadCommandList, stagingBuffers, vireo::ImageFormat::R8G8B8A8_SRGB,
             "Net004A_1K-JPG_Color.png"));
         materials[MATERIAL_GRID].normalTextureIndex = textures.size();
-        textures.push_back(uploadTexture(uploadCommandList, vireo::ImageFormat::R8G8B8A8_UNORM,
+        textures.push_back(uploadTexture(uploadCommandList, stagingBuffers, vireo::ImageFormat::R8G8B8A8_UNORM,
             "Net004A_1K-JPG_NormalGL.jpg"));
 
         global.view = glm::lookAt(global.cameraPosition, cameraTarget, AXIS_UP);
@@ -132,6 +133,7 @@ namespace samples {
 
     std::shared_ptr<vireo::Image> Scene::uploadTexture(
         const std::shared_ptr<vireo::CommandList>& uploadCommandList,
+        std::vector<std::shared_ptr<vireo::Buffer>>& stagingBuffer,
         const vireo::ImageFormat format,
         const std::string& filename) const {
         const auto pixelSize = vireo::Image::getPixelSize(format);
@@ -142,7 +144,7 @@ namespace samples {
             throw std::runtime_error("Failed to load texture: " + filename);
         }
 
-        auto buffer = vireo->createBuffer(vireo::BufferType::TRANSFER, width * pixelSize, height);
+        auto buffer = vireo->createBuffer(vireo::BufferType::IMAGE_TRANSFER, width * pixelSize, height);
         buffer->map();
         buffer->write(pixels);
         stbi_image_free(pixels);
@@ -159,6 +161,7 @@ namespace samples {
             vireo::ResourceState::COPY_DST,
             0, mipLevels);
         uploadCommandList->copy(buffer, texture);
+        stagingBuffer.push_back(buffer);
 
         // generating mip levels until reaching 4x4 resolution
         auto currentWidth = width;
@@ -186,10 +189,11 @@ namespace samples {
                     }
                 }
             }
-            buffer = vireo->createBuffer(vireo::BufferType::TRANSFER, w * pixelSize, h);
+            buffer = vireo->createBuffer(vireo::BufferType::IMAGE_TRANSFER, w * pixelSize, h);
             buffer->map();
             buffer->write(data);
             uploadCommandList->copy(buffer, texture, 0, mipLevel);
+            stagingBuffer.push_back(buffer);
             currentWidth = w;
             currentHeight = h;
             previousData = static_cast<unsigned char*>(buffer->getMappedAddress());

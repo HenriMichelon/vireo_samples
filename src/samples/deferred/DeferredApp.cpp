@@ -35,10 +35,11 @@ namespace samples {
 
         samplers.onInit(vireo);
 
+        auto stagingBuffers = std::vector<std::shared_ptr<vireo::Buffer>>();
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
-        scene.onInit(vireo, uploadCommandList, swapChain->getAspectRatio());
+        scene.onInit(vireo, uploadCommandList, stagingBuffers, swapChain->getAspectRatio());
         depthPrepass.onInit(vireo, scene, true, swapChain->getFramesInFlight());
         lightingPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, samplers, swapChain->getFramesInFlight());
         transparencyPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, samplers, swapChain->getFramesInFlight());
@@ -58,6 +59,7 @@ namespace samples {
         }
 
         graphicQueue->waitIdle();
+        stagingBuffers.clear();
     }
 
     void DeferredApp::onRender() {
