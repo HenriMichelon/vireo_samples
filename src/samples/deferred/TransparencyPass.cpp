@@ -97,8 +97,12 @@ namespace samples {
 
         cmdList->setDescriptors({frame.oitDescriptorSet, samplers.getDescriptorSet()});
         cmdList->beginRendering(oitRenderingConfig);
-        cmdList->setViewport(extent);
-        cmdList->setScissors(extent);
+        cmdList->setViewport(vireo::Viewport{
+            .width  = static_cast<float>(extent.width),
+            .height = static_cast<float>(extent.height)});
+        cmdList->setScissors(vireo::Rect{
+            .width  = extent.width,
+            .height = extent.height});
         cmdList->bindPipeline(oitPipeline);
         cmdList->bindDescriptors(oitPipeline, {frame.oitDescriptorSet, samplers.getDescriptorSet()});
 
@@ -119,8 +123,12 @@ namespace samples {
         compositeRenderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
 
         cmdList->beginRendering(compositeRenderingConfig);
-        cmdList->setViewport(extent);
-        cmdList->setScissors(extent);
+        cmdList->setViewport(vireo::Viewport{
+            .width  = static_cast<float>(extent.width),
+            .height = static_cast<float>(extent.height)});
+        cmdList->setScissors(vireo::Rect{
+            .width  = extent.width,
+            .height = extent.height});
         cmdList->setDescriptors({frame.compositeDescriptorSet, samplers.getDescriptorSet()});
         cmdList->bindPipeline(compositePipeline);
         cmdList->bindDescriptors(compositePipeline, {frame.compositeDescriptorSet, samplers.getDescriptorSet()});

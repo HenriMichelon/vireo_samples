@@ -61,8 +61,12 @@ namespace samples {
 
         renderingConfig.colorRenderTargets[0].multisampledRenderTarget = frame.msaaRenderTarget;
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewports({swapChain->getExtent()});
-        cmdList->setScissors({swapChain->getExtent()});
+        cmdList->setViewport(vireo::Viewport{
+            .width  = static_cast<float>(swapChain->getExtent().width),
+            .height = static_cast<float>(swapChain->getExtent().height)});
+        cmdList->setScissors(vireo::Rect{
+            .width  = swapChain->getExtent().width,
+            .height = swapChain->getExtent().height});
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->draw(triangleVertices.size());

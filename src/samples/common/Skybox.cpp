@@ -92,8 +92,12 @@ namespace samples {
            vireo::ResourceState::RENDER_TARGET_COLOR);
 
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewport(extent);
-        cmdList->setScissors(extent);
+        cmdList->setViewport(vireo::Viewport{
+            .width  = static_cast<float>(extent.width),
+            .height = static_cast<float>(extent.height)});
+        cmdList->setScissors(vireo::Rect{
+            .width  = extent.width,
+            .height = extent.height});
         if (depthPrepass.isWithStencil()) {
             cmdList->setStencilReference(0);
         }

@@ -61,8 +61,12 @@ namespace samples {
         cmdList->barrier(swapChain, vireo::ResourceState::UNDEFINED, vireo::ResourceState::RENDER_TARGET_COLOR);
 
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewport(swapChain->getExtent());
-        cmdList->setScissors(swapChain->getExtent());
+        cmdList->setViewport(vireo::Viewport{
+            .width  = static_cast<float>(swapChain->getExtent().width),
+            .height = static_cast<float>(swapChain->getExtent().height)});
+        cmdList->setScissors(vireo::Rect{
+            .width  = swapChain->getExtent().width,
+            .height = swapChain->getExtent().height});
         cmdList->bindPipeline(defaultPipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->draw(triangleVertices.size());

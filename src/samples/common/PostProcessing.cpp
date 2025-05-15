@@ -126,8 +126,12 @@ namespace samples {
             frame.smaaEdgeDescriptorSet->update(BINDING_INPUT, colorBuffer->getImage());
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaEdgeBuffer;
             cmdList->beginRendering(renderingConfig);
-            cmdList->setViewport(extent);
-            cmdList->setScissors(extent);
+            cmdList->setViewport(vireo::Viewport{
+                .width  = static_cast<float>(extent.width),
+                .height = static_cast<float>(extent.height)});
+            cmdList->setScissors(vireo::Rect{
+                .width  = extent.width,
+                .height = extent.height});
             cmdList->setDescriptors({frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaEdgePipeline);
             cmdList->bindDescriptors(smaaEdgePipeline, {frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
@@ -146,8 +150,12 @@ namespace samples {
             frame.smaaBlendWeightDescriptorSet->update(BINDING_INPUT, frame.smaaEdgeBuffer->getImage());
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaBlendBuffer;
             cmdList->beginRendering(renderingConfig);
-            cmdList->setViewport(extent);
-            cmdList->setScissors(extent);
+            cmdList->setViewport(vireo::Viewport{
+                .width  = static_cast<float>(extent.width),
+                .height = static_cast<float>(extent.height)});
+            cmdList->setScissors(vireo::Rect{
+                .width  = extent.width,
+                .height = extent.height});
             cmdList->setDescriptors({frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaBlendWeightPipeline);
             cmdList->bindDescriptors(smaaBlendWeightPipeline, {frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
@@ -167,8 +175,12 @@ namespace samples {
             frame.smaaBlendDescriptorSet->update(BINDING_SMAA_INPUT, frame.smaaBlendBuffer->getImage());
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaColorBuffer;
             cmdList->beginRendering(renderingConfig);
-            cmdList->setViewport(extent);
-            cmdList->setScissors(extent);
+            cmdList->setViewport(vireo::Viewport{
+                .width  = static_cast<float>(extent.width),
+                .height = static_cast<float>(extent.height)});
+            cmdList->setScissors(vireo::Rect{
+                .width  = extent.width,
+                .height = extent.height});
             cmdList->setDescriptors({frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaBlendPipeline);
             cmdList->bindDescriptors(smaaBlendPipeline, {frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
@@ -192,8 +204,12 @@ namespace samples {
             frame.fxaaDescriptorSet->update(BINDING_INPUT, colorBuffer->getImage());
             renderingConfig.colorRenderTargets[0].renderTarget = frame.fxaaColorBuffer;
             cmdList->beginRendering(renderingConfig);
-            cmdList->setViewport(extent);
-            cmdList->setScissors(extent);
+            cmdList->setViewport(vireo::Viewport{
+                .width  = static_cast<float>(extent.width),
+                .height = static_cast<float>(extent.height)});
+            cmdList->setScissors(vireo::Rect{
+                .width  = extent.width,
+                .height = extent.height});
             cmdList->setDescriptors({frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(fxaaPipeline);
             cmdList->bindDescriptors(fxaaPipeline, {frame.fxaaDescriptorSet, samplers.getDescriptorSet()});

@@ -83,8 +83,12 @@ namespace samples {
         renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewport(extent);
-        cmdList->setScissors(extent);
+        cmdList->setViewport(vireo::Viewport{
+            .width  = static_cast<float>(extent.width),
+            .height = static_cast<float>(extent.height)});
+        cmdList->setScissors(vireo::Rect{
+            .width  = extent.width,
+            .height = extent.height});
         cmdList->setDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptor(pipeline, frame.descriptorSet, SET_GLOBAL);

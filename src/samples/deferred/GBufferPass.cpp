@@ -87,8 +87,12 @@ namespace samples {
             vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->setDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewport(extent);
-        cmdList->setScissors(extent);
+        cmdList->setViewport(vireo::Viewport{
+            .width  = static_cast<float>(extent.width),
+            .height = static_cast<float>(extent.height)});
+        cmdList->setScissors(vireo::Rect{
+            .width  = extent.width,
+            .height = extent.height});
         cmdList->bindPipeline(pipeline);
         cmdList->setStencilReference(1);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplers.getDescriptorSet()});

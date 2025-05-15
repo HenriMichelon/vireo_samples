@@ -75,8 +75,12 @@ namespace samples {
             vireo::ResourceState::UNDEFINED,
             withStencil ? vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL : vireo::ResourceState::RENDER_TARGET_DEPTH);
         cmdList->beginRendering(renderingConfig);
-        cmdList->setViewport(extent);
-        cmdList->setScissors(extent);
+        cmdList->setViewport(vireo::Viewport{
+            .width  = static_cast<float>(extent.width),
+            .height = static_cast<float>(extent.height)});
+        cmdList->setScissors(vireo::Rect{
+            .width  = extent.width,
+            .height = extent.height});
         cmdList->setDescriptors({frame.descriptorSet});
         cmdList->bindPipeline(pipeline);
         if (withStencil) {
