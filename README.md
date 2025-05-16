@@ -35,6 +35,8 @@ The samples demonstrate the following features, in order of complexity:
   - Push constants
   - Multiple pipelines
   - Slang example using a uniform buffer and push constants
+- Indirect, the "Hello TriangleS" with indirect drawing:
+  - Indexed indirect drawing
 - MSAA, the anti-aliased "Hello Triangle" :
   - Custom render targets
   - MSAA support
