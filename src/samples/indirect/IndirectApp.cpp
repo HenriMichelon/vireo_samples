@@ -11,9 +11,6 @@ module samples.indirect;
 namespace samples {
 
     void IndirectApp::onInit() {
-        const auto& adapterDesc = vireo->getPhysicalDevice()->getDescription();
-        std::wcout << adapterDesc.name << L" " << std::to_wstring(adapterDesc.dedicatedVideoMemory / 1024 / 1024) << L"Mb" << std::endl;
-
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormats.front(), graphicQueue, windowHandle, vireo::PresentMode::IMMEDIATE);
         renderingConfig.colorRenderTargets[0].swapChain = swapChain;
@@ -22,15 +19,18 @@ namespace samples {
             vertex.pos.y *= ratio;
         }
 
-        vertexBuffer = vireo->createBuffer(
-            vireo::BufferType::VERTEX,
-            sizeof(Vertex),
-            triangleVertices.size());
+        vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(Vertex), triangleVertices.size());
+        indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX, sizeof(uint32_t), triangleIndices.size());
+        drawCommandsBuffer = vireo->createBuffer(vireo::BufferType::INDIRECT, sizeof(vireo::DrawIndexedIndirectCommand), drawCommands.size());
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
-        uploadCommandList->upload(vertexBuffer, &triangleVertices[0]);
+        uploadCommandList->upload({
+            {vertexBuffer, triangleVertices.data()},
+            {indexBuffer, triangleIndices.data()},
+            {drawCommandsBuffer, drawCommands.data()},
+        });
         uploadCommandList->end();
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
@@ -69,7 +69,8 @@ namespace samples {
             .height = swapChain->getExtent().height});
         cmdList->bindPipeline(defaultPipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
-        cmdList->draw(triangleVertices.size());
+        cmdList->bindIndexBuffer(indexBuffer);
+        cmdList->drawIndexedIndirect(drawCommandsBuffer, 0, drawCommands.size(), sizeof(vireo::DrawIndexedIndirectCommand));
         cmdList->endRendering();
 
         cmdList->barrier(swapChain, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::PRESENT);

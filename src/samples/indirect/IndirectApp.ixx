@@ -31,10 +31,28 @@ export namespace samples {
             std::shared_ptr<vireo::Fence>            inFlightFence;
         };
 
-        std::vector<Vertex> triangleVertices{
+        std::vector<Vertex> triangleVertices {
+            { { 0.0f - 0.5f, 0.25f, 0.0f },   { 0.0f, 1.0f, 0.0f } },
+            { { 0.25f - 0.5f, -0.25f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
+            { { -0.25f - 0.5f, -0.25f, 0.0f },{ 1.0f, 0.0f, 0.0f } },
+
             { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f} },
             { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-            { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+            { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+
+            { { 0.0f + 0.5f, 0.25f, 0.0f },   { 0.0f, 0.0f, 1.0f } },
+            { { 0.25f + 0.5f, -0.25f, 0.0f },{ 1.0f, 0.0f, 0.0f } },
+            { { -0.25f + 0.5f, -0.25f, 0.0f },{ 0.0f, 1.0f, 0.0f } },
+        };
+
+        const std::vector<uint32_t> triangleIndices {
+            0, 1, 2,
+        };
+
+        const std::vector<vireo::DrawIndexedIndirectCommand> drawCommands {
+            { 3, 1, 0, 0, 0 },
+            { 3, 1, 0, 3, 0 },
+            { 3, 1, 0, 6, 0 },
         };
 
         const std::vector<vireo::VertexAttributeDesc> vertexAttributes{
@@ -55,6 +73,8 @@ export namespace samples {
 
         std::vector<FrameData>              framesData;
         std::shared_ptr<vireo::Buffer>      vertexBuffer;
+        std::shared_ptr<vireo::Buffer>      indexBuffer;
+        std::shared_ptr<vireo::Buffer>      drawCommandsBuffer;
         std::shared_ptr<vireo::Pipeline>    defaultPipeline;
         std::shared_ptr<vireo::SwapChain>   swapChain;
         std::shared_ptr<vireo::SubmitQueue> graphicQueue;
