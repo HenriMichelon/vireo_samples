@@ -377,3 +377,4 @@ log.txt
 .vscode
 cmake-build-debug-mingw
 *.dxil
+/renderdoc.cap

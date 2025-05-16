@@ -181,3 +181,11 @@ set(DEFERRED_MODULES
         ${SCENE_COMMON_MODULES}
 )
 build_target(deferred "${DEFERRED_SRC}" "${DEFERRED_MODULES}")
+
+#######################################################
+set(INDIRECT_SRC
+        ${SRC_DIR}/samples/indirect/IndirectApp.cpp
+        ${SRC_DIR}/samples/indirect/IndirectAppMain.cpp)
+set(INDIRECT_MODULES ${SRC_DIR}/samples/indirect/IndirectApp.ixx)
+build_target(indirect "${INDIRECT_SRC}" "${INDIRECT_MODULES}")
+
