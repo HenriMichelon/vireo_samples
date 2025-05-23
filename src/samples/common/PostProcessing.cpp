@@ -132,7 +132,6 @@ namespace samples {
             cmdList->setScissors(vireo::Rect{
                 .width  = extent.width,
                 .height = extent.height});
-            cmdList->setDescriptors({frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaEdgePipeline);
             cmdList->bindDescriptors(smaaEdgePipeline, {frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
@@ -156,7 +155,6 @@ namespace samples {
             cmdList->setScissors(vireo::Rect{
                 .width  = extent.width,
                 .height = extent.height});
-            cmdList->setDescriptors({frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaBlendWeightPipeline);
             cmdList->bindDescriptors(smaaBlendWeightPipeline, {frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
@@ -181,7 +179,6 @@ namespace samples {
             cmdList->setScissors(vireo::Rect{
                 .width  = extent.width,
                 .height = extent.height});
-            cmdList->setDescriptors({frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(smaaBlendPipeline);
             cmdList->bindDescriptors(smaaBlendPipeline, {frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
@@ -210,7 +207,6 @@ namespace samples {
             cmdList->setScissors(vireo::Rect{
                 .width  = extent.width,
                 .height = extent.height});
-            cmdList->setDescriptors({frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
             cmdList->bindPipeline(fxaaPipeline);
             cmdList->bindDescriptors(fxaaPipeline, {frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
@@ -233,7 +229,6 @@ namespace samples {
                 frame.effectColorBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->setDescriptors({frame.effectDescriptorSet, samplers.getDescriptorSet()});
             cmdList->beginRendering(renderingConfig);
             cmdList->bindPipeline(effectPipeline);
             cmdList->bindDescriptors(effectPipeline, {frame.effectDescriptorSet, samplers.getDescriptorSet()});
@@ -258,7 +253,6 @@ namespace samples {
                 frame.gammaCorrectionColorBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->setDescriptors({frame.gammaCorrectionDescriptorSet, samplers.getDescriptorSet()});
             cmdList->beginRendering(renderingConfig);
             cmdList->bindPipeline(gammaCorrectionPipeline);
             cmdList->bindDescriptors(gammaCorrectionPipeline, {frame.gammaCorrectionDescriptorSet, samplers.getDescriptorSet()});

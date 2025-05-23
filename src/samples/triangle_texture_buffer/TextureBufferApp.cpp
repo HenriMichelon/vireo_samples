@@ -136,7 +136,6 @@ namespace samples {
         cmdList->setScissors(vireo::Rect{
             .width  = swapChain->getExtent().width,
             .height = swapChain->getExtent().height});
-        cmdList->setDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
 
         cmdList->bindPipeline(pipelines["shader1"]);
         cmdList->bindDescriptors(pipelines["shader1"], {frame.descriptorSet, frame.samplersDescriptorSet});

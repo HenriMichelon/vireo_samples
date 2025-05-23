@@ -101,7 +101,6 @@ namespace samples {
         if (depthPrepass.isWithStencil()) {
             cmdList->setStencilReference(0);
         }
-        cmdList->setDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplers.getDescriptorSet()});

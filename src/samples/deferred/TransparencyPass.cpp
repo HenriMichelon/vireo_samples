@@ -95,7 +95,6 @@ namespace samples {
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
 
-        cmdList->setDescriptors({frame.oitDescriptorSet, samplers.getDescriptorSet()});
         cmdList->beginRendering(oitRenderingConfig);
         cmdList->setViewport(vireo::Viewport{
             .width  = static_cast<float>(extent.width),
@@ -129,7 +128,6 @@ namespace samples {
         cmdList->setScissors(vireo::Rect{
             .width  = extent.width,
             .height = extent.height});
-        cmdList->setDescriptors({frame.compositeDescriptorSet, samplers.getDescriptorSet()});
         cmdList->bindPipeline(compositePipeline);
         cmdList->bindDescriptors(compositePipeline, {frame.compositeDescriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(3);

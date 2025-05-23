@@ -54,7 +54,6 @@ namespace samples {
 
         frame.commandAllocator->reset();
         frame.commandList->begin();
-        frame.commandList->setDescriptors({frame.descriptorSet});
         frame.commandList->bindPipeline(pipeline);
         frame.commandList->bindDescriptors(pipeline, {frame.descriptorSet});
 

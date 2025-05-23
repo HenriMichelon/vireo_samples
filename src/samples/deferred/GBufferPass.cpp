@@ -85,7 +85,6 @@ namespace samples {
             {renderTargets.begin(), renderTargets.end()},
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
-        cmdList->setDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
             .width  = static_cast<float>(extent.width),

@@ -89,7 +89,6 @@ namespace samples {
         cmdList->setScissors(vireo::Rect{
             .width  = extent.width,
             .height = extent.height});
-        cmdList->setDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptor(pipeline, frame.descriptorSet, SET_GLOBAL);
         cmdList->bindDescriptor(pipeline, samplers.getDescriptorSet(), SET_SAMPLERS);
