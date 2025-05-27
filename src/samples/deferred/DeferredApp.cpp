@@ -60,6 +60,29 @@ namespace samples {
 
         graphicQueue->waitIdle();
         stagingBuffers.clear();
+
+        if constexpr (vireo::isMemoryUsageEnabled()) {
+            size_t totalBuffers{0};
+            for (const auto& usage : vireo::Buffer::getMemoryAllocations()) {
+                std::cout
+                    << "Buffer : "
+                    << usage.size
+                    << " (" << std::to_string(usage.name) << ")"
+                    << std::endl;
+                totalBuffers += usage.size;
+            }
+            size_t totalImages{0};
+            for (const auto& usage : vireo::Image::getMemoryAllocations()) {
+                std::cout
+                    << "Image : "
+                    << usage.size
+                    << " (" << std::to_string(usage.name) << ")"
+                    << std::endl;
+                totalImages += usage.size;
+            }
+            std::cout << "Buffers : " << totalBuffers << " bytes (" << totalBuffers/1024/1024 << "Mb)" << std::endl;
+            std::cout << "Images: " << totalImages << " bytes (" << totalImages/1024/1024 << "Mb)" << std::endl;
+        }
     }
 
     void DeferredApp::onRender() {
