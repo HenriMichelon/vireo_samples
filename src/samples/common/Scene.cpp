@@ -160,7 +160,7 @@ namespace samples {
             vireo::ResourceState::UNDEFINED,
             vireo::ResourceState::COPY_DST,
             0, mipLevels);
-        uploadCommandList->copy(buffer, texture);
+        uploadCommandList->copy(buffer, texture, 0, 0, false);
         stagingBuffer.push_back(buffer);
 
         // generating mip levels until reaching 4x4 resolution
@@ -192,7 +192,7 @@ namespace samples {
             buffer = vireo->createBuffer(vireo::BufferType::IMAGE_UPLOAD, w * pixelSize, h);
             buffer->map();
             buffer->write(data);
-            uploadCommandList->copy(buffer, texture, 0, mipLevel);
+            uploadCommandList->copy(buffer, texture, 0, mipLevel, false);
             stagingBuffer.push_back(buffer);
             currentWidth = w;
             currentHeight = h;
