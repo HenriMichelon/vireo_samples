@@ -55,7 +55,7 @@ namespace samples {
         frame.commandAllocator->reset();
         frame.commandList->begin();
         frame.commandList->bindPipeline(pipeline);
-        frame.commandList->bindDescriptors(pipeline, {frame.descriptorSet});
+        frame.commandList->bindDescriptors({frame.descriptorSet});
 
         frame.commandList->barrier(
             frame.image,

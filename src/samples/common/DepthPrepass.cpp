@@ -85,8 +85,8 @@ namespace samples {
         if (withStencil) {
             cmdList->setStencilReference(1);
         }
-        cmdList->bindDescriptor(pipeline, frame.descriptorSet, SET_GLOBAL);
-        cmdList->bindDescriptor(pipeline, frame.modelDescriptorSet, SET_MODELS,
+        cmdList->bindDescriptor(frame.descriptorSet, SET_GLOBAL);
+        cmdList->bindDescriptor(frame.modelDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE);
         scene.drawCube(cmdList);
         cmdList->endRendering();

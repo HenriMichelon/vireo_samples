@@ -133,7 +133,7 @@ namespace samples {
                 .width  = extent.width,
                 .height = extent.height});
             cmdList->bindPipeline(smaaEdgePipeline);
-            cmdList->bindDescriptors(smaaEdgePipeline, {frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
+            cmdList->bindDescriptors({frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorBuffer->getImage());
@@ -156,7 +156,7 @@ namespace samples {
                 .width  = extent.width,
                 .height = extent.height});
             cmdList->bindPipeline(smaaBlendWeightPipeline);
-            cmdList->bindDescriptors(smaaBlendWeightPipeline, {frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
+            cmdList->bindDescriptors({frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(frame.smaaEdgeBuffer->getImage());
@@ -180,7 +180,7 @@ namespace samples {
                 .width  = extent.width,
                 .height = extent.height});
             cmdList->bindPipeline(smaaBlendPipeline);
-            cmdList->bindDescriptors(smaaBlendPipeline, {frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
+            cmdList->bindDescriptors({frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(frame.smaaBlendBuffer->getImage());
@@ -208,7 +208,7 @@ namespace samples {
                 .width  = extent.width,
                 .height = extent.height});
             cmdList->bindPipeline(fxaaPipeline);
-            cmdList->bindDescriptors(fxaaPipeline, {frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
+            cmdList->bindDescriptors({frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorInput);
@@ -231,7 +231,7 @@ namespace samples {
                 vireo::ResourceState::RENDER_TARGET_COLOR);
             cmdList->beginRendering(renderingConfig);
             cmdList->bindPipeline(effectPipeline);
-            cmdList->bindDescriptors(effectPipeline, {frame.effectDescriptorSet, samplers.getDescriptorSet()});
+            cmdList->bindDescriptors({frame.effectDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorInput);
@@ -255,7 +255,7 @@ namespace samples {
                 vireo::ResourceState::RENDER_TARGET_COLOR);
             cmdList->beginRendering(renderingConfig);
             cmdList->bindPipeline(gammaCorrectionPipeline);
-            cmdList->bindDescriptors(gammaCorrectionPipeline, {frame.gammaCorrectionDescriptorSet, samplers.getDescriptorSet()});
+            cmdList->bindDescriptors({frame.gammaCorrectionDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorInput);

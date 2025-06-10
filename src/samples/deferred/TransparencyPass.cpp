@@ -103,7 +103,7 @@ namespace samples {
             .width  = extent.width,
             .height = extent.height});
         cmdList->bindPipeline(oitPipeline);
-        cmdList->bindDescriptors(oitPipeline, {frame.oitDescriptorSet, samplers.getDescriptorSet()});
+        cmdList->bindDescriptors({frame.oitDescriptorSet, samplers.getDescriptorSet()});
 
         pushConstants.modelIndex = Scene::MODEL_TRANSPARENT;
         pushConstants.materialIndex = Scene::MATERIAL_GRID;
@@ -129,7 +129,7 @@ namespace samples {
             .width  = extent.width,
             .height = extent.height});
         cmdList->bindPipeline(compositePipeline);
-        cmdList->bindDescriptors(compositePipeline, {frame.compositeDescriptorSet, samplers.getDescriptorSet()});
+        cmdList->bindDescriptors({frame.compositeDescriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(3);
         cmdList->endRendering();
     }

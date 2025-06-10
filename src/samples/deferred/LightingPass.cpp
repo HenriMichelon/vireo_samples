@@ -82,7 +82,7 @@ namespace samples {
             .height = extent.height});
         cmdList->bindPipeline(pipeline);
         cmdList->setStencilReference(1);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplers.getDescriptorSet()});
+        cmdList->bindDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(3);
         cmdList->endRendering();
     }

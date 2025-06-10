@@ -94,7 +94,7 @@ namespace samples {
             .height = extent.height});
         cmdList->bindPipeline(pipeline);
         cmdList->setStencilReference(1);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplers.getDescriptorSet()});
+        cmdList->bindDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
 
         pushConstants.modelIndex = Scene::MODEL_OPAQUE;
         pushConstants.materialIndex = Scene::MATERIAL_ROCKS;

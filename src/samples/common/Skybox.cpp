@@ -103,7 +103,7 @@ namespace samples {
         }
         cmdList->bindPipeline(pipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, samplers.getDescriptorSet()});
+        cmdList->bindDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(cubemapVertices.size() / 3);
         cmdList->endRendering();
 

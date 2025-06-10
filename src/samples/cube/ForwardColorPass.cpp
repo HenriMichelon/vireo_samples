@@ -90,21 +90,21 @@ namespace samples {
             .width  = extent.width,
             .height = extent.height});
         cmdList->bindPipeline(pipeline);
-        cmdList->bindDescriptor(pipeline, frame.descriptorSet, SET_GLOBAL);
-        cmdList->bindDescriptor(pipeline, samplers.getDescriptorSet(), SET_SAMPLERS);
+        cmdList->bindDescriptor(frame.descriptorSet, SET_GLOBAL);
+        cmdList->bindDescriptor(samplers.getDescriptorSet(), SET_SAMPLERS);
 
-        cmdList->bindDescriptor(pipeline,
+        cmdList->bindDescriptor(
             frame.materialsDescriptorSet,SET_MATERIALS,
             frame.materialUniform->getInstanceSizeAligned() * Scene::MATERIAL_ROCKS);
-        cmdList->bindDescriptor(pipeline,
+        cmdList->bindDescriptor(
             frame.modelsDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_OPAQUE);
         scene.drawCube(cmdList);
 
-        cmdList->bindDescriptor(pipeline,
+        cmdList->bindDescriptor(
             frame.materialsDescriptorSet, SET_MATERIALS,
             frame.materialUniform->getInstanceSizeAligned() * Scene::MATERIAL_GRID);
-        cmdList->bindDescriptor(pipeline,
+        cmdList->bindDescriptor(
             frame.modelsDescriptorSet, SET_MODELS,
             frame.modelUniform->getInstanceSizeAligned() * Scene::MODEL_TRANSPARENT);
         scene.drawCube(cmdList);

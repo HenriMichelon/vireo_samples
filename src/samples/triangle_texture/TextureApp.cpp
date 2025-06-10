@@ -116,7 +116,7 @@ namespace samples {
             .width  = swapChain->getExtent().width,
             .height = swapChain->getExtent().height});
         cmdList->bindPipeline(pipeline);
-        cmdList->bindDescriptors(pipeline, {frame.descriptorSet, frame.samplersDescriptorSet});
+        cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->draw(triangleVertices.size());
         cmdList->endRendering();
