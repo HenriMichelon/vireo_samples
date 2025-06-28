@@ -107,6 +107,8 @@ namespace samples {
 
     void ComputeApp::onDestroy() {
         graphicSubmitQueue->waitIdle();
+        swapChain->waitIdle();
+        paramsBuffer->unmap();
 
         // Save to a file
         // const auto& frame = framesData[0];
@@ -133,8 +135,6 @@ namespace samples {
         //     imageData.data(),
         //     rowPitch);
         //
-        // swapChain->waitIdle();
-        // paramsBuffer->unmap();
     }
 
     float ComputeApp::getCurrentTimeMilliseconds() {
