@@ -154,7 +154,7 @@ namespace samples {
             format,
             width, height,
             mipLevels, 1,
-            to_wstring(filename));
+            filename);
         uploadCommandList->barrier(
             texture,
             vireo::ResourceState::UNDEFINED,

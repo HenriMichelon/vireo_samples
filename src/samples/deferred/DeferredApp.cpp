@@ -26,7 +26,7 @@ namespace samples {
     }
 
     void DeferredApp::onInit() {
-        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"MainQueue");
+        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, "MainQueue");
         swapChain = vireo->createSwapChain(
             RENDER_FORMAT,
             graphicQueue,
@@ -55,7 +55,7 @@ namespace samples {
             frame.commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             frame.commandList = frame.commandAllocator->createCommandList();
             frame.inFlightFence =vireo->createFence(true);
-            frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::TIMELINE, L"Main timeline");
+            frame.semaphore = vireo->createSemaphore(vireo::SemaphoreType::TIMELINE, "Main timeline");
         }
 
         graphicQueue->waitIdle();
@@ -67,7 +67,7 @@ namespace samples {
                 std::cout
                     << "Buffer : "
                     << usage.size
-                    << " (" << std::to_string(usage.name) << ")"
+                    << " (" << usage.name << ")"
                     << std::endl;
                 totalBuffers += usage.size;
             }
@@ -76,7 +76,7 @@ namespace samples {
                 std::cout
                     << "Image : "
                     << usage.size
-                    << " (" << std::to_string(usage.name) << ")"
+                    << " (" << usage.name << ")"
                     << std::endl;
                 totalImages += usage.size;
             }

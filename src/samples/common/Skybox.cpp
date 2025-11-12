@@ -181,7 +181,7 @@ namespace samples {
                                      imgWidth, imgHeight,
                                      1,
                                      6,
-                                     L"Cubemap");
+                                     "Cubemap");
 
         cmdList->barrier(image, vireo::ResourceState::UNDEFINED, vireo::ResourceState::COPY_DST);
         cmdList->uploadArray(image, data);

@@ -23,13 +23,13 @@ namespace samples {
           vireo::AddressMode::CLAMP_TO_EDGE,
           vireo::AddressMode::CLAMP_TO_EDGE));
 
-        descriptorLayout = vireo->createSamplerDescriptorLayout(L"Samplers");
+        descriptorLayout = vireo->createSamplerDescriptorLayout("Samplers");
         for (int i = 0; i < samplers.size(); i++) {
             descriptorLayout->add(i, vireo::DescriptorType::SAMPLER);
         }
         descriptorLayout->build();
 
-        descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"Samplers");
+        descriptorSet = vireo->createDescriptorSet(descriptorLayout, "Samplers");
         for (int i = 0; i < samplers.size(); i++) {
             descriptorSet->update(i, samplers[i]);
         }
