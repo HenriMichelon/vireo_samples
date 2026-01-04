@@ -127,11 +127,11 @@ namespace samples {
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaEdgeBuffer;
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(vireo::Viewport{
-                .width  = static_cast<float>(extent.width),
-                .height = static_cast<float>(extent.height)});
+                static_cast<float>(extent.width),
+                static_cast<float>(extent.height)});
             cmdList->setScissors(vireo::Rect{
-                .width  = extent.width,
-                .height = extent.height});
+                extent.width,
+                extent.height});
             cmdList->bindPipeline(smaaEdgePipeline);
             cmdList->bindDescriptors({frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
@@ -150,11 +150,11 @@ namespace samples {
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaBlendBuffer;
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(vireo::Viewport{
-                .width  = static_cast<float>(extent.width),
-                .height = static_cast<float>(extent.height)});
+                static_cast<float>(extent.width),
+                static_cast<float>(extent.height)});
             cmdList->setScissors(vireo::Rect{
-                .width  = extent.width,
-                .height = extent.height});
+                extent.width,
+                extent.height});
             cmdList->bindPipeline(smaaBlendWeightPipeline);
             cmdList->bindDescriptors({frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
@@ -174,11 +174,11 @@ namespace samples {
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaColorBuffer;
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(vireo::Viewport{
-                .width  = static_cast<float>(extent.width),
-                .height = static_cast<float>(extent.height)});
+                static_cast<float>(extent.width),
+                static_cast<float>(extent.height)});
             cmdList->setScissors(vireo::Rect{
-                .width  = extent.width,
-                .height = extent.height});
+                extent.width,
+                extent.height});
             cmdList->bindPipeline(smaaBlendPipeline);
             cmdList->bindDescriptors({frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
@@ -202,11 +202,11 @@ namespace samples {
             renderingConfig.colorRenderTargets[0].renderTarget = frame.fxaaColorBuffer;
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(vireo::Viewport{
-                .width  = static_cast<float>(extent.width),
-                .height = static_cast<float>(extent.height)});
+                static_cast<float>(extent.width),
+                static_cast<float>(extent.height)});
             cmdList->setScissors(vireo::Rect{
-                .width  = extent.width,
-                .height = extent.height});
+                extent.width,
+                extent.height});
             cmdList->bindPipeline(fxaaPipeline);
             cmdList->bindDescriptors({frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);

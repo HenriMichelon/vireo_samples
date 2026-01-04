@@ -97,11 +97,11 @@ namespace samples {
 
         cmdList->beginRendering(oitRenderingConfig);
         cmdList->setViewport(vireo::Viewport{
-            .width  = static_cast<float>(extent.width),
-            .height = static_cast<float>(extent.height)});
+            static_cast<float>(extent.width),
+            static_cast<float>(extent.height)});
         cmdList->setScissors(vireo::Rect{
-            .width  = extent.width,
-            .height = extent.height});
+            extent.width,
+            extent.height});
         cmdList->bindPipeline(oitPipeline);
         cmdList->bindDescriptors({frame.oitDescriptorSet, samplers.getDescriptorSet()});
 
@@ -123,11 +123,11 @@ namespace samples {
 
         cmdList->beginRendering(compositeRenderingConfig);
         cmdList->setViewport(vireo::Viewport{
-            .width  = static_cast<float>(extent.width),
-            .height = static_cast<float>(extent.height)});
+            static_cast<float>(extent.width),
+            static_cast<float>(extent.height)});
         cmdList->setScissors(vireo::Rect{
-            .width  = extent.width,
-            .height = extent.height});
+            extent.width,
+            extent.height});
         cmdList->bindPipeline(compositePipeline);
         cmdList->bindDescriptors({frame.compositeDescriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(3);

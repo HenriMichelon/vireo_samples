@@ -84,11 +84,11 @@ namespace samples {
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
-            .width  = static_cast<float>(extent.width),
-            .height = static_cast<float>(extent.height)});
+            static_cast<float>(extent.width),
+            static_cast<float>(extent.height)});
         cmdList->setScissors(vireo::Rect{
-            .width  = extent.width,
-            .height = extent.height});
+            extent.width,
+            extent.height});
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptor(frame.descriptorSet, SET_GLOBAL);
         cmdList->bindDescriptor(samplers.getDescriptorSet(), SET_SAMPLERS);

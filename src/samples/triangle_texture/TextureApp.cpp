@@ -11,7 +11,7 @@ module samples.hellotexture;
 namespace samples {
 
     void TextureApp::onInit() {
-        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, L"Graphic");
+        graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC, "Graphic");
         swapChain = vireo->createSwapChain(
             pipelineConfig.colorRenderFormats[0],
             graphicQueue,
@@ -28,11 +28,11 @@ namespace samples {
             vireo::BufferType::VERTEX,
             sizeof(Vertex),
             triangleVertices.size(),
-            L"TriangleVertexBuffer");
+            "TriangleVertexBuffer");
         texture = vireo->createImage(
             vireo::ImageFormat::R8G8B8A8_SRGB,
             512, 512, 1, 1,
-            L"CheckerBoardTexture");
+            "CheckerBoardTexture");
         sampler = vireo->createSampler(
             vireo::Filter::NEAREST,
             vireo::Filter::NEAREST,
@@ -59,27 +59,27 @@ namespace samples {
         const auto transferQueue = vireo->createSubmitQueue(vireo::CommandType::TRANSFER);
         transferQueue->submit({uploadCommandList});
 
-        descriptorLayout = vireo->createDescriptorLayout(L"Global");
+        descriptorLayout = vireo->createDescriptorLayout("Global");
         descriptorLayout->add(BINDING_TEXTURE, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->build();
 
-        samplersDescriptorLayout = vireo->createSamplerDescriptorLayout(L"Samplers");
+        samplersDescriptorLayout = vireo->createSamplerDescriptorLayout("Samplers");
         samplersDescriptorLayout->add(BINDING_SAMPLERS, vireo::DescriptorType::SAMPLER);
         samplersDescriptorLayout->build();
 
         pipelineConfig.resources = vireo->createPipelineResources(
             { descriptorLayout, samplersDescriptorLayout },
             {},
-            L"Default");
+            "Default");
         pipelineConfig.vertexInputLayout = vireo->createVertexLayout(sizeof(Vertex), vertexAttributes);
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/triangle_texture.vert");
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/triangle_texture.frag");
-        pipeline = vireo->createGraphicPipeline(pipelineConfig, L"default");
+        pipeline = vireo->createGraphicPipeline(pipelineConfig, "default");
 
         framesData.resize(swapChain->getFramesInFlight());
         for (uint32_t i = 0; i < framesData.size(); i++) {
-            framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout, L"Global " + std::to_wstring(i));
-            framesData[i].samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout, L"Samplers " + std::to_wstring(i));
+            framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout, "Global " + std::to_string(i));
+            framesData[i].samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout, "Samplers " + std::to_string(i));
 
             framesData[i].descriptorSet->update(BINDING_TEXTURE, texture);
             framesData[i].samplersDescriptorSet->update(BINDING_SAMPLERS, sampler);
@@ -110,11 +110,11 @@ namespace samples {
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
-            .width  = static_cast<float>(swapChain->getExtent().width),
-            .height = static_cast<float>(swapChain->getExtent().height)});
+            static_cast<float>(swapChain->getExtent().width),
+            static_cast<float>(swapChain->getExtent().height)});
         cmdList->setScissors(vireo::Rect{
-            .width  = swapChain->getExtent().width,
-            .height = swapChain->getExtent().height});
+            swapChain->getExtent().width,
+            swapChain->getExtent().height});
         cmdList->bindPipeline(pipeline);
         cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});
         cmdList->bindVertexBuffer(vertexBuffer);

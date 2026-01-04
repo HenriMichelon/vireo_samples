@@ -131,11 +131,11 @@ namespace samples {
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
-            .width  = static_cast<float>(swapChain->getExtent().width),
-            .height = static_cast<float>(swapChain->getExtent().height)});
+            static_cast<float>(swapChain->getExtent().width),
+            static_cast<float>(swapChain->getExtent().height)});
         cmdList->setScissors(vireo::Rect{
-            .width  = swapChain->getExtent().width,
-            .height = swapChain->getExtent().height});
+            swapChain->getExtent().width,
+            swapChain->getExtent().height});
 
         cmdList->bindPipeline(pipelines["shader1"]);
         cmdList->bindDescriptors({frame.descriptorSet, frame.samplersDescriptorSet});

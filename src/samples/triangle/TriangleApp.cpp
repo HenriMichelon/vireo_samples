@@ -12,7 +12,7 @@ namespace samples {
 
     void TriangleApp::onInit() {
         const auto& adapterDesc = vireo->getPhysicalDevice()->getDescription();
-        std::wcout << adapterDesc.name << L" " << std::to_wstring(adapterDesc.dedicatedVideoMemory / 1024 / 1024) << L"Mb" << std::endl;
+        std::cout << adapterDesc.name << " " << std::to_string(adapterDesc.dedicatedVideoMemory / 1024 / 1024) << "Mb" << std::endl;
 
         graphicQueue = vireo->createSubmitQueue(vireo::CommandType::GRAPHIC);
         swapChain = vireo->createSwapChain(pipelineConfig.colorRenderFormats.front(), graphicQueue, windowHandle, vireo::PresentMode::IMMEDIATE);
@@ -62,11 +62,11 @@ namespace samples {
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
-            .width  = static_cast<float>(swapChain->getExtent().width),
-            .height = static_cast<float>(swapChain->getExtent().height)});
+            static_cast<float>(swapChain->getExtent().width),
+            static_cast<float>(swapChain->getExtent().height)});
         cmdList->setScissors(vireo::Rect{
-            .width  = swapChain->getExtent().width,
-            .height = swapChain->getExtent().height});
+            swapChain->getExtent().width,
+            swapChain->getExtent().height});
         cmdList->bindPipeline(defaultPipeline);
         cmdList->bindVertexBuffer(vertexBuffer);
         cmdList->draw(triangleVertices.size());

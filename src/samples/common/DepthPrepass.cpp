@@ -76,11 +76,11 @@ namespace samples {
             withStencil ? vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL : vireo::ResourceState::RENDER_TARGET_DEPTH);
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
-            .width  = static_cast<float>(extent.width),
-            .height = static_cast<float>(extent.height)});
+            static_cast<float>(extent.width),
+            static_cast<float>(extent.height)});
         cmdList->setScissors(vireo::Rect{
-            .width  = extent.width,
-            .height = extent.height});
+            extent.width,
+            extent.height});
         cmdList->bindPipeline(pipeline);
         if (withStencil) {
             cmdList->setStencilReference(1);
