@@ -1,8 +1,8 @@
 # Vireo RHI Samples
 
-Samples for the Vireo Rendering Hardware Interface.
+Samples for the [Vireo Rendering Hardware Interface]((https://github.com/HenriMichelon/vireo_rhi)).
 
-https://github.com/HenriMichelon/vireo_rhi
+## Features
 
 The samples demonstrate the following features, in order of complexity:
 
@@ -59,3 +59,7 @@ The samples demonstrate the following features, in order of complexity:
   - Stencil buffer to reduce skybox and gbuffers workload
   - Push constants used in replacement of dynamic uniform buffers
   - Slang examples for the gbuffers pass, the lighting pass, the order-independent transparency pass.
+
+## Dependencies
+ - [Vireo RHI](https://github.com/HenriMichelon/vireo_rhi)
+ - For Linux : Qt6+

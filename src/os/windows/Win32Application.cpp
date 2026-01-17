@@ -6,7 +6,6 @@
  */
 module;
 #include "Libraries.h"
-#include "Win32Libraries.h"
 module samples.win32;
 
 import vireo.tools;
@@ -47,7 +46,6 @@ namespace samples {
         }
 
         std::wstring title = name;
-        title.append(L" : ");
 
         const auto windowClass = WNDCLASSEX{
             .cbSize        = sizeof(WNDCLASSEX),
@@ -119,6 +117,7 @@ namespace samples {
         }
         app->init(backend, hwnd);
 
+        title.append(L" : ");
         if (backend == vireo::Backend::VULKAN) {
             title.append(L"Vulkan 1.3");
         } else {

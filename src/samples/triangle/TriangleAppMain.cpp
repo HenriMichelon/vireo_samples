@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.hellotriangle;
 
-APP(std::make_shared<samples::TriangleApp>(), L"Hello Triangle", 1280, 720);
+APP(std::make_shared<samples::TriangleApp>(), "Hello Triangle", 1280, 720);

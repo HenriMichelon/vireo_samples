@@ -60,12 +60,19 @@ add_shaders(shaders ${SHADERS_BUILD_DIR} ${SHADERS_INCLUDE_DIR} ${SHADERS_SOURCE
 #######################################################
 # Windows files
 if (WIN32)
-set(WIN32_SOURCES
-        ${SRC_DIR}/os/windows/Win32Application.cpp
-)
-set(WIN32_MODULES
-        ${SRC_DIR}/os/windows/Win32Application.ixx
-)
+    set(WIN32_SOURCES
+            ${SRC_DIR}/os/windows/Win32Application.cpp
+    )
+    set(WIN32_MODULES
+            ${SRC_DIR}/os/windows/Win32Application.ixx
+    )
+elseif (UNIX AND NOT APPLE)
+    set(QT_SOURCES
+            ${SRC_DIR}/os/qt/QtApplication.cpp
+    )
+    set(QT_MODULES
+            ${SRC_DIR}/os/qt/QtApplication.ixx
+    )
 endif ()
 
 #######################################################
@@ -78,8 +85,8 @@ set(COMMON_MODULES
 
 #######################################################
 function(build_target TARGET_NAME SRCS MODULES)
-    message("Building target ${TARGET_NAME}")
     add_executable(${TARGET_NAME}
+            ${QT_SOURCES}
             ${WIN32_SOURCES}
             ${COMMON_SOURCES}
             ${SRCS})
@@ -87,6 +94,7 @@ function(build_target TARGET_NAME SRCS MODULES)
         PUBLIC
         FILE_SET CXX_MODULES
         FILES
+            ${QT_MODULES}
             ${WIN32_MODULES}
             ${COMMON_MODULES}
             ${MODULES}
@@ -96,10 +104,6 @@ function(build_target TARGET_NAME SRCS MODULES)
     target_link_libraries(${TARGET_NAME} ${VIREO_TARGET} glm::glm glm-modules std-cxx-modules)
     add_dependencies(${TARGET_NAME} ${VIREO_TARGET})
     if(WIN32)
-#        target_precompile_headers(${TARGET_NAME} PRIVATE
-#                "<windows.h>"
-#                "<cstdint>"
-#        )
         if (DIRECTX_BACKEND)
             target_link_libraries(${TARGET_NAME} Xinput dinput8 dxguid dxgi d3d12 d3dcompiler)
         endif ()
@@ -109,6 +113,10 @@ function(build_target TARGET_NAME SRCS MODULES)
         set_target_properties(${TARGET_NAME} PROPERTIES
                 WIN32_EXECUTABLE TRUE)
     endif()
+    if (UNIX AND NOT APPLE)
+        target_compile_options(${TARGET_NAME} PRIVATE -stdlib=libc++)
+        target_link_libraries(${TARGET_NAME} X11 Qt6::Widgets )
+    endif ()
 endfunction()
 
 #######################################################
