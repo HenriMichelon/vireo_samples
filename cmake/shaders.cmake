@@ -7,7 +7,8 @@
 ##### Compile Slang sources files into DXIL & SPIR-V
 
 # Use the Vulkan SDK version of the slangc executable
-find_program(SLANGC_EXECUTABLE NAMES slangc HINTS "${Vulkan_INSTALL_DIR}/bin")
+find_package(Vulkan REQUIRED)
+find_program(SLANGC_EXECUTABLE NAMES slangc HINTS "${Vulkan_INCLUDE_DIRS}/../bin")
 if(NOT SLANGC_EXECUTABLE)
     message(FATAL_ERROR "slangc not found. Please ensure the Vulkan SDK is installed and slangc is available.")
 endif()

@@ -19,6 +19,11 @@ set(GLM_DIR ${CMAKE_BINARY_DIR}/_deps/fetch_glm-src/glm)
 # compile GLM as a module
 message(NOTICE "Building glm C++ module...")
 add_library(glm-modules STATIC)
+target_compile_options(glm-modules
+        PRIVATE
+        -Wno-reserved-module-identifier
+        -Wno-reserved-user-defined-literal
+        -pthread)
 target_sources(glm-modules
   PUBLIC
     FILE_SET moduleStd
