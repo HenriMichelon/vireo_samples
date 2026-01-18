@@ -4,8 +4,14 @@
  * https://opensource.org/licenses/MIT
  */
 module;
-#include "Libraries.h"
+#ifdef USE_SDL3
+#include <SDL3/SDL.h>
+#endif
 export module samples.common.global;
+
+import glm;
+import std;
+import vireo;
 
 export namespace samples {
 
@@ -15,7 +21,7 @@ export namespace samples {
     constexpr auto AXIS_UP = AXIS_Y;
 
 #ifdef _WIN32
-    enum class KeyScanCodes : uint32_t {
+    enum class KeyScanCodes : std::uint32_t {
         LEFT    = 75,
         UP      = 72,
         RIGHT   = 77,
@@ -29,6 +35,25 @@ export namespace samples {
         S       = 31,
         D       = 32,
         SPACE   = 57,
+    };
+#elifdef USE_SDL3
+    enum class KeyScanCodes : std::uint32_t {
+        LEFT    = SDL_SCANCODE_LEFT,
+        UP      = SDL_SCANCODE_UP,
+        RIGHT   = SDL_SCANCODE_RIGHT,
+        DOWN    = SDL_SCANCODE_DOWN,
+
+        M       = SDL_SCANCODE_M,
+        F       = SDL_SCANCODE_F,
+        P       = SDL_SCANCODE_P,
+        G       = SDL_SCANCODE_G,
+
+        W       = SDL_SCANCODE_W,
+        A       = SDL_SCANCODE_A,
+        S       = SDL_SCANCODE_S,
+        D       = SDL_SCANCODE_D,
+
+        SPACE   = SDL_SCANCODE_SPACE,
     };
 #endif
 
@@ -58,9 +83,9 @@ export namespace samples {
 
     struct Material {
         alignas(16) float  shininess{128.f};
-        alignas(4) int32_t diffuseTextureIndex{-1};
-        alignas(4) int32_t normalTextureIndex{-1};
-        alignas(4) int32_t aoTextureIndex{-1};
+        alignas(4) std::int32_t diffuseTextureIndex{-1};
+        alignas(4) std::int32_t normalTextureIndex{-1};
+        alignas(4) std::int32_t aoTextureIndex{-1};
     };
 
     struct FrameDataCommand {

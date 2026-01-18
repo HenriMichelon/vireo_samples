@@ -5,9 +5,11 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
+#include <cstddef>
 export module samples.deferred.oitpass;
 
+import std;
+import vireo;
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;
@@ -23,10 +25,10 @@ export namespace samples {
            const Scene& scene,
            const DepthPrepass& depthPrepass,
            const Samplers& samplers,
-           uint32_t framesInFlight);
+           std::uint32_t framesInFlight);
         void onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList);
         void onRender(
-            uint32_t frameIndex,
+            std::uint32_t frameIndex,
             const vireo::Extent& extent,
             const Scene& scene,
             const DepthPrepass& depthPrepass,
@@ -47,8 +49,8 @@ export namespace samples {
         };
 
         struct PushConstants {
-            uint32_t modelIndex;
-            uint32_t materialIndex;
+            std::uint32_t modelIndex;
+            std::uint32_t materialIndex;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};

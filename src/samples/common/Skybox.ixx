@@ -5,9 +5,10 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
 export module samples.common.skybox;
 
+import std;
+import vireo;
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;
@@ -24,9 +25,9 @@ export namespace samples {
             vireo::ImageFormat renderFormat,
             const DepthPrepass& depthPrepass,
             const Samplers& samplers,
-            uint32_t framesInFlight);
+            std::uint32_t framesInFlight);
         void onRender(
-            uint32_t frameIndex,
+            std::uint32_t frameIndex,
             const vireo::Extent& extent,
             bool depthIsReadOnly,
             const DepthPrepass& depthPrepass,
@@ -104,7 +105,7 @@ export namespace samples {
             const std::string &filepath,
             vireo::ImageFormat imageFormat) const;
 
-        static std::byte* loadRGBAImage(const std::string& filepath, uint32_t& width, uint32_t& height, uint64_t& size);
+        static std::byte* loadRGBAImage(const std::string& filepath, std::uint32_t& width, std::uint32_t& height, std::uint64_t& size);
 
         static std::byte *extractImage(
             const std::byte *source,

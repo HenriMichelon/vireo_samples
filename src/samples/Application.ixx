@@ -4,9 +4,10 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-module;
-#include "Libraries.h"
 export module samples.app;
+
+import std;
+import vireo;
 
 export namespace samples {
 
@@ -14,7 +15,7 @@ export namespace samples {
     public:
         virtual ~Application() = default;
 
-        void init(const vireo::Backend backend, void* windowHandle) {
+        void init(const vireo::Backend backend, const vireo::PlatformWindowHandle& windowHandle) {
             this->windowHandle = windowHandle;
             vireo = vireo::Vireo::create(backend);
         }
@@ -29,12 +30,12 @@ export namespace samples {
 
         virtual void onResize() {}
 
-        virtual void onKeyDown(uint32_t key) {}
+        virtual void onKeyDown(std::uint32_t key) {}
 
-        virtual void onKeyUp(uint32_t key) {}
+        virtual void onKeyUp(std::uint32_t key) {}
 
     protected:
-        void* windowHandle{nullptr};
+        vireo::PlatformWindowHandle windowHandle;
         std::shared_ptr<vireo::Vireo> vireo;
     };
 }

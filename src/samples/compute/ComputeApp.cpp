@@ -7,7 +7,6 @@
 module;
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
-#include "Libraries.h"
 module samples.compute;
 
 namespace samples {

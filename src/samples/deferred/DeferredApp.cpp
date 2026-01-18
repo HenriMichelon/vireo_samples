@@ -5,7 +5,6 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
 module samples.deferred;
 
 import samples.common.global;
@@ -18,7 +17,7 @@ namespace samples {
         postProcessing.onUpdate();
     }
 
-    void DeferredApp::onKeyDown(const uint32_t key) {
+    void DeferredApp::onKeyDown(const std::uint32_t key) {
         const auto keyCode = static_cast<KeyScanCodes>(key);
         graphicQueue->waitIdle();
         postProcessing.onKeyDown(keyCode);
@@ -62,7 +61,7 @@ namespace samples {
         stagingBuffers.clear();
 
         if constexpr (vireo::isMemoryUsageEnabled()) {
-            size_t totalBuffers{0};
+            std::size_t totalBuffers{0};
             for (const auto& usage : vireo::Buffer::getMemoryAllocations()) {
                 std::cout
                     << "Buffer : "
@@ -71,7 +70,7 @@ namespace samples {
                     << std::endl;
                 totalBuffers += usage.size;
             }
-            size_t totalImages{0};
+            std::size_t totalImages{0};
             for (const auto& usage : vireo::Image::getMemoryAllocations()) {
                 std::cout
                     << "Image : "

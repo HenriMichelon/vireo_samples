@@ -5,9 +5,11 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
 export module samples.common.postprocessing;
 
+import glm;
+import std;
+import vireo;
 import samples.common.global;
 import samples.common.samplers;
 
@@ -20,17 +22,17 @@ export namespace samples {
             const std::shared_ptr<vireo::Vireo>& vireo,
             vireo::ImageFormat renderFormat,
             const Samplers& samplers,
-            uint32_t framesInFlight);
+            std::uint32_t framesInFlight);
         void onKeyDown(KeyScanCodes keyCode);
         void onResize(const vireo::Extent& extent);
         void onRender(
-            uint32_t frameIndex,
+            std::uint32_t frameIndex,
             const vireo::Extent& extent,
             const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
 
-        auto getColorBuffer(const uint32_t frameIndex) const {
+        auto getColorBuffer(const std::uint32_t frameIndex) const {
             return applyGammaCorrection ? framesData[frameIndex].gammaCorrectionColorBuffer :
                    applyEffect ? framesData[frameIndex].effectColorBuffer :
                    applyFXAA ? framesData[frameIndex].fxaaColorBuffer:

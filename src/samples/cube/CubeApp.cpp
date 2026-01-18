@@ -5,7 +5,6 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
 module samples.cube;
 
 namespace samples {
@@ -16,7 +15,7 @@ namespace samples {
         postProcessing.onUpdate();
     }
 
-    void CubeApp::onKeyDown(const uint32_t key) {
+    void CubeApp::onKeyDown(const std::uint32_t key) {
         const auto keyCode = static_cast<KeyScanCodes>(key);
         graphicQueue->waitIdle();
         postProcessing.onKeyDown(keyCode);

@@ -5,9 +5,12 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
+#include <cstddef>
 export module samples.hellotexture;
 
+import glm;
+import std;
+import vireo;
 import samples.app;
 
 export namespace samples {
@@ -66,6 +69,6 @@ export namespace samples {
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> samplersDescriptorLayout;
 
-        static void generateTextureData(const std::shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
+        static void generateTextureData(const std::shared_ptr<vireo::Buffer>&destination, std::uint32_t width, std::uint32_t height);
     };
 }

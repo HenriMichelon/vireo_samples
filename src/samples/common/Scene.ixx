@@ -4,10 +4,11 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-module;
-#include "Libraries.h"
 export module samples.common.scene;
 
+import glm;
+import std;
+import vireo;
 import samples.common.global;
 
 export namespace samples {
@@ -94,7 +95,7 @@ export namespace samples {
         };
 
         // CCW
-        std::vector<uint32_t> cubeIndices {
+        std::vector<std::uint32_t> cubeIndices {
             0,  2,  1,   0,  3,  2, // (-Z)
             4,  6,  5,   4,  7,  6, // (+Z)
             8, 10,  9,   8, 11, 10, // (-X)

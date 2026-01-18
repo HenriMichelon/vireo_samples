@@ -7,10 +7,14 @@
 ##### Compile Slang sources files into DXIL & SPIR-V
 
 # Use the Vulkan SDK version of the slangc executable
-find_program(SLANGC_EXECUTABLE NAMES slangc HINTS "${Vulkan_INSTALL_DIR}/bin")
+find_package(Vulkan REQUIRED)
+find_program(SLANGC_EXECUTABLE NAMES slangc HINTS "${Vulkan_INCLUDE_DIRS}/../bin")
 if(NOT SLANGC_EXECUTABLE)
     message(FATAL_ERROR "slangc not found. Please ensure the Vulkan SDK is installed and slangc is available.")
 endif()
+message("slangc found at "  ${SLANGC_EXECUTABLE})
+get_filename_component(SLANGC_DIR "${SLANGC_EXECUTABLE}" DIRECTORY)
+set(SLANG_LIB_DIR "${SLANGC_DIR}/../lib")
 
 set(SHADER_COMMANDS)
 set(SHADER_PRODUCTS)
@@ -20,31 +24,27 @@ function(add_shader EXTENSION PROFILE ENTRY_POINT SHADER_SOURCE SHADER_BINARIES 
     set(LOCAL_PRODUCTS)
     if (DIRECTX_BACKEND)
         # Compute shader to DXIL
-        list(APPEND LOCAL_COMMANDS COMMAND)
-        list(APPEND LOCAL_COMMANDS "${SLANGC_EXECUTABLE}")
-        list(APPEND LOCAL_COMMANDS "-profile")
-        list(APPEND LOCAL_COMMANDS "${PROFILE}")
-        list(APPEND LOCAL_COMMANDS "-entry")
-        list(APPEND LOCAL_COMMANDS "${ENTRY_POINT}")
-        list(APPEND LOCAL_COMMANDS "-I")
-        list(APPEND LOCAL_COMMANDS "${SHADER_INCLUDE_DIR}")
-        list(APPEND LOCAL_COMMANDS "-o")
-        list(APPEND LOCAL_COMMANDS "${SHADER_BINARIES}/${SHADER_NAME}.${EXTENSION}.dxil")
-        list(APPEND LOCAL_COMMANDS "${SHADER_SOURCE}")
+        list(APPEND LOCAL_COMMANDS COMMAND
+                "${SLANGC_EXECUTABLE}"
+                "-profile" "${PROFILE}"
+                "-entry"   "${ENTRY_POINT}"
+                "-I"       "${SHADER_INCLUDE_DIR}"
+                "-o"       "${SHADER_BINARIES}/${SHADER_NAME}.${EXTENSION}.dxil"
+                "${SHADER_SOURCE}"
+        )
         list(APPEND LOCAL_PRODUCTS "${SHADER_BINARIES}/${SHADER_NAME}.${EXTENSION}.dxil")
     endif ()
     # Compute shader to SPIR-V
-    list(APPEND LOCAL_COMMANDS COMMAND)
-    list(APPEND LOCAL_COMMANDS "${SLANGC_EXECUTABLE}")
-    list(APPEND LOCAL_COMMANDS "-profile")
-    list(APPEND LOCAL_COMMANDS "${PROFILE}")
-    list(APPEND LOCAL_COMMANDS "-entry")
-    list(APPEND LOCAL_COMMANDS "${ENTRY_POINT}")
-    list(APPEND LOCAL_COMMANDS "-I")
-    list(APPEND LOCAL_COMMANDS "${SHADER_INCLUDE_DIR}")
-    list(APPEND LOCAL_COMMANDS "-o")
-    list(APPEND LOCAL_COMMANDS "${SHADER_BINARIES}/${SHADER_NAME}.${EXTENSION}.spv")
-    list(APPEND LOCAL_COMMANDS "${SHADER_SOURCE}")
+    list(APPEND LOCAL_COMMANDS COMMAND
+            "${CMAKE_COMMAND}" -E env
+            "LD_LIBRARY_PATH=${SLANG_LIB_DIR}:$ENV{LD_LIBRARY_PATH}"
+            "${SLANGC_EXECUTABLE}"
+            "-profile" "${PROFILE}"
+            "-entry"   "${ENTRY_POINT}"
+            "-I"       "${SHADER_INCLUDE_DIR}"
+            "-o"       "${SHADER_BINARIES}/${SHADER_NAME}.${EXTENSION}.spv"
+            "${SHADER_SOURCE}"
+    )
     list(APPEND LOCAL_PRODUCTS "${SHADER_BINARIES}/${SHADER_NAME}.${EXTENSION}.spv")
 
     set(GLOBAL_SHADER_COMMANDS "${SHADER_COMMANDS}")

@@ -15,27 +15,30 @@ include(.env.cmake)
 if (NOT DEFINED VIREO_PROJECT_DIR)
     message(FATAL_ERROR "Please set VIREO_PROJECT_DIR in the .env.cmake file")
 endif()
-set(DIRECTX_BACKEND ON)
 
 #######################################################
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-if(MSVC)
-    set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
-endif()
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 if(WIN32)
-    add_compile_definitions(WIN32_LEAN_AND_MEAN UNICODE _UNICODE)
+    add_compile_definitions(WIN32_LEAN_AND_MEAN UNICODE _UNICODE NOMINMAX)
+    set(DIRECTX_BACKEND ON)
+    if(MSVC)
+        set(USE_STATIC_MSVC_RUNTIME_LIBRARY ON)
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+        else ()
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+        endif ()
+    endif()
+elseif (LINUX AND NOT APPLE)
+    set(USE_SDL3 ON)
+    add_compile_definitions(USE_SDL3)
 endif ()
-
-#######################################################
-include(FetchContent)
-include(cmake/shaders.cmake)
-include(cmake/libraries.cmake)
 
 #######################################################
 add_subdirectory(${VIREO_PROJECT_DIR} external_lib_build)
@@ -49,32 +52,57 @@ set(SHADERS_INCLUDE_DIR ${SRC_DIR}/shaders/include)
 set(SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 
 #######################################################
+include(FetchContent)
+include(cmake/shaders.cmake)
+include(cmake/libraries.cmake)
+
+#######################################################
 # Slang shaders
 file(MAKE_DIRECTORY ${SHADERS_BUILD_DIR})
 file(GLOB_RECURSE SHADERS_SOURCE_FILES
         "${SHADERS_SRC_DIR}/*.slang"
 )
 add_shaders(shaders ${SHADERS_BUILD_DIR} ${SHADERS_INCLUDE_DIR} ${SHADERS_SOURCE_FILES} )
-#add_dependencies(target_shaders ${VIREO_TARGET})
+
+#######################################################
+# Platform specific files
+if (WIN32)
+    set(WIN32_SOURCES
+            ${SRC_DIR}/platform/windows/Win32Application.cpp
+    )
+    set(WIN32_MODULES
+            ${SRC_DIR}/platform/windows/Win32Application.ixx
+    )
+elseif (UNIX AND NOT APPLE)
+    set(LINUX_SOURCES
+            ${SRC_DIR}/platform/sdl/SDLApplication.cpp
+    )
+    set(LINUX_MODULES
+            ${SRC_DIR}/platform/sdl/SDLApplication.ixx
+    )
+endif ()
 
 #######################################################
 # Common files
 set(COMMON_SOURCES
-        ${SRC_DIR}/os/windows/Win32Application.cpp
 )
 set(COMMON_MODULES
         ${SRC_DIR}/samples/Application.ixx
-        ${SRC_DIR}/os/windows/Win32Application.ixx
 )
 
 #######################################################
 function(build_target TARGET_NAME SRCS MODULES)
-    message("Building target ${TARGET_NAME}")
-    add_executable(${TARGET_NAME} ${COMMON_SOURCES} ${SRCS})
+    add_executable(${TARGET_NAME}
+            ${LINUX_SOURCES}
+            ${WIN32_SOURCES}
+            ${COMMON_SOURCES}
+            ${SRCS})
     target_sources(${TARGET_NAME}
         PUBLIC
         FILE_SET CXX_MODULES
         FILES
+            ${LINUX_MODULES}
+            ${WIN32_MODULES}
             ${COMMON_MODULES}
             ${MODULES}
     )
@@ -83,10 +111,6 @@ function(build_target TARGET_NAME SRCS MODULES)
     target_link_libraries(${TARGET_NAME} ${VIREO_TARGET} glm::glm glm-modules std-cxx-modules)
     add_dependencies(${TARGET_NAME} ${VIREO_TARGET})
     if(WIN32)
-#        target_precompile_headers(${TARGET_NAME} PRIVATE
-#                "<windows.h>"
-#                "<cstdint>"
-#        )
         if (DIRECTX_BACKEND)
             target_link_libraries(${TARGET_NAME} Xinput dinput8 dxguid dxgi d3d12 d3dcompiler)
         endif ()
@@ -96,6 +120,12 @@ function(build_target TARGET_NAME SRCS MODULES)
         set_target_properties(${TARGET_NAME} PROPERTIES
                 WIN32_EXECUTABLE TRUE)
     endif()
+    if (UNIX AND NOT APPLE)
+        target_compile_options(${TARGET_NAME} PRIVATE -stdlib=libc++)
+    endif ()
+    if (USE_SDL3)
+        target_link_libraries(${TARGET_NAME} X11 SDL3::SDL3)
+    endif ()
 endfunction()
 
 #######################################################

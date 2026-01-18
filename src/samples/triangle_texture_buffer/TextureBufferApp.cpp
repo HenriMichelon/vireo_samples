@@ -4,8 +4,6 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-module;
-#include "Libraries.h"
 module samples.hellotriangle;
 
 namespace samples {
@@ -169,8 +167,8 @@ namespace samples {
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
     void TextureBufferApp::generateTextureData(
         const std::shared_ptr<vireo::Buffer>&destination,
-        const uint32_t width,
-        const uint32_t height) {
+        const std::uint32_t width,
+        const std::uint32_t height) {
         const auto rowPitch = width * 4;
         const auto cellPitch = rowPitch >> 3;        // The width of a cell in the checkboard texture.
         const auto cellHeight = width >> 3;    // The height of a cell in the checkerboard texture.
