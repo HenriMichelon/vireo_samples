@@ -18,7 +18,7 @@ namespace samples {
     vireo::PlatformWindowHandle SDLApplication::windowHandle{};
 
     int SDLApplication::run(
-        const std::shared_ptr<Application>& app,
+        std::shared_ptr<Application> app,
         const uint32_t width,
         const uint32_t height,
         const std::string& name) {
@@ -37,6 +37,8 @@ namespace samples {
         SDL_WindowFlags flags = SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN;
         if (width == 0 || height == 0) {
             flags |= SDL_WINDOW_FULLSCREEN;
+        } else {
+            flags |= SDL_WINDOW_RESIZABLE;
         }
         if (!(windowHandle = SDL_CreateWindow(name.c_str(),width,height,flags))) {
             throw vireo::Exception("Error creating SDL window : ", SDL_GetError());
@@ -71,13 +73,13 @@ namespace samples {
                     app->onRender();
                 }
             }
-            SDL_DestroyWindow(windowHandle);
             app->onDestroy();
+            SDL_DestroyWindow(windowHandle);
         } catch (vireo::Exception& e) {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, e.what(), "Fatal error", nullptr);
             return 1;
         }
-
+        app.reset();
         SDL_Quit();
         return 0;
     }

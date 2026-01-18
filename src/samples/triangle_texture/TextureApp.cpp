@@ -77,7 +77,7 @@ namespace samples {
         pipeline = vireo->createGraphicPipeline(pipelineConfig, "default");
 
         framesData.resize(swapChain->getFramesInFlight());
-        for (uint32_t i = 0; i < framesData.size(); i++) {
+        for (std::uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].descriptorSet = vireo->createDescriptorSet(descriptorLayout, "Global " + std::to_string(i));
             framesData[i].samplersDescriptorSet = vireo->createDescriptorSet(samplersDescriptorLayout, "Samplers " + std::to_string(i));
 
@@ -138,8 +138,8 @@ namespace samples {
     // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTexture/D3D12HelloTexture.cpp
     void TextureApp::generateTextureData(
         const std::shared_ptr<vireo::Buffer>&destination,
-        const uint32_t width,
-        const uint32_t height) {
+        const std::uint32_t width,
+        const std::uint32_t height) {
         const auto rowPitch = width * 4;
         const auto cellPitch = rowPitch >> 3;        // The width of a cell in the checkboard texture.
         const auto cellHeight = width >> 3;    // The height of a cell in the checkerboard texture.

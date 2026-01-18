@@ -15,7 +15,7 @@ export namespace samples {
     class SDLApplication {
     public:
         static int run(
-            const std::shared_ptr<Application>& app,
+            std::shared_ptr<Application> app,
             std::uint32_t width, std::uint32_t height,
             const std::string& name);
 
