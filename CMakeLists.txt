@@ -65,7 +65,7 @@ file(GLOB_RECURSE SHADERS_SOURCE_FILES
 add_shaders(shaders ${SHADERS_BUILD_DIR} ${SHADERS_INCLUDE_DIR} ${SHADERS_SOURCE_FILES} )
 
 #######################################################
-# Windows files
+# Platform specific files
 if (WIN32)
     set(WIN32_SOURCES
             ${SRC_DIR}/platform/windows/Win32Application.cpp

@@ -7,7 +7,6 @@
 module;
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include "Libraries.h"
 module samples.sdl;
 
 import vireo.tools;

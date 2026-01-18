@@ -1,8 +1,9 @@
 #pragma once
 
+import std;
+
 #ifdef _WIN32
 #include <windows.h>
-import std;
 import vireo;
 import samples.win32;
 #define APP(_APP, _TITLE, _WIDTH, _HEIGHT) \
