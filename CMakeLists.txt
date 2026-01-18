@@ -28,7 +28,12 @@ if(WIN32)
     add_compile_definitions(WIN32_LEAN_AND_MEAN UNICODE _UNICODE NOMINMAX)
     set(DIRECTX_BACKEND ON)
     if(MSVC)
-        set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
+        set(USE_STATIC_MSVC_RUNTIME_LIBRARY ON)
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+        else ()
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+        endif ()
     endif()
 elseif (LINUX AND NOT APPLE)
     set(USE_SDL3 ON)
@@ -58,7 +63,6 @@ file(GLOB_RECURSE SHADERS_SOURCE_FILES
         "${SHADERS_SRC_DIR}/*.slang"
 )
 add_shaders(shaders ${SHADERS_BUILD_DIR} ${SHADERS_INCLUDE_DIR} ${SHADERS_SOURCE_FILES} )
-#add_dependencies(target_shaders ${VIREO_TARGET})
 
 #######################################################
 # Windows files
