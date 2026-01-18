@@ -6,6 +6,7 @@
 */
 module;
 #include "Libraries.h"
+#include <cstddef>
 export module samples.hellotriangle;
 
 import samples.app;

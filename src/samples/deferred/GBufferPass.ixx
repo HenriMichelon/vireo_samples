@@ -6,6 +6,7 @@
 */
 module;
 #include "Libraries.h"
+#include <cstddef>
 export module samples.deferred.gbuffer;
 
 import samples.common.global;
@@ -21,9 +22,9 @@ export namespace samples {
             const Scene& scene,
             const DepthPrepass& depthPrepass,
             const Samplers& samplers,
-            uint32_t framesInFlight);
+            std::uint32_t framesInFlight);
         void onRender(
-            uint32_t frameIndex,
+            std::uint32_t frameIndex,
             const vireo::Extent& extent,
             const Scene& scene,
             const DepthPrepass& depthPrepass,
@@ -32,10 +33,10 @@ export namespace samples {
             const std::shared_ptr<vireo::SubmitQueue>& graphicQueue);
         void onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList);
 
-        auto getPositionBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].positionBuffer; }
-        auto getNormalBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].normalBuffer; }
-        auto getAlbedoBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].albedoBuffer; }
-        auto getMaterialBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].materialBuffer; }
+        auto getPositionBuffer(const std::uint32_t frameIndex) const { return framesData[frameIndex].positionBuffer; }
+        auto getNormalBuffer(const std::uint32_t frameIndex) const { return framesData[frameIndex].normalBuffer; }
+        auto getAlbedoBuffer(const std::uint32_t frameIndex) const { return framesData[frameIndex].albedoBuffer; }
+        auto getMaterialBuffer(const std::uint32_t frameIndex) const { return framesData[frameIndex].materialBuffer; }
 
     private:
         struct FrameData : FrameDataCommand {
@@ -50,8 +51,8 @@ export namespace samples {
         };
 
         struct PushConstants {
-            uint32_t modelIndex;
-            uint32_t materialIndex;
+            std::uint32_t modelIndex;
+            std::uint32_t materialIndex;
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};

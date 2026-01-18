@@ -6,6 +6,7 @@
 */
 module;
 #include "Libraries.h"
+#include <cstddef>
 export module samples.hellotriangle;
 
 import samples.app;
@@ -90,6 +91,6 @@ export namespace samples {
         std::vector<std::shared_ptr<vireo::Sampler>>            samplers;
         std::map<std::string, std::shared_ptr<vireo::Pipeline>> pipelines;
 
-        static void generateTextureData(const std::shared_ptr<vireo::Buffer>&destination, uint32_t width, uint32_t height);
+        static void generateTextureData(const std::shared_ptr<vireo::Buffer>&destination, std::uint32_t width, std::uint32_t height);
     };
 }

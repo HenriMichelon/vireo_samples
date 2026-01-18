@@ -26,7 +26,7 @@ export namespace samples {
         void onResize() override;
         void onDestroy() override;
         void onUpdate() override;
-        void onKeyDown(uint32_t key) override;
+        void onKeyDown(std::uint32_t key) override;
 
     private:
         static constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_UNORM;

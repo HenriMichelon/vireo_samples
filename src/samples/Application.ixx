@@ -29,9 +29,9 @@ export namespace samples {
 
         virtual void onResize() {}
 
-        virtual void onKeyDown(uint32_t key) {}
+        virtual void onKeyDown(std::uint32_t key) {}
 
-        virtual void onKeyUp(uint32_t key) {}
+        virtual void onKeyUp(std::uint32_t key) {}
 
     protected:
         vireo::PlatformWindowHandle windowHandle;

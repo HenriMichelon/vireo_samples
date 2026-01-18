@@ -6,6 +6,7 @@
 */
 module;
 #include "Libraries.h"
+#include <cstddef>
 export module samples.common.depthprepass;
 
 import samples.common.global;
@@ -19,16 +20,16 @@ export namespace samples {
             const std::shared_ptr<vireo::Vireo>& vireo,
             const Scene& scene,
             bool withStencil,
-            uint32_t framesInFlight);
+            std::uint32_t framesInFlight);
         void onResize(const vireo::Extent& extent);
         void onRender(
-            uint32_t frameIndex,
+            std::uint32_t frameIndex,
             const vireo::Extent& extent,
             const Scene& scene,
             const std::shared_ptr<vireo::Semaphore>& semaphore,
             const std::shared_ptr<vireo::SubmitQueue>& graphicQueue);
 
-        auto getDepthBuffer(const uint32_t frameIndex) const { return framesData[frameIndex].depthBuffer; }
+        auto getDepthBuffer(const std::uint32_t frameIndex) const { return framesData[frameIndex].depthBuffer; }
         auto getFormat() const { return pipelineConfig.depthStencilImageFormat; }
         auto isWithStencil() const { return withStencil; }
 

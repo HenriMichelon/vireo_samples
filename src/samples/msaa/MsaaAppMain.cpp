@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.hellomsaa;
 
-APP(std::make_shared<samples::MsaaApp>(), L"Hello MSAA", 800, 600);
+APP(std::make_shared<samples::MsaaApp>(), "Hello MSAA", 800, 600);

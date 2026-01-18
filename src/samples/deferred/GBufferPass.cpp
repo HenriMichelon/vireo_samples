@@ -15,7 +15,7 @@ namespace samples {
         const Scene& scene,
         const DepthPrepass& depthPrepass,
         const Samplers& samplers,
-        const uint32_t framesInFlight) {
+        const std::uint32_t framesInFlight) {
         this->vireo = vireo;
 
         descriptorLayout = vireo->createDescriptorLayout();
@@ -56,7 +56,7 @@ namespace samples {
     }
 
     void GBufferPass::onRender(
-        const uint32_t frameIndex,
+        const std::uint32_t frameIndex,
         const vireo::Extent& extent,
         const Scene& scene,
         const DepthPrepass& depthPrepass,

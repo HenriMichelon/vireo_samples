@@ -6,6 +6,7 @@
 */
 module;
 #include "Libraries.h"
+#include <cstddef>
 export module samples.indirect;
 
 import samples.app;
@@ -45,7 +46,7 @@ export namespace samples {
             { { -0.25f + 0.5f, -0.25f, 0.0f },{ 0.0f, 1.0f, 0.0f } },
         };
 
-        const std::vector<uint32_t> triangleIndices {
+        const std::vector<std::uint32_t> triangleIndices {
             0, 1, 2,
         };
 

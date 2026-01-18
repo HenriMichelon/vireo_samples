@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.indirect;
 
-APP(std::make_shared<samples::IndirectApp>(), L"Indirect drawing", 1280, 720);
+APP(std::make_shared<samples::IndirectApp>(), "Indirect drawing", 1280, 720);

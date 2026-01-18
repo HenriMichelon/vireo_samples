@@ -16,7 +16,7 @@ export namespace samples {
     public:
         static int run(
             const std::shared_ptr<Application>& app,
-            uint32_t width, uint32_t height,
+            std::uint32_t width, std::uint32_t height,
             const std::string& name);
 
         static auto getWindowHandle() { return windowHandle; }

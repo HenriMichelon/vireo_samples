@@ -20,7 +20,7 @@ namespace samples {
         }
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX, sizeof(Vertex), triangleVertices.size());
-        indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX, sizeof(uint32_t), triangleIndices.size());
+        indexBuffer = vireo->createBuffer(vireo::BufferType::INDEX, sizeof(std::uint32_t), triangleIndices.size());
         drawCommandsBuffer = vireo->createBuffer(vireo::BufferType::INDIRECT, sizeof(vireo::DrawIndexedIndirectCommand), drawCommands.size());
 
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::TRANSFER);
@@ -42,7 +42,7 @@ namespace samples {
         defaultPipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         framesData.resize(swapChain->getFramesInFlight());
-        for (uint32_t i = 0; i < framesData.size(); i++) {
+        for (std::uint32_t i = 0; i < framesData.size(); i++) {
             framesData[i].commandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
             framesData[i].commandList = framesData[i].commandAllocator->createCommandList();
             framesData[i].inFlightFence =vireo->createFence(true);

@@ -42,7 +42,7 @@ namespace samples {
            const std::shared_ptr<vireo::Vireo>& vireo,
            const vireo::ImageFormat renderFormat,
            const Samplers& samplers,
-           const uint32_t framesInFlight) {
+           const std::uint32_t framesInFlight) {
         this->vireo = vireo;
 
         paramsBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM,sizeof(PostProcessingParams));
@@ -106,7 +106,7 @@ namespace samples {
     }
 
     void PostProcessing::onRender(
-       const uint32_t frameIndex,
+       const std::uint32_t frameIndex,
        const vireo::Extent& extent,
        const Samplers& samplers,
        const std::shared_ptr<vireo::CommandList>& cmdList,

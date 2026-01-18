@@ -14,7 +14,7 @@ namespace samples {
         const std::shared_ptr<vireo::Vireo>& vireo,
         const Scene& scene,
         const bool withStencil,
-        const uint32_t framesInFlight) {
+        const std::uint32_t framesInFlight) {
         this->vireo = vireo;
 
         descriptorLayout = vireo->createDescriptorLayout();
@@ -55,7 +55,7 @@ namespace samples {
     }
 
     void DepthPrepass::onRender(
-        const uint32_t frameIndex,
+        const std::uint32_t frameIndex,
         const vireo::Extent& extent,
         const Scene& scene,
         const std::shared_ptr<vireo::Semaphore>& semaphore,
