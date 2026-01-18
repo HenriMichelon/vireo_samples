@@ -7,4 +7,4 @@
 #include "Macros.h"
 import samples.hellotriangle;
 
-APP(std::make_shared<samples::TextureBufferApp>(), "Hello Triangle Texture Buffer PushConstants", 1280, 0);
+APP(std::make_shared<samples::TextureBufferApp>(), "Hello Triangle Texture Buffer PushConstants", 1280, 720);

@@ -56,7 +56,7 @@ namespace samples {
         try {
             app->onInit();
             SDL_ShowWindow(windowHandle);
-            app->onResize();
+            // app->onResize();
             auto quit{false};
             while (!quit) {
                 SDL_Event event;
@@ -67,6 +67,8 @@ namespace samples {
                         quit = true;
                         break;
                     case SDL_EVENT_WINDOW_RESIZED:
+                    case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+                        std::cout << "resize" << std::endl;
                         app->onResize();
                         break;
                     case SDL_EVENT_KEY_DOWN:
