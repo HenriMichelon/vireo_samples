@@ -4,10 +4,10 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-module;
-#include "Libraries.h"
 export module samples.cube;
 
+import std;
+import vireo;
 import samples.app;
 import samples.common.global;
 import samples.common.depthprepass;

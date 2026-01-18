@@ -4,7 +4,6 @@
  * https://opensource.org/licenses/MIT
  */
 module;
-#include "Libraries.h"
 module samples.common.samplers;
 
 namespace samples {

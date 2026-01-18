@@ -4,10 +4,10 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-module;
-#include "Libraries.h"
 export module samples.deferred.lightingpass;
 
+import std;
+import vireo;
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;

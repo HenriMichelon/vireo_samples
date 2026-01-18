@@ -4,9 +4,14 @@
  * https://opensource.org/licenses/MIT
  */
 module;
+#ifdef USE_SDL3
 #include <SDL3/SDL.h>
-#include "Libraries.h"
+#endif
 export module samples.common.global;
+
+import glm;
+import std;
+import vireo;
 
 export namespace samples {
 

@@ -5,10 +5,8 @@
  * https://opensource.org/licenses/MIT
  */
 module;
-#include "Libraries.h"
+#include <windows.h>
 module samples.win32;
-
-import vireo.tools;
 
 namespace samples {
 
@@ -32,8 +30,8 @@ namespace samples {
 
     int Win32Application::run(
         const std::shared_ptr<Application>& app,
-        const uint32_t width,
-        const uint32_t height,
+        const std::uint32_t width,
+        const std::uint32_t height,
         const std::wstring& name,
         const HINSTANCE hInstance,
         const int nCmdShow) {
@@ -153,12 +151,12 @@ namespace samples {
                 return 0;
             case WM_KEYDOWN:
                 if (app) {
-                    app->onKeyDown(static_cast<uint32_t>((lParam >> 16) & 0xFF));
+                    app->onKeyDown(static_cast<std::uint32_t>((lParam >> 16) & 0xFF));
                 }
                 return 0;
             case WM_KEYUP:
                 if (app) {
-                    app->onKeyUp(static_cast<uint32_t>((lParam >> 16) & 0xFF));
+                    app->onKeyUp(static_cast<std::uint32_t>((lParam >> 16) & 0xFF));
                 }
                 return 0;
             case WM_PAINT:

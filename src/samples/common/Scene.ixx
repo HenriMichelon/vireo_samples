@@ -4,10 +4,11 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-module;
-#include "Libraries.h"
 export module samples.common.scene;
 
+import glm;
+import std;
+import vireo;
 import samples.common.global;
 
 export namespace samples {

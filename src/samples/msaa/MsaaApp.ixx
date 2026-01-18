@@ -5,10 +5,12 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
 #include <cstddef>
 export module samples.hellomsaa;
 
+import glm;
+import std;
+import vireo;
 import samples.app;
 
 export namespace samples {

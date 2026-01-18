@@ -4,11 +4,7 @@
 * This software is released under the MIT License.
 * https://opensource.org/licenses/MIT
 */
-module;
-#include "Libraries.h"
 module samples.hellotriangle;
-
-import std;
 
 namespace samples {
 

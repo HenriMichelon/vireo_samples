@@ -5,9 +5,11 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
 export module samples.common.postprocessing;
 
+import glm;
+import std;
+import vireo;
 import samples.common.global;
 import samples.common.samplers;
 

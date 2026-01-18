@@ -5,10 +5,11 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
 #include <cstddef>
 export module samples.deferred.oitpass;
 
+import std;
+import vireo;
 import samples.common.global;
 import samples.common.depthprepass;
 import samples.common.scene;

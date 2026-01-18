@@ -5,7 +5,6 @@
 * https://opensource.org/licenses/MIT
 */
 module;
-#include "Libraries.h"
 module samples.hellotexture;
 
 namespace samples {

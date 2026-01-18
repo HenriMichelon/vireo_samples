@@ -7,8 +7,9 @@
 module;
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include "Libraries.h"
 module samples.common.skybox;
+
+import glm;
 
 namespace samples {
 

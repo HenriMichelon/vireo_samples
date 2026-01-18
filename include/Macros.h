@@ -1,7 +1,9 @@
 #pragma once
-#include "Libraries.h"
 
 #ifdef _WIN32
+#include <windows.h>
+import std;
+import vireo;
 import samples.win32;
 #define APP(_APP, _TITLE, _WIDTH, _HEIGHT) \
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow) { \
