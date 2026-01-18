@@ -32,7 +32,3 @@ target_sources(glm-modules
     FILES
       ${GLM_DIR}/glm.cppm)
 target_link_libraries(glm-modules glm::glm)
-
-if (UNIX AND NOT APPLE)
-    find_package(Qt6 REQUIRED COMPONENTS Widgets)
-endif ()

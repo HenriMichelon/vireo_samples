@@ -62,4 +62,4 @@ The samples demonstrate the following features, in order of complexity:
 
 ## Dependencies
  - [Vireo RHI](https://github.com/HenriMichelon/vireo_rhi)
- - For Linux : Qt6+
+ - For Linux : Vulkan SDK (1.3+) with the `vulkan-validation-layers` package

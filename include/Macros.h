@@ -8,9 +8,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszArgum
 return samples::Win32Application::run(_APP, _WIDTH, _HEIGHT, std::to_wstring(_TITLE), hInstance, nCmdShow); \
 };
 #elifdef __linux__
-import samples.qt;
+import samples.sdl;
 #define APP(_APP, _TITLE, _WIDTH, _HEIGHT) \
 int main(int argc, char** argv) { \
-return samples::QtApplication::run(_APP, _WIDTH, _HEIGHT, _TITLE, argc, argv); \
+return samples::SDLApplication::run(_APP, _WIDTH, _HEIGHT, _TITLE); \
 };
 #endif

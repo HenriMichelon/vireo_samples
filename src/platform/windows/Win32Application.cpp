@@ -137,7 +137,7 @@ namespace samples {
             }
             app->onDestroy();
             return static_cast<char>(msg.wParam);
-        } catch (vireo::Exception e) {
+        } catch (vireo::Exception& e) {
             MessageBoxA(nullptr, e.what(), "Fatal error", MB_OK);
             return 1;
         }

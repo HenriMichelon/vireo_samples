@@ -21,15 +21,18 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-if(MSVC)
-    set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
-endif()
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 if(WIN32)
-    add_compile_definitions(WIN32_LEAN_AND_MEAN UNICODE _UNICODE)
+    add_compile_definitions(WIN32_LEAN_AND_MEAN UNICODE _UNICODE NOMINMAX)
     set(DIRECTX_BACKEND ON)
+    if(MSVC)
+        set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF)
+    endif()
+elseif (LINUX AND NOT APPLE)
+    set(USE_SDL3 ON)
+    add_compile_definitions(USE_SDL3)
 endif ()
 
 #######################################################
@@ -61,17 +64,17 @@ add_shaders(shaders ${SHADERS_BUILD_DIR} ${SHADERS_INCLUDE_DIR} ${SHADERS_SOURCE
 # Windows files
 if (WIN32)
     set(WIN32_SOURCES
-            ${SRC_DIR}/os/windows/Win32Application.cpp
+            ${SRC_DIR}/platform/windows/Win32Application.cpp
     )
     set(WIN32_MODULES
-            ${SRC_DIR}/os/windows/Win32Application.ixx
+            ${SRC_DIR}/platform/windows/Win32Application.ixx
     )
 elseif (UNIX AND NOT APPLE)
-    set(QT_SOURCES
-            ${SRC_DIR}/os/qt/QtApplication.cpp
+    set(LINUX_SOURCES
+            ${SRC_DIR}/platform/sdl/SDLApplication.cpp
     )
-    set(QT_MODULES
-            ${SRC_DIR}/os/qt/QtApplication.ixx
+    set(LINUX_MODULES
+            ${SRC_DIR}/platform/sdl/SDLApplication.ixx
     )
 endif ()
 
@@ -86,7 +89,7 @@ set(COMMON_MODULES
 #######################################################
 function(build_target TARGET_NAME SRCS MODULES)
     add_executable(${TARGET_NAME}
-            ${QT_SOURCES}
+            ${LINUX_SOURCES}
             ${WIN32_SOURCES}
             ${COMMON_SOURCES}
             ${SRCS})
@@ -94,7 +97,7 @@ function(build_target TARGET_NAME SRCS MODULES)
         PUBLIC
         FILE_SET CXX_MODULES
         FILES
-            ${QT_MODULES}
+            ${LINUX_MODULES}
             ${WIN32_MODULES}
             ${COMMON_MODULES}
             ${MODULES}
@@ -115,7 +118,9 @@ function(build_target TARGET_NAME SRCS MODULES)
     endif()
     if (UNIX AND NOT APPLE)
         target_compile_options(${TARGET_NAME} PRIVATE -stdlib=libc++)
-        target_link_libraries(${TARGET_NAME} X11 Qt6::Widgets )
+    endif ()
+    if (USE_SDL3)
+        target_link_libraries(${TARGET_NAME} X11 SDL3::SDL3)
     endif ()
 endfunction()
 
