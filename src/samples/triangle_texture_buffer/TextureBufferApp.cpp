@@ -8,6 +8,8 @@ module;
 #include "Libraries.h"
 module samples.hellotriangle;
 
+import std;
+
 namespace samples {
 
     void TextureBufferApp::onInit() {

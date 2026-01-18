@@ -69,9 +69,9 @@ namespace samples {
                     default:
                         break;
                     }
-                    app->onUpdate();
-                    app->onRender();
                 }
+                app->onUpdate();
+                app->onRender();
             }
             app->onDestroy();
             SDL_DestroyWindow(windowHandle);
