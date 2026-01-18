@@ -35,12 +35,20 @@ namespace samples {
         }
 
         SDL_WindowFlags flags = SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN;
-        if (width == 0 || height == 0) {
+        int w = width;
+        int h = height;
+        if (w == 0 || h == 0) {
             flags |= SDL_WINDOW_FULLSCREEN;
+            const auto mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
+            if (!mode) {
+                throw vireo::Exception("Error SDL_GetCurrentDisplayMode : ", SDL_GetError());
+            }
+            w = mode->w;
+            h = mode->h;
         } else {
             flags |= SDL_WINDOW_RESIZABLE;
         }
-        if (!(windowHandle = SDL_CreateWindow(name.c_str(),width,height,flags))) {
+        if (!(windowHandle = SDL_CreateWindow(name.c_str(), w, h, flags))) {
             throw vireo::Exception("Error creating SDL window : ", SDL_GetError());
         }
 
@@ -48,6 +56,7 @@ namespace samples {
         try {
             app->onInit();
             SDL_ShowWindow(windowHandle);
+            app->onResize();
             auto quit{false};
             while (!quit) {
                 SDL_Event event;
