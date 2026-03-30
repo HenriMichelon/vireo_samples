@@ -104,19 +104,17 @@ namespace samples {
         GetWindowRect(hwnd, &rect);
 
         Win32Application::app = app;
-        auto backend = vireo::Backend::VULKAN;
+        auto config = vireo::BackendConfiguration{};
         if (vireo::Vireo::isBackendSupported(vireo::Backend::DIRECTX)) {
-            backend = backendSelectorDialog(hInstance, title);
-            // auto backend = vireo::Backend::VULKAN;
-            // auto backend = vireo::Backend::DIRECTX;
-            if (backend == vireo::Backend::UNDEFINED) {
+            config.backend = backendSelectorDialog(hInstance, title);
+            if (config.backend == vireo::Backend::UNDEFINED) {
                 return 0;
             }
         }
-        app->init(backend, hwnd);
+        app->init(config, hwnd);
 
         title.append(L" : ");
-        if (backend == vireo::Backend::VULKAN) {
+        if (config.backend == vireo::Backend::VULKAN) {
             title.append(L"Vulkan 1.3");
         } else {
             title.append(L"DirectX 12");

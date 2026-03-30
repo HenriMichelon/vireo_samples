@@ -30,6 +30,8 @@ if(NOT MSVC)
         -Wno-reserved-module-identifier
         -Wno-reserved-user-defined-literal
         -pthread)
+else()
+    set_property(TARGET glm-modules PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
 endif ()
 target_sources(glm-modules
   PUBLIC

@@ -9,8 +9,8 @@ module;
 #endif
 export module samples.common.global;
 
-import glm;
 import std;
+import glm;
 import vireo;
 
 export namespace samples {
