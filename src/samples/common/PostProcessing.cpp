@@ -266,6 +266,10 @@ namespace samples {
                 vireo::ResourceState::SHADER_READ,
                 vireo::ResourceState::UNDEFINED);
         }
+        cmdList->barrier(
+            getColorBuffer(frameIndex),
+            vireo::ResourceState::RENDER_TARGET_COLOR,
+            vireo::ResourceState::UNDEFINED);
     }
 
     void PostProcessing::onResize(const vireo::Extent& extent) {

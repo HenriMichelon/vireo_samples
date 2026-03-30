@@ -110,7 +110,7 @@ namespace samples {
         }
         cmdList->barrier(
            colorBuffer,
-           vireo::ResourceState::RENDER_TARGET_COLOR,
+           vireo::ResourceState::UNDEFINED,
            vireo::ResourceState::COPY_SRC);
         cmdList->barrier(
             swapChain,

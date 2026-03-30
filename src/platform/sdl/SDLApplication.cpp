@@ -51,7 +51,9 @@ namespace samples {
             throw vireo::Exception("Error creating SDL window : ", SDL_GetError());
         }
 
-        app->init(vireo::Backend::VULKAN, windowHandle);
+        auto config = vireo::BackendConfiguration{};
+        config.backend = vireo::Backend::VULKAN;
+        app->init(config, windowHandle);
         try {
             app->onInit();
             SDL_ShowWindow(windowHandle);
@@ -67,7 +69,6 @@ namespace samples {
                         break;
                     case SDL_EVENT_WINDOW_RESIZED:
                     case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-                        std::cout << "resize" << std::endl;
                         app->onResize();
                         break;
                     case SDL_EVENT_KEY_DOWN:

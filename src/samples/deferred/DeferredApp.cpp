@@ -161,7 +161,7 @@ namespace samples {
             vireo::ResourceState::COPY_DST);
         cmdList->barrier(
             colorBuffer,
-            vireo::ResourceState::RENDER_TARGET_COLOR,
+            vireo::ResourceState::UNDEFINED,
             vireo::ResourceState::COPY_SRC);
         cmdList->copy(colorBuffer, swapChain);
         cmdList->barrier(

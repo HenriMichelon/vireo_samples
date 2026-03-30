@@ -62,4 +62,4 @@ The samples demonstrate the following features, in order of complexity:
 
 ## Dependencies
  - [Vireo RHI](https://github.com/HenriMichelon/vireo_rhi)
- - For Linux : Vulkan SDK (1.3+) with the `vulkan-validation-layers` package
+ - For Linux : Vulkan SDK (1.3+) with the `vulkan-validation-layers` package and the `VULKAN_SDK` environment variable set to the path of the SDK.
