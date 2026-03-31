@@ -9,6 +9,9 @@ struct Global {
     float4x4 projection;
     float4x4 view;
     float4x4 viewInverse;
+    float4x4 previousProjection; // TAA
+    float4x4 previousView; // TAA
+    float2   jitter; // TAA
     float4   ambientLight;
 }
 

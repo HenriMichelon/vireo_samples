@@ -33,6 +33,9 @@ VertexOutput vertexMain(VertexInput input) {
     float4 viewPos = mul(global.view, worldPos);
     output.position = mul(global.projection, viewPos);
 
+    float4 previousViewPos = mul(global.previousView, worldPos);
+    output.previousPos = mul(global.previousProjection, previousViewPos); // TAA
+
     float3 normalW = mul((float3x3)model, input.normal);
     output.normal = normalize(normalW);
 

@@ -39,6 +39,10 @@ export namespace samples {
         auto getAlbedoBuffer(const std::uint32_t frameIndex) const { return framesData[frameIndex].albedoBuffer; }
         auto getMaterialBuffer(const std::uint32_t frameIndex) const { return framesData[frameIndex].materialBuffer; }
 
+        const auto& getVelocityBuffer(const std::uint32_t frameIndex) const {
+            return framesData[frameIndex].velocityBuffer;
+        }
+
     private:
         struct FrameData : FrameDataCommand {
             std::shared_ptr<vireo::Buffer>        globalUniform;
@@ -49,6 +53,7 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  normalBuffer;
             std::shared_ptr<vireo::RenderTarget>  albedoBuffer;
             std::shared_ptr<vireo::RenderTarget>  materialBuffer;
+            std::shared_ptr<vireo::RenderTarget>  velocityBuffer; // TAA
         };
 
         struct PushConstants {
@@ -65,6 +70,7 @@ export namespace samples {
         static constexpr int BUFFER_NORMAL{1};
         static constexpr int BUFFER_ALBEDO{2};
         static constexpr int BUFFER_MATERIAL{3};
+        static constexpr int BUFFER_VELOCITY{4};
 
         static constexpr auto pushConstantsDesc = vireo::PushConstantsDesc {
             .stage = vireo::ShaderStage::ALL,
@@ -82,8 +88,9 @@ export namespace samples {
                 vireo::ImageFormat::R16G16B16A16_SFLOAT, // Normal
                 vireo::ImageFormat::R8G8B8A8_UNORM,      // Albedo
                 vireo::ImageFormat::R8G8_UNORM,          // Shininess/AO
+                vireo::ImageFormat::R16G16_SFLOAT,       // TAA Velocity
             },
-            .colorBlendDesc      = { {}, {}, {}, {} },
+            .colorBlendDesc      = { {}, {}, {}, {}, {} },
             .cullMode            = vireo::CullMode::BACK,
             .depthTestEnable     = true,
             .depthWriteEnable    = false,
@@ -103,6 +110,7 @@ export namespace samples {
                 { .clear = true }, // Normal
                 { .clear = true }, // Albedo
                 { .clear = true }, // Shininess/AO
+                { .clear = true }, // TAA Velocity
             },
             .depthTestEnable    = pipelineConfig.depthTestEnable,
             .stencilTestEnable  = pipelineConfig.stencilTestEnable,

@@ -24,8 +24,10 @@ export namespace samples {
             const std::shared_ptr<vireo::Vireo>& vireo,
             const std::shared_ptr<vireo::CommandList>& uploadCommandList,
             std::vector<std::shared_ptr<vireo::Buffer>>& stagingBuffers,
-            float aspectRatio);
-        void onUpdate();
+            const vireo::Extent& extent);
+
+        void onUpdate(const vireo::Extent& extent);
+
         void onKeyDown(KeyScanCodes keyCode);
 
         void drawCube(const std::shared_ptr<vireo::CommandList>& cmdList) const;
@@ -35,6 +37,7 @@ export namespace samples {
         const auto& getMaterials() const { return materials; }
         const auto& getLight() const { return light; }
         const auto& getTextures() const { return textures; }
+
 
     private:
         static constexpr float angle_opaque = glm::radians(-0.1);
@@ -103,6 +106,8 @@ export namespace samples {
             16,18,17,   16,19,18,   // (-Y)
             20,22,21,   20,23,22    // (+Y)
         };
+
+        void jitterProjection(const vireo::Extent& extent); // For TAA
 
         std::shared_ptr<vireo::Image> uploadTexture(
             const std::shared_ptr<vireo::CommandList>& uploadCommandList,

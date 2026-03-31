@@ -70,6 +70,7 @@ namespace samples {
         renderingConfig.colorRenderTargets[BUFFER_NORMAL].renderTarget = frame.normalBuffer;
         renderingConfig.colorRenderTargets[BUFFER_ALBEDO].renderTarget = frame.albedoBuffer;
         renderingConfig.colorRenderTargets[BUFFER_MATERIAL].renderTarget = frame.materialBuffer;
+        renderingConfig.colorRenderTargets[BUFFER_VELOCITY].renderTarget = frame.velocityBuffer;
         renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
         frame.commandAllocator->reset();
@@ -120,24 +121,39 @@ namespace samples {
                 pipelineConfig.colorRenderFormats[BUFFER_POSITION],
                 extent.width,extent.height,
                 vireo::RenderTargetType::COLOR,
-                renderingConfig.colorRenderTargets[BUFFER_POSITION].clearValue);
+                renderingConfig.colorRenderTargets[BUFFER_POSITION].clearValue,
+                1, vireo::MSAA::NONE,
+                "Position Buffer");
             frame.normalBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[BUFFER_NORMAL],
                 extent.width,extent.height,
                 vireo::RenderTargetType::COLOR,
-                renderingConfig.colorRenderTargets[BUFFER_NORMAL].clearValue);
+                renderingConfig.colorRenderTargets[BUFFER_NORMAL].clearValue,
+                1, vireo::MSAA::NONE,
+                "Normal Buffer");
             frame.albedoBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[BUFFER_ALBEDO],
                 extent.width,extent.height,
                 vireo::RenderTargetType::COLOR,
-                renderingConfig.colorRenderTargets[BUFFER_ALBEDO].clearValue);
+                renderingConfig.colorRenderTargets[BUFFER_ALBEDO].clearValue,
+                1, vireo::MSAA::NONE,
+                "Albedo Buffer");
             frame.materialBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[BUFFER_MATERIAL],
                 extent.width,extent.height,
                 vireo::RenderTargetType::COLOR,
-                renderingConfig.colorRenderTargets[BUFFER_MATERIAL].clearValue);
+                renderingConfig.colorRenderTargets[BUFFER_MATERIAL].clearValue,
+                1, vireo::MSAA::NONE,
+                "Material Buffer");
+            frame.velocityBuffer = vireo->createRenderTarget(
+                pipelineConfig.colorRenderFormats[BUFFER_VELOCITY],
+                extent.width,extent.height,
+                vireo::RenderTargetType::COLOR,
+                renderingConfig.colorRenderTargets[BUFFER_VELOCITY].clearValue,
+                1, vireo::MSAA::NONE,
+                "Velocity Buffer");
             cmdList->barrier(
-                {frame.positionBuffer, frame.normalBuffer, frame.albedoBuffer, frame.materialBuffer},
+                {frame.positionBuffer, frame.normalBuffer, frame.albedoBuffer, frame.materialBuffer, frame.velocityBuffer},
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::SHADER_READ);
         }

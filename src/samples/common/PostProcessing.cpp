@@ -24,6 +24,10 @@ namespace samples {
             toggleSMAA();
             std::cout << "SMAA: " << (applySMAA ? "ON" : "OFF") << std::endl;
             break;
+        case KeyScanCodes::T:
+            toggleTAA();
+            std::cout << "TAA: " << (applyTAA ? "ON" : "OFF") << std::endl;
+            break;
         case KeyScanCodes::P:
             toggleDisplayEffect();
             std::cout << "Effect: " << (applyEffect ? "ON" : "OFF") << std::endl;
@@ -52,6 +56,13 @@ namespace samples {
         descriptorLayout->add(BINDING_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
         descriptorLayout->build();
 
+        taaDescriptorLayout = vireo->createDescriptorLayout();
+        taaDescriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::UNIFORM);
+        taaDescriptorLayout->add(BINDING_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
+        taaDescriptorLayout->add(BINDING_HISTORY, vireo::DescriptorType::SAMPLED_IMAGE);
+        taaDescriptorLayout->add(BINDING_VELOCITY, vireo::DescriptorType::SAMPLED_IMAGE);
+        taaDescriptorLayout->build();
+
         smaaDescriptorLayout = vireo->createDescriptorLayout();
         smaaDescriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::UNIFORM);
         smaaDescriptorLayout->add(BINDING_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
@@ -60,11 +71,14 @@ namespace samples {
 
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
 
-        auto resources = vireo->createPipelineResources({
+        const auto resources = vireo->createPipelineResources({
             descriptorLayout,
             samplers.getDescriptorLayout() });
-        auto smaaResources = vireo->createPipelineResources({
+        const auto smaaResources = vireo->createPipelineResources({
             smaaDescriptorLayout,
+            samplers.getDescriptorLayout() });
+        const auto taaResources = vireo->createPipelineResources({
+            taaDescriptorLayout,
             samplers.getDescriptorLayout() });
 
         pipelineConfig.colorRenderFormats.push_back(vireo::ImageFormat::R16G16_SFLOAT);
@@ -78,6 +92,10 @@ namespace samples {
         pipelineConfig.resources = smaaResources;
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/smaa_neighborhood_blend.frag");
         smaaBlendPipeline = vireo->createGraphicPipeline(pipelineConfig);
+
+        pipelineConfig.resources = taaResources;
+        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/taa.frag");
+        taaPipeline = vireo->createGraphicPipeline(pipelineConfig);
 
         pipelineConfig.resources = resources;
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/fxaa.frag");
@@ -101,6 +119,10 @@ namespace samples {
             frame.smaaBlendWeightDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
             frame.smaaBlendDescriptorSet = vireo->createDescriptorSet(smaaDescriptorLayout);
             frame.smaaBlendDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
+            frame.taaDescriptorSet[0] = vireo->createDescriptorSet(taaDescriptorLayout);
+            frame.taaDescriptorSet[0]->update(BINDING_PARAMS, paramsBuffer);
+            frame.taaDescriptorSet[1] = vireo->createDescriptorSet(taaDescriptorLayout);
+            frame.taaDescriptorSet[1]->update(BINDING_PARAMS, paramsBuffer);
         }
     }
 
@@ -109,20 +131,67 @@ namespace samples {
        const vireo::Extent& extent,
        const Samplers& samplers,
        const std::shared_ptr<vireo::CommandList>& cmdList,
-       const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
+       const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
+       const std::shared_ptr<vireo::RenderTarget>& velocityBuffer) {
         const auto& frame = framesData[frameIndex];
         std::vector<std::shared_ptr<vireo::Image>> shaderReadTargets;
 
-        if (applySMAA) {
+        if (applyTAA) {
+            const auto historyIndex = (taaIndex + 1) % 2;
+            const auto currentHistory = frame.taaColorBuffer[taaIndex];
+            const auto previousHistory = frame.taaColorBuffer[historyIndex];
+
             cmdList->barrier(
                colorBuffer,
+               vireo::ResourceState::RENDER_TARGET_COLOR,
+               vireo::ResourceState::SHADER_READ);
+            // cmdList->barrier(
+               // velocityBuffer,
+               // vireo::ResourceState::RENDER_TARGET_COLOR,
+               // vireo::ResourceState::SHADER_READ);
+            cmdList->barrier(
+               previousHistory,
+               vireo::ResourceState::UNDEFINED,
+               vireo::ResourceState::SHADER_READ);
+            cmdList->barrier(
+                currentHistory,
+                vireo::ResourceState::UNDEFINED,
+                vireo::ResourceState::RENDER_TARGET_COLOR);
+
+            frame.taaDescriptorSet[taaIndex]->update(BINDING_INPUT, colorBuffer->getImage());
+            frame.taaDescriptorSet[taaIndex]->update(BINDING_HISTORY, previousHistory->getImage());
+            frame.taaDescriptorSet[taaIndex]->update(BINDING_VELOCITY, velocityBuffer->getImage());
+
+            renderingConfig.colorRenderTargets[0].renderTarget = currentHistory;
+            cmdList->beginRendering(renderingConfig);
+            cmdList->setViewport(vireo::Viewport{
+                static_cast<float>(extent.width),
+                static_cast<float>(extent.height)});
+            cmdList->setScissors(vireo::Rect{
+                extent.width,
+                extent.height});
+            cmdList->bindPipeline(taaPipeline);
+            cmdList->bindDescriptors({frame.taaDescriptorSet[taaIndex], samplers.getDescriptorSet()});
+            cmdList->draw(3);
+            cmdList->endRendering();
+
+            shaderReadTargets.push_back(colorBuffer->getImage());
+            shaderReadTargets.push_back(previousHistory->getImage());
+        }
+
+        if (applySMAA) {
+            const auto colorInput =
+                applyTAA ? frame.taaColorBuffer[taaIndex] :
+                colorBuffer;
+            cmdList->barrier(
+               colorInput,
                vireo::ResourceState::RENDER_TARGET_COLOR,
                vireo::ResourceState::SHADER_READ);
             cmdList->barrier(
                 frame.smaaEdgeBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
-            frame.smaaEdgeDescriptorSet->update(BINDING_INPUT, colorBuffer->getImage());
+            frame.smaaEdgeDescriptorSet->update(BINDING_INPUT, colorInput->getImage());
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaEdgeBuffer;
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(vireo::Viewport{
@@ -135,7 +204,7 @@ namespace samples {
             cmdList->bindDescriptors({frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
-            shaderReadTargets.push_back(colorBuffer->getImage());
+            shaderReadTargets.push_back(colorInput->getImage());
 
             cmdList->barrier(
                 frame.smaaEdgeBuffer,
@@ -168,7 +237,7 @@ namespace samples {
                 frame.smaaColorBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
-            frame.smaaBlendDescriptorSet->update(BINDING_INPUT, colorBuffer->getImage());
+            frame.smaaBlendDescriptorSet->update(BINDING_INPUT, colorInput->getImage());
             frame.smaaBlendDescriptorSet->update(BINDING_SMAA_INPUT, frame.smaaBlendBuffer->getImage());
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaColorBuffer;
             cmdList->beginRendering(renderingConfig);
@@ -188,6 +257,7 @@ namespace samples {
         if (applyFXAA) {
             const auto colorInput =
                 applySMAA ? frame.smaaColorBuffer->getImage() :
+                applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
                 colorBuffer->getImage();
             cmdList->barrier(
                colorInput,
@@ -217,6 +287,7 @@ namespace samples {
             const auto colorInput =
                 applyFXAA ? frame.fxaaColorBuffer->getImage() :
                 applySMAA ? frame.smaaColorBuffer->getImage() :
+                applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
                 colorBuffer->getImage();
             frame.effectDescriptorSet->update(BINDING_INPUT, colorInput);
             renderingConfig.colorRenderTargets[0].renderTarget = frame.effectColorBuffer;
@@ -241,6 +312,7 @@ namespace samples {
                 applyEffect ? frame.effectColorBuffer->getImage() :
                 applyFXAA ? frame.fxaaColorBuffer->getImage():
                 applySMAA ? frame.smaaColorBuffer->getImage():
+                applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
                 colorBuffer->getImage();
             frame.gammaCorrectionDescriptorSet->update(BINDING_INPUT, colorInput);
             renderingConfig.colorRenderTargets[0].renderTarget = frame.gammaCorrectionColorBuffer;
@@ -266,10 +338,16 @@ namespace samples {
                 vireo::ResourceState::SHADER_READ,
                 vireo::ResourceState::UNDEFINED);
         }
+
+        const auto currentBuffer = getColorBuffer(frameIndex);
         cmdList->barrier(
-            getColorBuffer(frameIndex),
+            currentBuffer ? currentBuffer : colorBuffer,
             vireo::ResourceState::RENDER_TARGET_COLOR,
             vireo::ResourceState::UNDEFINED);
+
+        if (applyTAA) {
+            taaIndex = (taaIndex + 1) % 2;
+        }
     }
 
     void PostProcessing::onResize(const vireo::Extent& extent) {
@@ -278,28 +356,52 @@ namespace samples {
         for (auto& frame : framesData) {
             frame.fxaaColorBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],
-                extent.width,
-                extent.height);
+                extent.width, extent.height,
+                vireo::RenderTargetType::COLOR, {},
+                1, vireo::MSAA::NONE,
+                "FXAA Color Buffer");
             frame.smaaColorBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],
-                extent.width,
-                extent.height);
+                extent.width, extent.height,
+                vireo::RenderTargetType::COLOR, {},
+                1, vireo::MSAA::NONE,
+                "SMAA Color Buffer");
             frame.smaaEdgeBuffer = vireo->createRenderTarget(
                 vireo::ImageFormat::R16G16_SFLOAT,
-                extent.width,
-                extent.height);
+                extent.width, extent.height,
+                vireo::RenderTargetType::COLOR, {},
+                1, vireo::MSAA::NONE,
+                "SMAA Edge Buffer");
             frame.smaaBlendBuffer = vireo->createRenderTarget(
                 vireo::ImageFormat::R16G16_SFLOAT,
-                extent.width,
-                extent.height);
+                extent.width, extent.height,
+                vireo::RenderTargetType::COLOR, {},
+                1, vireo::MSAA::NONE,
+                "SMAA Blend Buffer");
+            frame.taaColorBuffer[0] = vireo->createRenderTarget(
+                pipelineConfig.colorRenderFormats[0],
+                extent.width, extent.height,
+                vireo::RenderTargetType::COLOR, {},
+                1, vireo::MSAA::NONE,
+                "TAA Color Buffer 0");
+            frame.taaColorBuffer[1] = vireo->createRenderTarget(
+                pipelineConfig.colorRenderFormats[0],
+                extent.width, extent.height,
+                vireo::RenderTargetType::COLOR, {},
+                1, vireo::MSAA::NONE,
+                "TAA Color Buffer 1");
             frame.effectColorBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],
-                extent.width,
-                extent.height);
+                extent.width, extent.height,
+                vireo::RenderTargetType::COLOR, {},
+                1, vireo::MSAA::NONE,
+                "Effect Color Buffer");
             frame.gammaCorrectionColorBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],
-                extent.width,
-                extent.height);
+                extent.width, extent.height,
+                vireo::RenderTargetType::COLOR, {},
+                1, vireo::MSAA::NONE,
+                "Gamma Correction Color Buffer");
         }
     }
 

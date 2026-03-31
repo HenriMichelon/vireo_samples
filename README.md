@@ -58,7 +58,8 @@ The samples demonstrate the following features, in order of complexity:
   - Deferred rendering (Gbuffers, deferred lighting and weighted, blended order-independent transparency)
   - Stencil buffer to reduce skybox and gbuffers workload
   - Push constants used in replacement of dynamic uniform buffers
-  - Slang examples for the gbuffers pass, the lighting pass, the order-independent transparency pass.
+  - Post-processing example for TAA
+  - Slang examples for the gbuffers pass, the lighting pass, the order-independent transparency pass, and the TAA pass.
 
 ## Dependencies
  - [Vireo RHI](https://github.com/HenriMichelon/vireo_rhi)

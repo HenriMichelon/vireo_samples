@@ -18,25 +18,31 @@ export namespace samples {
     class PostProcessing {
     public:
         void onUpdate();
+
         void onInit(
             const std::shared_ptr<vireo::Vireo>& vireo,
             vireo::ImageFormat renderFormat,
             const Samplers& samplers,
             std::uint32_t framesInFlight);
+
         void onKeyDown(KeyScanCodes keyCode);
+
         void onResize(const vireo::Extent& extent);
+
         void onRender(
             std::uint32_t frameIndex,
             const vireo::Extent& extent,
             const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList,
-            const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
+            const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
+            const std::shared_ptr<vireo::RenderTarget>& velocityBuffer);
 
         auto getColorBuffer(const std::uint32_t frameIndex) const {
             return applyGammaCorrection ? framesData[frameIndex].gammaCorrectionColorBuffer :
                    applyEffect ? framesData[frameIndex].effectColorBuffer :
                    applyFXAA ? framesData[frameIndex].fxaaColorBuffer:
                    applySMAA ? framesData[frameIndex].smaaColorBuffer:
+                   applyTAA ? framesData[frameIndex].taaColorBuffer[taaIndex]:
                    nullptr;
         }
 
@@ -44,7 +50,9 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_SAMPLER{0};
         static constexpr vireo::DescriptorIndex BINDING_PARAMS{0};
         static constexpr vireo::DescriptorIndex BINDING_INPUT{1};
-        static constexpr vireo::DescriptorIndex BINDING_SMAA_INPUT{2};
+        static constexpr vireo::DescriptorIndex BINDING_SMAA_INPUT{2}; // SMAA Only
+        static constexpr vireo::DescriptorIndex BINDING_HISTORY{2}; // TAA Only
+        static constexpr vireo::DescriptorIndex BINDING_VELOCITY{3}; // TAA Only
 
         struct PostProcessingParams {
             glm::ivec2 imageSize{};
@@ -64,6 +72,8 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  smaaColorBuffer;
             std::shared_ptr<vireo::RenderTarget>  smaaEdgeBuffer;
             std::shared_ptr<vireo::RenderTarget>  smaaBlendBuffer;
+            std::shared_ptr<vireo::DescriptorSet> taaDescriptorSet[2];
+            std::shared_ptr<vireo::RenderTarget>  taaColorBuffer[2];
         };
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
@@ -73,7 +83,8 @@ export namespace samples {
             .colorRenderTargets = {{}}
         };
 
-        bool applySMAA{true};
+        bool applySMAA{false};
+        bool applyTAA{false};
         bool applyFXAA{false};
         bool applyEffect{false};
         bool applyGammaCorrection{true};
@@ -85,11 +96,15 @@ export namespace samples {
         std::shared_ptr<vireo::Pipeline>         smaaEdgePipeline;
         std::shared_ptr<vireo::Pipeline>         smaaBlendWeightPipeline;
         std::shared_ptr<vireo::Pipeline>         smaaBlendPipeline;
+        std::shared_ptr<vireo::Pipeline>         taaPipeline;
         std::shared_ptr<vireo::Pipeline>         fxaaPipeline;
         std::shared_ptr<vireo::Pipeline>         effectPipeline;
         std::shared_ptr<vireo::Pipeline>         gammaCorrectionPipeline;
         std::shared_ptr<vireo::DescriptorLayout> descriptorLayout;
+        std::shared_ptr<vireo::DescriptorLayout> taaDescriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout> smaaDescriptorLayout;
+
+        std::uint32_t taaIndex{0};
 
         static float getCurrentTimeMilliseconds();
 
@@ -97,7 +112,7 @@ export namespace samples {
         auto toggleGammaCorrection() { applyGammaCorrection = !applyGammaCorrection; }
         auto toggleFXAA() { applyFXAA = !applyFXAA; }
         auto toggleSMAA() { applySMAA = !applySMAA; }
-
+        auto toggleTAA() { applyTAA = !applyTAA; }
 
     };
 

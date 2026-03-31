@@ -21,7 +21,7 @@ namespace samples {
         const std::shared_ptr<vireo::Vireo>& vireo,
         const std::shared_ptr<vireo::CommandList>& uploadCommandList,
         std::vector<std::shared_ptr<vireo::Buffer>>& stagingBuffers,
-        const float aspectRatio) {
+        const vireo::Extent& extent) {
         this->vireo = vireo;
 
         vertexBuffer = vireo->createBuffer(vireo::BufferType::VERTEX,sizeof(Vertex),cubeVertices.size());
@@ -51,7 +51,12 @@ namespace samples {
 
         global.view = glm::lookAt(global.cameraPosition, cameraTarget, AXIS_UP);
         global.viewInverse = glm::inverse(global.view);
-        global.projection = glm::perspective(glm::radians(75.0f), aspectRatio, 0.05f, 50.0f);
+        global.projection = glm::perspective(
+            glm::radians(75.0f),
+            static_cast<float>(extent.width) / static_cast<float>(extent.height),
+            0.05f, 50.0f);
+        global.previousView = global.view;
+        jitterProjection(extent);
 
         static constexpr float angle = glm::radians(-45.0f);
         models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle, AXIS_X);
@@ -64,7 +69,8 @@ namespace samples {
                 glm::rotate(models[MODEL_OPAQUE].transform, -angle, AXIS_X);
     }
 
-    void Scene::onUpdate() {
+    void Scene::onUpdate(const vireo::Extent& extent) {
+        jitterProjection(extent);
         if (rotateCube) {
             models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle_opaque, AXIS_X);
             models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle_opaque, AXIS_Y);
@@ -80,6 +86,7 @@ namespace samples {
     }
 
     void Scene::onKeyDown(const KeyScanCodes keyCode) {
+        global.previousView = global.view;
         glm::vec3 axis;
         auto angle = glm::radians(2.0f);
         // std::cout << "key: " << static_cast<int>(keyCode) << std::endl;
@@ -204,6 +211,33 @@ namespace samples {
             vireo::ResourceState::SHADER_READ,
             0, mipLevels);
         return texture;
+    }
+
+    void Scene::jitterProjection(const vireo::Extent& extent) {
+        static uint32_t frameIndex = 0;
+        // https://en.wikipedia.org/wiki/Halton_sequence
+        const auto halton = [](const uint32_t index, const uint32_t base) {
+            auto result = 0.0f;
+            auto f = 1.0f / static_cast<float>(base);
+            auto i = index;
+            while (i > 0) {
+                result += f * static_cast<float>(i % base);
+                i /= base;
+                f /= static_cast<float>(base);
+            }
+            return result;
+        };
+
+        global.jitter = {
+            (halton(frameIndex % 16 + 1, 2) - 0.5f) / static_cast<float>(extent.width),
+            (halton(frameIndex % 16 + 1, 3) - 0.5f) / static_cast<float>(extent.height)
+        };
+
+        global.previousProjection = global.projection;
+        global.projection[2][0] = global.jitter.x;
+        global.projection[2][1] = global.jitter.y;
+
+        frameIndex++;
     }
 
 }

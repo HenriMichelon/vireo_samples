@@ -34,6 +34,7 @@ export namespace samples {
         A       = 30,
         S       = 31,
         D       = 32,
+        T       = 20,
         SPACE   = 57,
     };
 #elifdef USE_SDL3
@@ -52,6 +53,7 @@ export namespace samples {
         A       = SDL_SCANCODE_A,
         S       = SDL_SCANCODE_S,
         D       = SDL_SCANCODE_D,
+        T       = SDL_SCANCODE_T,
 
         SPACE   = SDL_SCANCODE_SPACE,
     };
@@ -69,7 +71,10 @@ export namespace samples {
         alignas(16) glm::mat4 projection;
         glm::mat4 view;
         glm::mat4 viewInverse;
-        glm::vec4 ambientLight{1.0f, 1.0f, 1.0f, 0.01f}; // RGB + strength
+        glm::mat4 previousProjection; // TAA
+        glm::mat4 previousView; // TAA
+        glm::vec2 jitter; // TAA
+        alignas(16) glm::vec4 ambientLight{1.0f, 1.0f, 1.0f, 0.01f}; // RGB + strength
     };
 
     struct Model {
@@ -82,7 +87,7 @@ export namespace samples {
     };
 
     struct Material {
-        alignas(16) float  shininess{128.f};
+        alignas(16) float shininess{128.f};
         alignas(4) std::int32_t diffuseTextureIndex{-1};
         alignas(4) std::int32_t normalTextureIndex{-1};
         alignas(4) std::int32_t aoTextureIndex{-1};

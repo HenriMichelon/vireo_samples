@@ -12,6 +12,7 @@ struct FragmentOutput {
     float4   normal   : SV_TARGET1; // xyz = world-space normal
     float4   albedo   : SV_TARGET2; // rgb = albedo, a unused
     float2   material : SV_TARGET3; // r=shininess, g=AO
+    float2   velocity : SV_TARGET4; // TAA velocity
 };
 
 struct Materials {
@@ -26,6 +27,7 @@ struct PushConstants {
 [[push_constant]]
 PushConstants pushConstants : register(b0, space2);
 
+ConstantBuffer<Global>    global      : register(b0);
 ConstantBuffer<Materials> materials   : register(b2);
 Texture2D                 textures[5] : register(t3);
 SamplerState              sampler     : register(SAMPLER_LINEAR_EDGE, space1);
@@ -45,5 +47,10 @@ FragmentOutput fragmentMain(VertexOutput input) {
     output.normal = float4(N, 0.0);
     output.albedo = float4(color.rgb, 1.0);
     output.material = float2(material.shininess, ao);
+
+    float2 curPos = (input.position.xy / input.position.w);
+    float2 prevPos = (input.previousPos.xy / input.previousPos.w);
+    output.velocity = (curPos - prevPos) - global.jitter; // TAA
+
     return output;
 }

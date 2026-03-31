@@ -12,7 +12,7 @@ import samples.common.global;
 namespace samples {
 
     void DeferredApp::onUpdate() {
-        scene.onUpdate();
+        scene.onUpdate(swapChain->getExtent());
         skybox.onUpdate(scene);
         postProcessing.onUpdate();
     }
@@ -38,7 +38,7 @@ namespace samples {
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
-        scene.onInit(vireo, uploadCommandList, stagingBuffers, swapChain->getAspectRatio());
+        scene.onInit(vireo, uploadCommandList, stagingBuffers, swapChain->getExtent());
         depthPrepass.onInit(vireo, scene, true, swapChain->getFramesInFlight());
         lightingPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, samplers, swapChain->getFramesInFlight());
         transparencyPass.onInit(vireo, RENDER_FORMAT, scene, depthPrepass, samplers, swapChain->getFramesInFlight());
@@ -60,28 +60,28 @@ namespace samples {
         graphicQueue->waitIdle();
         stagingBuffers.clear();
 
-        if constexpr (vireo::isMemoryUsageEnabled()) {
-            std::size_t totalBuffers{0};
-            for (const auto& usage : vireo::Buffer::getMemoryAllocations()) {
-                std::cout
-                    << "Buffer : "
-                    << usage.size
-                    << " (" << usage.name << ")"
-                    << std::endl;
-                totalBuffers += usage.size;
-            }
-            std::size_t totalImages{0};
-            for (const auto& usage : vireo::Image::getMemoryAllocations()) {
-                std::cout
-                    << "Image : "
-                    << usage.size
-                    << " (" << usage.name << ")"
-                    << std::endl;
-                totalImages += usage.size;
-            }
-            std::cout << "Buffers : " << totalBuffers << " bytes (" << totalBuffers/1024/1024 << "Mb)" << std::endl;
-            std::cout << "Images: " << totalImages << " bytes (" << totalImages/1024/1024 << "Mb)" << std::endl;
-        }
+        // if constexpr (vireo::isMemoryUsageEnabled()) {
+        //     std::size_t totalBuffers{0};
+        //     for (const auto& usage : vireo::Buffer::getMemoryAllocations()) {
+        //         std::cout
+        //             << "Buffer : "
+        //             << usage.size
+        //             << " (" << usage.name << ")"
+        //             << std::endl;
+        //         totalBuffers += usage.size;
+        //     }
+        //     std::size_t totalImages{0};
+        //     for (const auto& usage : vireo::Image::getMemoryAllocations()) {
+        //         std::cout
+        //             << "Image : "
+        //             << usage.size
+        //             << " (" << usage.name << ")"
+        //             << std::endl;
+        //         totalImages += usage.size;
+        //     }
+        //     std::cout << "Buffers : " << totalBuffers << " bytes (" << totalBuffers/1024/1024 << "Mb)" << std::endl;
+        //     std::cout << "Images: " << totalImages << " bytes (" << totalImages/1024/1024 << "Mb)" << std::endl;
+        // }
     }
 
     void DeferredApp::onRender() {
@@ -142,7 +142,8 @@ namespace samples {
             swapChain->getExtent(),
             samplers,
             cmdList,
-            frame.colorBuffer);
+            frame.colorBuffer,
+            gbufferPass.getVelocityBuffer(frameIndex));
 
         cmdList->barrier(
             depthPrepass.getDepthBuffer(frameIndex),

@@ -32,6 +32,7 @@ export namespace samples {
 
     private:
         static constexpr auto RENDER_FORMAT = vireo::ImageFormat::R8G8B8A8_UNORM;
+        // static constexpr auto RENDER_FORMAT = vireo::ImageFormat::B8G8R8A8_UNORM; // X11
 
         struct FrameData : FrameDataCommand {
             std::shared_ptr<vireo::Fence>        inFlightFence;
