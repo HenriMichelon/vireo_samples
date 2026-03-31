@@ -131,53 +131,9 @@ namespace samples {
        const vireo::Extent& extent,
        const Samplers& samplers,
        const std::shared_ptr<vireo::CommandList>& cmdList,
-       const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
-       const std::shared_ptr<vireo::RenderTarget>& velocityBuffer) {
+       const std::shared_ptr<vireo::RenderTarget>& colorBuffer) {
         const auto& frame = framesData[frameIndex];
         std::vector<std::shared_ptr<vireo::Image>> shaderReadTargets;
-
-        if (applyTAA) {
-            const auto historyIndex = (taaIndex + 1) % 2;
-            const auto currentHistory = frame.taaColorBuffer[taaIndex];
-            const auto previousHistory = frame.taaColorBuffer[historyIndex];
-
-            cmdList->barrier(
-               colorBuffer,
-               vireo::ResourceState::RENDER_TARGET_COLOR,
-               vireo::ResourceState::SHADER_READ);
-            // cmdList->barrier(
-               // velocityBuffer,
-               // vireo::ResourceState::RENDER_TARGET_COLOR,
-               // vireo::ResourceState::SHADER_READ);
-            cmdList->barrier(
-               previousHistory,
-               vireo::ResourceState::UNDEFINED,
-               vireo::ResourceState::SHADER_READ);
-            cmdList->barrier(
-                currentHistory,
-                vireo::ResourceState::UNDEFINED,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
-
-            frame.taaDescriptorSet[taaIndex]->update(BINDING_INPUT, colorBuffer->getImage());
-            frame.taaDescriptorSet[taaIndex]->update(BINDING_HISTORY, previousHistory->getImage());
-            frame.taaDescriptorSet[taaIndex]->update(BINDING_VELOCITY, velocityBuffer->getImage());
-
-            renderingConfig.colorRenderTargets[0].renderTarget = currentHistory;
-            cmdList->beginRendering(renderingConfig);
-            cmdList->setViewport(vireo::Viewport{
-                static_cast<float>(extent.width),
-                static_cast<float>(extent.height)});
-            cmdList->setScissors(vireo::Rect{
-                extent.width,
-                extent.height});
-            cmdList->bindPipeline(taaPipeline);
-            cmdList->bindDescriptors({frame.taaDescriptorSet[taaIndex], samplers.getDescriptorSet()});
-            cmdList->draw(3);
-            cmdList->endRendering();
-
-            shaderReadTargets.push_back(colorBuffer->getImage());
-            shaderReadTargets.push_back(previousHistory->getImage());
-        }
 
         if (applySMAA) {
             const auto colorInput =
@@ -348,6 +304,60 @@ namespace samples {
         if (applyTAA) {
             taaIndex = (taaIndex + 1) % 2;
         }
+    }
+
+     void PostProcessing::taaPass(
+        const std::uint32_t frameIndex,
+        const vireo::Extent& extent,
+        const Samplers& samplers,
+        const std::shared_ptr<vireo::CommandList>& cmdList,
+        const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
+        const std::shared_ptr<vireo::RenderTarget>& velocityBuffer) {
+        if (!applyTAA) return;
+
+        const auto& frame = framesData[frameIndex];
+        const auto historyIndex = (taaIndex + 1) % 2;
+        const auto currentHistory = frame.taaColorBuffer[taaIndex];
+        const auto previousHistory = frame.taaColorBuffer[historyIndex];
+
+        cmdList->barrier(
+           colorBuffer,
+           vireo::ResourceState::RENDER_TARGET_COLOR,
+           vireo::ResourceState::SHADER_READ);
+        cmdList->barrier(
+           previousHistory,
+           vireo::ResourceState::UNDEFINED,
+           vireo::ResourceState::SHADER_READ);
+        cmdList->barrier(
+            currentHistory,
+            vireo::ResourceState::UNDEFINED,
+            vireo::ResourceState::RENDER_TARGET_COLOR);
+
+        frame.taaDescriptorSet[taaIndex]->update(BINDING_INPUT, colorBuffer->getImage());
+        frame.taaDescriptorSet[taaIndex]->update(BINDING_HISTORY, previousHistory->getImage());
+        frame.taaDescriptorSet[taaIndex]->update(BINDING_VELOCITY, velocityBuffer->getImage());
+
+        renderingConfig.colorRenderTargets[0].renderTarget = currentHistory;
+        cmdList->beginRendering(renderingConfig);
+        cmdList->setViewport(vireo::Viewport{
+            static_cast<float>(extent.width),
+            static_cast<float>(extent.height)});
+        cmdList->setScissors(vireo::Rect{
+            extent.width,
+            extent.height});
+        cmdList->bindPipeline(taaPipeline);
+        cmdList->bindDescriptors({frame.taaDescriptorSet[taaIndex], samplers.getDescriptorSet()});
+        cmdList->draw(3);
+        cmdList->endRendering();
+
+        cmdList->barrier(
+            previousHistory->getImage(),
+            vireo::ResourceState::SHADER_READ,
+            vireo::ResourceState::UNDEFINED);
+        cmdList->barrier(
+            colorBuffer->getImage(),
+            vireo::ResourceState::SHADER_READ,
+            vireo::ResourceState::UNDEFINED);
     }
 
     void PostProcessing::onResize(const vireo::Extent& extent) {

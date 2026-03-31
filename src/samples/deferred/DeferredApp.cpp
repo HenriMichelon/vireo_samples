@@ -129,6 +129,14 @@ namespace samples {
             samplers,
             cmdList,
             frame.colorBuffer);
+        postProcessing.taaPass(
+            frameIndex,
+            swapChain->getExtent(),
+            samplers,
+            cmdList,
+            frame.colorBuffer,
+            gbufferPass.getVelocityBuffer(frameIndex));
+        auto colorBuffer = postProcessing.applyTAA ? postProcessing.getTAAColorBuffer(frameIndex) : frame.colorBuffer;
         transparencyPass.onRender(
             frameIndex,
             swapChain->getExtent(),
@@ -136,14 +144,13 @@ namespace samples {
             depthPrepass,
             samplers,
             cmdList,
-            frame.colorBuffer);
+            colorBuffer);
         postProcessing.onRender(
             frameIndex,
             swapChain->getExtent(),
             samplers,
             cmdList,
-            frame.colorBuffer,
-            gbufferPass.getVelocityBuffer(frameIndex));
+            colorBuffer);
 
         cmdList->barrier(
             depthPrepass.getDepthBuffer(frameIndex),
@@ -152,7 +159,7 @@ namespace samples {
                     vireo::ResourceState::RENDER_TARGET_DEPTH,
             vireo::ResourceState::UNDEFINED);
 
-        auto colorBuffer = postProcessing.getColorBuffer(frameIndex);
+        colorBuffer = postProcessing.getColorBuffer(frameIndex);
         if (colorBuffer == nullptr) {
             colorBuffer = frame.colorBuffer;
         }

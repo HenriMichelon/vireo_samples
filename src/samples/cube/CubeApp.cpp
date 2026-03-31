@@ -10,7 +10,7 @@ module samples.cube;
 namespace samples {
 
     void CubeApp::onUpdate() {
-        scene.onUpdate();
+        scene.onUpdate(swapChain->getExtent());
         skybox.onUpdate(scene);
         postProcessing.onUpdate();
     }
@@ -36,7 +36,7 @@ namespace samples {
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
         const auto uploadCommandList = uploadCommandAllocator->createCommandList();
         uploadCommandList->begin();
-        scene.onInit(vireo, uploadCommandList, stagingBuffers, swapChain->getAspectRatio());
+        scene.onInit(vireo, uploadCommandList, stagingBuffers, swapChain->getExtent());
         depthPrepass.onInit(vireo, scene, false, swapChain->getFramesInFlight());
         skybox.onInit(vireo, uploadCommandList, RENDER_FORMAT, depthPrepass, samplers, swapChain->getFramesInFlight());
         uploadCommandList->end();

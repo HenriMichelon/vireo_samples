@@ -34,6 +34,13 @@ export namespace samples {
             const vireo::Extent& extent,
             const Samplers& samplers,
             const std::shared_ptr<vireo::CommandList>& cmdList,
+            const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
+
+        void taaPass(
+            std::uint32_t frameIndex,
+            const vireo::Extent& extent,
+            const Samplers& samplers,
+            const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
             const std::shared_ptr<vireo::RenderTarget>& velocityBuffer);
 
@@ -44,6 +51,12 @@ export namespace samples {
                    applySMAA ? framesData[frameIndex].smaaColorBuffer:
                    applyTAA ? framesData[frameIndex].taaColorBuffer[taaIndex]:
                    nullptr;
+        }
+
+        bool applyTAA{false};
+
+        auto getTAAColorBuffer(const std::uint32_t frameIndex) const {
+            return framesData[frameIndex].taaColorBuffer[taaIndex];
         }
 
     private:
@@ -84,7 +97,6 @@ export namespace samples {
         };
 
         bool applySMAA{false};
-        bool applyTAA{false};
         bool applyFXAA{false};
         bool applyEffect{false};
         bool applyGammaCorrection{true};
