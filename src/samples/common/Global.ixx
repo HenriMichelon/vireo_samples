@@ -74,6 +74,7 @@ export namespace samples {
         glm::mat4 previousProjection; // TAA
         glm::mat4 previousView; // TAA
         glm::vec2 jitter; // TAA
+        glm::vec2 screenSize;
         alignas(16) glm::vec4 ambientLight{1.0f, 1.0f, 1.0f, 0.01f}; // RGB + strength
     };
 

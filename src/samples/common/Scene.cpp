@@ -55,6 +55,7 @@ namespace samples {
             glm::radians(75.0f),
             static_cast<float>(extent.width) / static_cast<float>(extent.height),
             0.05f, 50.0f);
+        global.screenSize = { static_cast<float>(extent.width), static_cast<float>(extent.height) };
         global.previousView = global.view;
         jitterProjection(extent);
 
@@ -70,6 +71,7 @@ namespace samples {
     }
 
     void Scene::onUpdate(const vireo::Extent& extent) {
+        global.screenSize = { static_cast<float>(extent.width), static_cast<float>(extent.height) };
         jitterProjection(extent);
         if (rotateCube) {
             models[MODEL_OPAQUE].transform = glm::rotate(models[MODEL_OPAQUE].transform, angle_opaque, AXIS_X);
@@ -232,7 +234,6 @@ namespace samples {
             (halton(frameIndex % 16 + 1, 2) - 0.5f) / static_cast<float>(extent.width),
             (halton(frameIndex % 16 + 1, 3) - 0.5f) / static_cast<float>(extent.height)
         };
-
         global.previousProjection = global.projection;
         global.projection[2][0] = global.jitter.x;
         global.projection[2][1] = global.jitter.y;

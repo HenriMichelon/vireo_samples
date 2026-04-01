@@ -97,14 +97,14 @@ float4 fragmentMain(VertexOutput input) : SV_TARGET {
     float3 clampedPrevYCoCg = clamp(prevYCoCg, minColor, maxColor);
     
     // Adaptive blend factor based on velocity and clamping amount
-    //float velocityWeight = saturate(length(vel) * 50.0);
-    float velocityWeight = saturate(length(vel) * 30.0);
+    float velocityWeight = saturate(length(vel) * 50.0);
+    //float velocityWeight = saturate(length(vel) * 30.0);
     float clampAmount = length(clampedPrevYCoCg - prevYCoCg);
-    //float clampWeight = saturate(clampAmount * 5.0);
-    float clampWeight = saturate(clampAmount * 3.0);
+    float clampWeight = saturate(clampAmount * 5.0);
+    //float clampWeight = saturate(clampAmount * 3.0);
 
-    //float blendFactor = lerp(0.92, 0.7, max(velocityWeight, clampWeight));
-    float blendFactor = lerp(0.95, 0.75, max(velocityWeight, clampWeight));
+    float blendFactor = lerp(0.92, 0.7, max(velocityWeight, clampWeight));
+    //float blendFactor = lerp(0.95, 0.75, max(velocityWeight, clampWeight));
 
     float3 finalPrevRGB = YCoCgToRGB(clampedPrevYCoCg);
     float3 result = lerp(current.rgb, finalPrevRGB, blendFactor);

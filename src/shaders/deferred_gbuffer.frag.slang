@@ -48,9 +48,11 @@ FragmentOutput fragmentMain(VertexOutput input) {
     output.albedo = float4(color.rgb, 1.0);
     output.material = float2(material.shininess, ao);
 
-    float2 curPos = (input.position.xy / input.position.w);
-    float2 prevPos = (input.previousPos.xy / input.previousPos.w);
-    output.velocity = (curPos - prevPos) - global.jitter; // TAA
+    // TAA
+    float2 curPos = (input.position.xy / global.screenSize);
+    curPos -= global.jitter * 0.5;
+    float2 prevPos = (input.previousPos.xy / input.previousPos.w) * 0.5 + 0.5;
+    output.velocity = (curPos - prevPos);
 
     return output;
 }

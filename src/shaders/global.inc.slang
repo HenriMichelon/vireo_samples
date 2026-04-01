@@ -12,6 +12,7 @@ struct Global {
     float4x4 previousProjection; // TAA
     float4x4 previousView; // TAA
     float2   jitter; // TAA
+    float2   screenSize;
     float4   ambientLight;
 }
 
