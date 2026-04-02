@@ -14,33 +14,6 @@ namespace samples {
         paramsBuffer->write(&params);
     }
 
-    void PostProcessing::onKeyDown(const KeyScanCodes keyCode) {
-        switch (keyCode) {
-        case KeyScanCodes::F:
-            toggleFXAA();
-            std::cout << "FXAA: " << (applyFXAA ? "ON" : "OFF") << std::endl;
-            break;
-        case KeyScanCodes::M:
-            toggleSMAA();
-            std::cout << "SMAA: " << (applySMAA ? "ON" : "OFF") << std::endl;
-            break;
-        case KeyScanCodes::T:
-            toggleTAA();
-            std::cout << "TAA: " << (applyTAA ? "ON" : "OFF") << std::endl;
-            break;
-        case KeyScanCodes::P:
-            toggleDisplayEffect();
-            std::cout << "Effect: " << (applyEffect ? "ON" : "OFF") << std::endl;
-            break;
-        case KeyScanCodes::G:
-            toggleGammaCorrection();
-            std::cout << "Gamma Correction: " << (applyGammaCorrection ? "ON" : "OFF") << std::endl;
-            break;
-        default:
-            break;
-        }
-    }
-
     void PostProcessing::onInit(
            const std::shared_ptr<vireo::Vireo>& vireo,
            const vireo::ImageFormat renderFormat,
@@ -135,8 +108,55 @@ namespace samples {
         const auto& frame = framesData[frameIndex];
         std::vector<std::shared_ptr<vireo::Image>> shaderReadTargets;
 
+        if (applyEffect) {
+            const auto colorInput =
+                applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
+                colorBuffer->getImage();
+            frame.effectDescriptorSet->update(BINDING_INPUT, colorInput);
+            renderingConfig.colorRenderTargets[0].renderTarget = frame.effectColorBuffer;
+            cmdList->barrier(
+                colorInput,
+                vireo::ResourceState::RENDER_TARGET_COLOR,
+                vireo::ResourceState::SHADER_READ);
+            cmdList->barrier(
+                frame.effectColorBuffer,
+                vireo::ResourceState::UNDEFINED,
+                vireo::ResourceState::RENDER_TARGET_COLOR);
+            cmdList->beginRendering(renderingConfig);
+            cmdList->bindPipeline(effectPipeline);
+            cmdList->bindDescriptors({frame.effectDescriptorSet, samplers.getDescriptorSet()});
+            cmdList->draw(3);
+            cmdList->endRendering();
+            shaderReadTargets.push_back(colorInput);
+        }
+
+        if (applyGammaCorrection) {
+            const auto colorInput =
+                applyEffect ? frame.effectColorBuffer->getImage() :
+                applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
+                colorBuffer->getImage();
+            frame.gammaCorrectionDescriptorSet->update(BINDING_INPUT, colorInput);
+            renderingConfig.colorRenderTargets[0].renderTarget = frame.gammaCorrectionColorBuffer;
+            cmdList->barrier(
+                colorInput,
+                vireo::ResourceState::RENDER_TARGET_COLOR,
+                vireo::ResourceState::SHADER_READ);
+            cmdList->barrier(
+                frame.gammaCorrectionColorBuffer,
+                vireo::ResourceState::UNDEFINED,
+                vireo::ResourceState::RENDER_TARGET_COLOR);
+            cmdList->beginRendering(renderingConfig);
+            cmdList->bindPipeline(gammaCorrectionPipeline);
+            cmdList->bindDescriptors({frame.gammaCorrectionDescriptorSet, samplers.getDescriptorSet()});
+            cmdList->draw(3);
+            cmdList->endRendering();
+            shaderReadTargets.push_back(colorInput);
+        }
+
         if (applySMAA) {
             const auto colorInput =
+                applyGammaCorrection ? frame.gammaCorrectionColorBuffer :
+                applyEffect ? frame.effectColorBuffer :
                 applyTAA ? frame.taaColorBuffer[taaIndex] :
                 colorBuffer;
             cmdList->barrier(
@@ -213,6 +233,8 @@ namespace samples {
         if (applyFXAA) {
             const auto colorInput =
                 applySMAA ? frame.smaaColorBuffer->getImage() :
+                applyGammaCorrection ? frame.gammaCorrectionColorBuffer->getImage() :
+                applyEffect ? frame.effectColorBuffer->getImage() :
                 applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
                 colorBuffer->getImage();
             cmdList->barrier(
@@ -223,7 +245,7 @@ namespace samples {
                 frame.fxaaColorBuffer,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
-            frame.fxaaDescriptorSet->update(BINDING_INPUT, colorBuffer->getImage());
+            frame.fxaaDescriptorSet->update(BINDING_INPUT, colorInput );
             renderingConfig.colorRenderTargets[0].renderTarget = frame.fxaaColorBuffer;
             cmdList->beginRendering(renderingConfig);
             cmdList->setViewport(vireo::Viewport{
@@ -234,55 +256,6 @@ namespace samples {
                 extent.height});
             cmdList->bindPipeline(fxaaPipeline);
             cmdList->bindDescriptors({frame.fxaaDescriptorSet, samplers.getDescriptorSet()});
-            cmdList->draw(3);
-            cmdList->endRendering();
-            shaderReadTargets.push_back(colorInput);
-        }
-
-        if (applyEffect) {
-            const auto colorInput =
-                applyFXAA ? frame.fxaaColorBuffer->getImage() :
-                applySMAA ? frame.smaaColorBuffer->getImage() :
-                applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
-                colorBuffer->getImage();
-            frame.effectDescriptorSet->update(BINDING_INPUT, colorInput);
-            renderingConfig.colorRenderTargets[0].renderTarget = frame.effectColorBuffer;
-            cmdList->barrier(
-                colorInput,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::SHADER_READ);
-            cmdList->barrier(
-                frame.effectColorBuffer,
-                vireo::ResourceState::UNDEFINED,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->beginRendering(renderingConfig);
-            cmdList->bindPipeline(effectPipeline);
-            cmdList->bindDescriptors({frame.effectDescriptorSet, samplers.getDescriptorSet()});
-            cmdList->draw(3);
-            cmdList->endRendering();
-            shaderReadTargets.push_back(colorInput);
-        }
-
-        if (applyGammaCorrection) {
-            const auto colorInput =
-                applyEffect ? frame.effectColorBuffer->getImage() :
-                applyFXAA ? frame.fxaaColorBuffer->getImage():
-                applySMAA ? frame.smaaColorBuffer->getImage():
-                applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
-                colorBuffer->getImage();
-            frame.gammaCorrectionDescriptorSet->update(BINDING_INPUT, colorInput);
-            renderingConfig.colorRenderTargets[0].renderTarget = frame.gammaCorrectionColorBuffer;
-            cmdList->barrier(
-                colorInput,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::SHADER_READ);
-            cmdList->barrier(
-                frame.gammaCorrectionColorBuffer,
-                vireo::ResourceState::UNDEFINED,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->beginRendering(renderingConfig);
-            cmdList->bindPipeline(gammaCorrectionPipeline);
-            cmdList->bindDescriptors({frame.gammaCorrectionDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
             shaderReadTargets.push_back(colorInput);

@@ -25,8 +25,6 @@ export namespace samples {
             const Samplers& samplers,
             std::uint32_t framesInFlight);
 
-        void onKeyDown(KeyScanCodes keyCode);
-
         void onResize(const vireo::Extent& extent);
 
         void onRender(
@@ -45,10 +43,11 @@ export namespace samples {
             const std::shared_ptr<vireo::RenderTarget>& velocityBuffer);
 
         auto getColorBuffer(const std::uint32_t frameIndex) const {
-            return applyGammaCorrection ? framesData[frameIndex].gammaCorrectionColorBuffer :
-                   applyEffect ? framesData[frameIndex].effectColorBuffer :
+            return
                    applyFXAA ? framesData[frameIndex].fxaaColorBuffer:
                    applySMAA ? framesData[frameIndex].smaaColorBuffer:
+                   applyGammaCorrection ? framesData[frameIndex].gammaCorrectionColorBuffer :
+                   applyEffect ? framesData[frameIndex].effectColorBuffer :
                    applyTAA ? framesData[frameIndex].taaColorBuffer[taaIndex]:
                    nullptr;
         }

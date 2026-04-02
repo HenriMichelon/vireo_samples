@@ -20,7 +20,6 @@ namespace samples {
     void DeferredApp::onKeyDown(const std::uint32_t key) {
         const auto keyCode = static_cast<KeyScanCodes>(key);
         graphicQueue->waitIdle();
-        postProcessing.onKeyDown(keyCode);
         scene.onKeyDown(keyCode);
     }
 
@@ -33,6 +32,7 @@ namespace samples {
             vireo::PresentMode::VSYNC);
 
         samplers.onInit(vireo);
+        postProcessing.applyTAA = true;
 
         auto stagingBuffers = std::vector<std::shared_ptr<vireo::Buffer>>();
         const auto uploadCommandAllocator = vireo->createCommandAllocator(vireo::CommandType::GRAPHIC);
