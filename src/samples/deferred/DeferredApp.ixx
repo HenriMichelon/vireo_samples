@@ -38,6 +38,7 @@ export namespace samples {
             std::shared_ptr<vireo::Fence>        inFlightFence;
             std::shared_ptr<vireo::RenderTarget> colorBuffer;
             std::shared_ptr<vireo::Semaphore>    semaphore;
+            std::shared_ptr<vireo::QueryPool>    lastQueryPool;
         };
 
         Scene                               scene;

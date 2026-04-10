@@ -53,7 +53,7 @@ namespace samples {
         }
     }
 
-    void GBufferPass::onRender(
+    std::shared_ptr<vireo::QueryPool> GBufferPass::onRender(
         const std::uint32_t frameIndex,
         const vireo::Extent& extent,
         const Scene& scene,
@@ -84,6 +84,10 @@ namespace samples {
             {renderTargets.begin(), renderTargets.end()},
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
+
+        // auto pool = vireo->createQueryPool(2, "GBuffer timing");
+        // cmdList->writeTimestamp(*pool, 0);
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
             static_cast<float>(extent.width),
@@ -101,6 +105,9 @@ namespace samples {
         scene.drawCube(cmdList);
 
         cmdList->endRendering();
+        // cmdList->writeTimestamp(*pool, 1);
+        // cmdList->resolveQueryPool(*pool, 0, 2);
+
         cmdList->barrier(
             {renderTargets.begin(), renderTargets.end()},
             vireo::ResourceState::RENDER_TARGET_COLOR,
@@ -113,6 +120,8 @@ namespace samples {
            vireo::WaitStage::FRAGMENT_SHADER,
            semaphore,
            {cmdList});
+        // return pool;
+        return nullptr;
     }
 
     void GBufferPass::onResize(const vireo::Extent& extent, const std::shared_ptr<vireo::CommandList>& cmdList) {

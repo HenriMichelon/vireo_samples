@@ -24,7 +24,7 @@ export namespace samples {
             const DepthPrepass& depthPrepass,
             const Samplers& samplers,
             std::uint32_t framesInFlight);
-        void onRender(
+        std::shared_ptr<vireo::QueryPool> onRender(
             std::uint32_t frameIndex,
             const vireo::Extent& extent,
             const Scene& scene,

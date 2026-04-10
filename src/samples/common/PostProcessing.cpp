@@ -279,14 +279,14 @@ namespace samples {
         }
     }
 
-     void PostProcessing::taaPass(
+     std::shared_ptr<vireo::QueryPool>  PostProcessing::taaPass(
         const std::uint32_t frameIndex,
         const vireo::Extent& extent,
         const Samplers& samplers,
         const std::shared_ptr<vireo::CommandList>& cmdList,
         const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
         const std::shared_ptr<vireo::RenderTarget>& velocityBuffer) {
-        if (!applyTAA) return;
+        if (!applyTAA) return nullptr;
 
         const auto& frame = framesData[frameIndex];
         const auto historyIndex = (taaIndex + 1) % 2;
@@ -309,8 +309,11 @@ namespace samples {
         frame.taaDescriptorSet[taaIndex]->update(BINDING_INPUT, colorBuffer->getImage());
         frame.taaDescriptorSet[taaIndex]->update(BINDING_HISTORY, previousHistory->getImage());
         frame.taaDescriptorSet[taaIndex]->update(BINDING_VELOCITY, velocityBuffer->getImage());
-
         renderingConfig.colorRenderTargets[0].renderTarget = currentHistory;
+
+        auto pool = vireo->createQueryPool(2, "TAA timing");
+        cmdList->writeTimestamp(*pool, 0);
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
             static_cast<float>(extent.width),
@@ -331,6 +334,10 @@ namespace samples {
             colorBuffer->getImage(),
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::UNDEFINED);
+
+        cmdList->writeTimestamp(*pool, 1);
+        cmdList->resolveQueryPool(*pool, 0, 2);
+        return pool;
     }
 
     void PostProcessing::onResize(const vireo::Extent& extent) {

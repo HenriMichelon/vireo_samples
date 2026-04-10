@@ -86,9 +86,16 @@ namespace samples {
 
     void DeferredApp::onRender() {
         const auto frameIndex = swapChain->getCurrentFrameIndex();
-        const auto& frame = framesData[frameIndex];
+        auto& frame = framesData[frameIndex];
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
+
+        if (frame.lastQueryPool) {
+            const auto ticks = frame.lastQueryPool->getResults(0, 2);
+            const double ms = (ticks[1] - ticks[0]) * frame.lastQueryPool->getTimestampPeriodMs();
+            std::cout << "Last time stamp query : " << ms << " ms" << std::endl;
+            frame.lastQueryPool.reset();
+        }
 
         depthPrepass.onRender(
             frameIndex,
@@ -129,7 +136,7 @@ namespace samples {
             samplers,
             cmdList,
             frame.colorBuffer);
-        postProcessing.taaPass(
+        frame.lastQueryPool = postProcessing.taaPass(
             frameIndex,
             swapChain->getExtent(),
             samplers,

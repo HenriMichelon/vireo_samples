@@ -50,7 +50,7 @@ namespace samples {
         }
     }
 
-    void LightingPass::onRender(
+    std::shared_ptr<vireo::QueryPool> LightingPass::onRender(
         const std::uint32_t frameIndex,
         const vireo::Extent& extent,
         const Scene& scene,
@@ -71,6 +71,9 @@ namespace samples {
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
 
+        // auto pool = vireo->createQueryPool(2, "Lighting timing");
+        // cmdList->writeTimestamp(*pool, 0);
+
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
             static_cast<float>(extent.width),
@@ -83,6 +86,11 @@ namespace samples {
         cmdList->bindDescriptors({frame.descriptorSet, samplers.getDescriptorSet()});
         cmdList->draw(3);
         cmdList->endRendering();
+
+        // cmdList->writeTimestamp(*pool, 1);
+        // cmdList->resolveQueryPool(*pool, 0, 2);
+        // return pool;
+        return nullptr;
     }
 
 }

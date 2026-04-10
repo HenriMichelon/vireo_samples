@@ -34,7 +34,7 @@ export namespace samples {
             const std::shared_ptr<vireo::CommandList>& cmdList,
             const std::shared_ptr<vireo::RenderTarget>& colorBuffer);
 
-        void taaPass(
+        std::shared_ptr<vireo::QueryPool> taaPass(
             std::uint32_t frameIndex,
             const vireo::Extent& extent,
             const Samplers& samplers,
