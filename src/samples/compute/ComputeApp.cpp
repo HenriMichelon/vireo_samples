@@ -59,11 +59,11 @@ namespace samples {
         frame.commandList->barrier(
             frame.image,
             vireo::ResourceState::COPY_SRC,
-            vireo::ResourceState::DISPATCH_TARGET);
+            vireo::ResourceState::COMPUTE_WRITE);
         frame.commandList->dispatch((frame.image->getWidth() + 7)/8, (frame.image->getHeight() + 7)/8, 1);
         frame.commandList->barrier(
             frame.image,
-            vireo::ResourceState::DISPATCH_TARGET,
+            vireo::ResourceState::COMPUTE_WRITE,
             vireo::ResourceState::COPY_SRC);
 
         frame.commandList->barrier(
