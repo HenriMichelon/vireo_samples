@@ -6,7 +6,7 @@
 */
 module;
 #include <cstddef>
-export module samples.hellotriangle;
+export module samples.hellotrianglebuffer;
 
 import glm;
 import std;

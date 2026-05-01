@@ -90,12 +90,12 @@ namespace samples {
 
         if (!swapChain->acquire(frame.inFlightFence)) { return; }
 
-        if (frame.lastQueryPool) {
-            const auto ticks = frame.lastQueryPool->getResults(0, 2);
-            const double ms = (ticks[1] - ticks[0]) * frame.lastQueryPool->getTimestampPeriodMs();
-            std::cout << "Last time stamp query : " << ms << " ms" << std::endl;
-            frame.lastQueryPool.reset();
-        }
+        // if (frame.lastQueryPool) {
+        //     const auto ticks = frame.lastQueryPool->getResults(0, 2);
+        //     const double ms = (ticks[1] - ticks[0]) * frame.lastQueryPool->getTimestampPeriodMs();
+        //     std::cout << "Last time stamp query : " << ms << " ms" << std::endl;
+        //     frame.lastQueryPool.reset();
+        // }
 
         depthPrepass.onRender(
             frameIndex,

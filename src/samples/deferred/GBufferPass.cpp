@@ -80,8 +80,9 @@ namespace samples {
         auto renderTargets = std::views::transform(renderingConfig.colorRenderTargets, [](const auto& colorRenderTarget) {
             return colorRenderTarget.renderTarget;
         });
+        const std::vector<std::shared_ptr<const vireo::RenderTarget>> images = {renderTargets.begin(), renderTargets.end()};
         cmdList->barrier(
-            {renderTargets.begin(), renderTargets.end()},
+            images,
             vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
 
@@ -109,7 +110,7 @@ namespace samples {
         // cmdList->resolveQueryPool(*pool, 0, 2);
 
         cmdList->barrier(
-            {renderTargets.begin(), renderTargets.end()},
+            images,
             vireo::ResourceState::RENDER_TARGET_COLOR,
             vireo::ResourceState::SHADER_READ);
 

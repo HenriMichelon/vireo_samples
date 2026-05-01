@@ -5,6 +5,6 @@
 * https://opensource.org/licenses/MIT
 */
 #include "Macros.h"
-import samples.hellotriangle;
+import samples.hellotrianglebuffer;
 
 APP(std::make_shared<samples::TextureBufferApp>(), "Hello Triangle Texture Buffer PushConstants", 1280, 720);

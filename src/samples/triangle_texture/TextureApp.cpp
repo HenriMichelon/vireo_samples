@@ -40,7 +40,7 @@ namespace samples {
             vireo::AddressMode::CLAMP_TO_BORDER,
             0.0f, 1.0f,
             false,
-            vireo::MipMapMode::NEAREST);
+            vireo::FilterMode::NEAREST);
 
         const auto stagingBuffer = vireo->createBuffer(
             vireo::BufferType::IMAGE_UPLOAD,
