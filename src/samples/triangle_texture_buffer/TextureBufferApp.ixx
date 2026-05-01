@@ -91,7 +91,7 @@ export namespace samples {
 
         std::vector<std::shared_ptr<vireo::Image>>              textures;
         std::vector<std::shared_ptr<vireo::Sampler>>            samplers;
-        std::map<const char*, std::shared_ptr<vireo::Pipeline>> pipelines;
+        std::map<const std::string, std::shared_ptr<vireo::Pipeline>> pipelines;
 
         static void generateTextureData(const std::shared_ptr<vireo::Buffer>&destination, std::uint32_t width, std::uint32_t height);
     };
