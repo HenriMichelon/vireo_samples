@@ -261,18 +261,18 @@ namespace samples {
             shaderReadTargets.push_back(colorInput);
         }
 
-        for (const auto& image : shaderReadTargets) {
-            cmdList->barrier(
-                image,
-                vireo::ResourceState::SHADER_READ,
-                vireo::ResourceState::UNDEFINED);
-        }
+        // for (const auto& image : shaderReadTargets) {
+        //     cmdList->barrier(
+        //         image,
+        //         vireo::ResourceState::SHADER_READ,
+        //         vireo::ResourceState::UNDEFINED);
+        // }
 
-        const auto currentBuffer = getColorBuffer(frameIndex);
-        cmdList->barrier(
-            currentBuffer ? currentBuffer : colorBuffer,
-            vireo::ResourceState::RENDER_TARGET_COLOR,
-            vireo::ResourceState::UNDEFINED);
+        // const auto currentBuffer = getColorBuffer(frameIndex);
+        // cmdList->barrier(
+        //     currentBuffer ? currentBuffer : colorBuffer,
+        //     vireo::ResourceState::RENDER_TARGET_COLOR,
+        //     vireo::ResourceState::RENDER_TARGET_COLOR);
 
         if (applyTAA) {
             taaIndex = (taaIndex + 1) % 2;
@@ -299,11 +299,11 @@ namespace samples {
            vireo::ResourceState::SHADER_READ);
         cmdList->barrier(
            previousHistory,
-           vireo::ResourceState::UNDEFINED,
+           vireo::ResourceState::RENDER_TARGET_COLOR,
            vireo::ResourceState::SHADER_READ);
         cmdList->barrier(
             currentHistory,
-            vireo::ResourceState::UNDEFINED,
+            vireo::ResourceState::SHADER_READ,
             vireo::ResourceState::RENDER_TARGET_COLOR);
 
         frame.taaDescriptorSet[taaIndex]->update(BINDING_INPUT, colorBuffer->getImage());
@@ -329,11 +329,11 @@ namespace samples {
         cmdList->barrier(
             previousHistory->getImage(),
             vireo::ResourceState::SHADER_READ,
-            vireo::ResourceState::UNDEFINED);
+            vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->barrier(
             colorBuffer->getImage(),
             vireo::ResourceState::SHADER_READ,
-            vireo::ResourceState::UNDEFINED);
+            vireo::ResourceState::RENDER_TARGET_COLOR);
 
         cmdList->writeTimestamp(*pool, 1);
         cmdList->resolveQueryPool(*pool, 0, 2);

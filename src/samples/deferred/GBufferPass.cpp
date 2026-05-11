@@ -47,8 +47,8 @@ namespace samples {
             frame.materialUniform->unmap();
             frame.descriptorSet = vireo->createDescriptorSet(descriptorLayout, "GBuffer");
             frame.descriptorSet->update(BINDING_GLOBAL, frame.globalUniform);
-            frame.descriptorSet->update(BINDING_MODEL, frame.modelUniform);
-            frame.descriptorSet->update(BINDING_MATERIAL, frame.materialUniform);
+            frame.descriptorSet->update(BINDING_MODEL, frame.modelUniform, false);
+            frame.descriptorSet->update(BINDING_MATERIAL, frame.materialUniform, false);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
         }
     }

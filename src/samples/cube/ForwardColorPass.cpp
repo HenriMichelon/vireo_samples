@@ -48,9 +48,9 @@ namespace samples {
             frame.descriptorSet->update(BINDING_LIGHT, frame.lightUniform);
             frame.descriptorSet->update(BINDING_TEXTURES, scene.getTextures());
             frame.modelsDescriptorSet = vireo->createDescriptorSet(modelsDescriptorLayout);
-            frame.modelsDescriptorSet->update(frame.modelUniform);
+            frame.modelsDescriptorSet->update(frame.modelUniform, false);
             frame.materialsDescriptorSet = vireo->createDescriptorSet(materialsDescriptorLayout);
-            frame.materialsDescriptorSet->update(frame.materialUniform);
+            frame.materialsDescriptorSet->update(frame.materialUniform, false);
 
             frame.globalUniform->map();
             frame.modelUniform->map();
@@ -93,7 +93,7 @@ namespace samples {
         cmdList->bindDescriptor(samplers.getDescriptorSet(), SET_SAMPLERS);
 
         cmdList->bindDescriptor(
-            frame.materialsDescriptorSet,SET_MATERIALS,
+            frame.materialsDescriptorSet, SET_MATERIALS,
             frame.materialUniform->getInstanceSizeAligned() * Scene::MATERIAL_ROCKS);
         cmdList->bindDescriptor(
             frame.modelsDescriptorSet, SET_MODELS,

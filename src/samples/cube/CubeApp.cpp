@@ -98,10 +98,10 @@ namespace samples {
             cmdList,
             frame.colorBuffer);
 
-        cmdList->barrier(
-                depthPrepass.getDepthBuffer(frameIndex),
-                vireo::ResourceState::RENDER_TARGET_DEPTH,
-                vireo::ResourceState::UNDEFINED);
+        // cmdList->barrier(
+        //         depthPrepass.getDepthBuffer(frameIndex),
+        //         vireo::ResourceState::RENDER_TARGET_DEPTH,
+        //         vireo::ResourceState::UNDEFINED);
 
         auto colorBuffer = postProcessing.getColorBuffer(frameIndex);
         if (colorBuffer == nullptr) {
@@ -109,7 +109,7 @@ namespace samples {
         }
         cmdList->barrier(
            colorBuffer,
-           vireo::ResourceState::UNDEFINED,
+           vireo::ResourceState::RENDER_TARGET_COLOR,
            vireo::ResourceState::COPY_SRC);
         cmdList->barrier(
             swapChain,
@@ -123,7 +123,7 @@ namespace samples {
         cmdList->barrier(
             colorBuffer,
             vireo::ResourceState::COPY_SRC,
-            vireo::ResourceState::UNDEFINED);
+            vireo::ResourceState::RENDER_TARGET_COLOR);
         cmdList->end();
 
         frame.semaphore->decrementValue();
