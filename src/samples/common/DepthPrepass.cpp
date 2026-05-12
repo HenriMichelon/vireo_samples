@@ -59,7 +59,7 @@ namespace samples {
         const Scene& scene,
         const std::shared_ptr<vireo::Semaphore>& semaphore,
         const std::shared_ptr<vireo::SubmitQueue>& graphicQueue) {
-        const auto& frame = framesData[frameIndex];
+        auto& frame = framesData[frameIndex];
 
         frame.globalUniform->write(&scene.getGlobal());
         frame.modelUniform->write(scene.getModels().data());
@@ -69,10 +69,16 @@ namespace samples {
         frame.commandAllocator->reset();
         const auto cmdList = frame.commandList;
         cmdList->begin();
-        cmdList->barrier(
-            renderingConfig.depthStencilRenderTarget,
-            vireo::ResourceState::UNDEFINED,
-            withStencil ? vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL : vireo::ResourceState::RENDER_TARGET_DEPTH);
+        if (!frame.depthInitialized) {
+            const auto depthTargetState = withStencil
+                ? vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL
+                : vireo::ResourceState::RENDER_TARGET_DEPTH;
+            cmdList->barrier(
+                renderingConfig.depthStencilRenderTarget,
+                vireo::ResourceState::UNDEFINED,
+                depthTargetState);
+            frame.depthInitialized = true;
+        }
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{
             static_cast<float>(extent.width),
@@ -104,7 +110,10 @@ namespace samples {
                 extent.width,
                 extent.height,
                 withStencil ? vireo::RenderTargetType::DEPTH_STENCIL : vireo::RenderTargetType::DEPTH,
-                renderingConfig.depthStencilClearValue);
+                renderingConfig.depthStencilClearValue,
+                1, vireo::MSAA::NONE,
+                "Depth Buffer");
+            frame.depthInitialized = false;
         }
     }
 

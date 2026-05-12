@@ -71,7 +71,7 @@ namespace samples {
         const std::shared_ptr<vireo::RenderTarget>& colorBuffer,
         const std::shared_ptr<vireo::Semaphore>& semaphore,
         const std::shared_ptr<vireo::SubmitQueue>& graphicQueue) {
-        const auto& frame = framesData[frameIndex];
+        auto& frame = framesData[frameIndex];
 
         renderingConfig.colorRenderTargets[0].renderTarget = colorBuffer;
         renderingConfig.depthStencilRenderTarget = depthPrepass.getDepthBuffer(frameIndex);
@@ -88,10 +88,13 @@ namespace samples {
                 vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL_READ,
                 vireo::ResourceState::RENDER_TARGET_DEPTH_STENCIL);
         }
-        cmdList->barrier(
-           colorBuffer,
-           vireo::ResourceState::UNDEFINED,
-           vireo::ResourceState::RENDER_TARGET_COLOR);
+        if (!frame.bufferInitialized) {
+            cmdList->barrier(
+               colorBuffer,
+               vireo::ResourceState::UNDEFINED,
+               vireo::ResourceState::RENDER_TARGET_COLOR);
+            frame.bufferInitialized = true;
+        }
 
         cmdList->beginRendering(renderingConfig);
         cmdList->setViewport(vireo::Viewport{

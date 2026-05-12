@@ -42,6 +42,7 @@ export namespace samples {
         struct FrameData : FrameDataCommand {
             std::shared_ptr<vireo::Buffer>        globalBuffer;
             std::shared_ptr<vireo::DescriptorSet> descriptorSet;
+            bool                                  bufferInitialized{false};
         };
 
         static constexpr vireo::DescriptorIndex BINDING_GLOBAL{0};

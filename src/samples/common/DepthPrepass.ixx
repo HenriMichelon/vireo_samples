@@ -41,6 +41,7 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  depthBuffer;
             std::shared_ptr<vireo::DescriptorSet> descriptorSet;
             std::shared_ptr<vireo::DescriptorSet> modelDescriptorSet;
+            bool                                  depthInitialized{false};
         };
 
         static constexpr vireo::DescriptorIndex SET_GLOBAL{0};

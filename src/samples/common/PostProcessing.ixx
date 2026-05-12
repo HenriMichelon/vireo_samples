@@ -86,7 +86,8 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  smaaBlendBuffer;
             std::shared_ptr<vireo::DescriptorSet> taaDescriptorSet[2];
             std::shared_ptr<vireo::RenderTarget>  taaColorBuffer[2];
-            bool                                  taaHistoryInitialized{false};
+            bool colorBuffersInitialized{false};
+            bool taaHistoryInitialized{false};
         };
 
         vireo::GraphicPipelineConfiguration pipelineConfig {
