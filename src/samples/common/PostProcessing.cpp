@@ -297,14 +297,25 @@ namespace samples {
            colorBuffer,
            vireo::ResourceState::RENDER_TARGET_COLOR,
            vireo::ResourceState::SHADER_READ);
-        cmdList->barrier(
-           previousHistory,
-           vireo::ResourceState::RENDER_TARGET_COLOR,
-           vireo::ResourceState::SHADER_READ);
-        cmdList->barrier(
-            currentHistory,
-            vireo::ResourceState::SHADER_READ,
-            vireo::ResourceState::RENDER_TARGET_COLOR);
+        if (!frame.taaHistoryInitialized) {
+            cmdList->barrier(
+               previousHistory,
+               vireo::ResourceState::UNDEFINED,
+               vireo::ResourceState::SHADER_READ);
+            cmdList->barrier(
+                currentHistory,
+                vireo::ResourceState::UNDEFINED,
+                vireo::ResourceState::RENDER_TARGET_COLOR);
+        } else {
+            cmdList->barrier(
+               previousHistory,
+               vireo::ResourceState::RENDER_TARGET_COLOR,
+               vireo::ResourceState::SHADER_READ);
+            cmdList->barrier(
+                currentHistory,
+                vireo::ResourceState::SHADER_READ,
+                vireo::ResourceState::RENDER_TARGET_COLOR);
+        }
 
         frame.taaDescriptorSet[taaIndex]->update(BINDING_INPUT, colorBuffer->getImage());
         frame.taaDescriptorSet[taaIndex]->update(BINDING_HISTORY, previousHistory->getImage());
@@ -337,13 +348,16 @@ namespace samples {
 
         cmdList->writeTimestamp(*pool, 1);
         cmdList->resolveQueryPool(*pool, 0, 2);
+        framesData[frameIndex].taaHistoryInitialized = true;
         return pool;
     }
 
     void PostProcessing::onResize(const vireo::Extent& extent) {
         params.imageSize.x = extent.width;
         params.imageSize.y = extent.height;
+        taaIndex = 0;
         for (auto& frame : framesData) {
+            frame.taaHistoryInitialized = false;
             frame.fxaaColorBuffer = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],
                 extent.width, extent.height,
