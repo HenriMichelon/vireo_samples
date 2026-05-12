@@ -36,36 +36,16 @@ namespace samples {
         taaDescriptorLayout->add(BINDING_VELOCITY, vireo::DescriptorType::SAMPLED_IMAGE);
         taaDescriptorLayout->build();
 
-        smaaDescriptorLayout = vireo->createDescriptorLayout();
-        smaaDescriptorLayout->add(BINDING_PARAMS, vireo::DescriptorType::UNIFORM);
-        smaaDescriptorLayout->add(BINDING_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
-        smaaDescriptorLayout->add(BINDING_SMAA_INPUT, vireo::DescriptorType::SAMPLED_IMAGE);
-        smaaDescriptorLayout->build();
-
         pipelineConfig.vertexShader = vireo->createShaderModule("shaders/quad.vert");
 
         const auto resources = vireo->createPipelineResources({
             descriptorLayout,
             samplers.getDescriptorLayout() });
-        const auto smaaResources = vireo->createPipelineResources({
-            smaaDescriptorLayout,
-            samplers.getDescriptorLayout() });
         const auto taaResources = vireo->createPipelineResources({
             taaDescriptorLayout,
             samplers.getDescriptorLayout() });
 
-        pipelineConfig.colorRenderFormats.push_back(vireo::ImageFormat::R16G16_SFLOAT);
-        pipelineConfig.resources = resources;
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/smaa_edge_detect.frag");
-        smaaEdgePipeline = vireo->createGraphicPipeline(pipelineConfig);
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/smaa_blend_weigth.frag");
-        smaaBlendWeightPipeline = vireo->createGraphicPipeline(pipelineConfig);
-
-        pipelineConfig.colorRenderFormats[0] = renderFormat;
-        pipelineConfig.resources = smaaResources;
-        pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/smaa_neighborhood_blend.frag");
-        smaaBlendPipeline = vireo->createGraphicPipeline(pipelineConfig);
-
+        pipelineConfig.colorRenderFormats.push_back(renderFormat);
         pipelineConfig.resources = taaResources;
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/taa.frag");
         taaPipeline = vireo->createGraphicPipeline(pipelineConfig);
@@ -78,6 +58,32 @@ namespace samples {
         pipelineConfig.fragmentShader = vireo->createShaderModule("shaders/gamma_correction.frag");
         gammaCorrectionPipeline = vireo->createGraphicPipeline(pipelineConfig);
 
+        // SMAA compute pipelines
+        smaaDataBuffer = vireo->createBuffer(vireo::BufferType::UNIFORM, sizeof(SmaaData));
+        smaaDataBuffer->map();
+        smaaDataBuffer->write(&smaaData);
+
+        smaaComputeDescLayout = vireo->createDescriptorLayout();
+        smaaComputeDescLayout->add(BINDING_PARAMS,       vireo::DescriptorType::UNIFORM);
+        smaaComputeDescLayout->add(SMAA_BINDING_DATA,    vireo::DescriptorType::UNIFORM);
+        smaaComputeDescLayout->add(SMAA_BINDING_OUTPUT,  vireo::DescriptorType::READWRITE_IMAGE);
+        smaaComputeDescLayout->add(SMAA_BINDING_TEXTURES, vireo::DescriptorType::SAMPLED_IMAGE, SMAA_TEXTURES_COUNT);
+        smaaComputeDescLayout->build();
+
+        smaaExtraDescLayout = vireo->createDescriptorLayout();
+        smaaExtraDescLayout->add(SMAA_BINDING_EDGE,   vireo::DescriptorType::READWRITE_IMAGE);
+        smaaExtraDescLayout->add(SMAA_BINDING_WEIGHT, vireo::DescriptorType::READWRITE_IMAGE);
+        smaaExtraDescLayout->build();
+
+        smaaComputeResources = vireo->createPipelineResources({
+            smaaComputeDescLayout,
+            samplers.getDescriptorLayout(),
+            smaaExtraDescLayout });
+
+        smaaEdgePipeline        = vireo->createComputePipeline(smaaComputeResources, vireo->createShaderModule("shaders/smaa_edge_detect.comp"));
+        smaaBlendWeightPipeline = vireo->createComputePipeline(smaaComputeResources, vireo->createShaderModule("shaders/smaa_blend_weight.comp"));
+        smaaBlendPipeline       = vireo->createComputePipeline(smaaComputeResources, vireo->createShaderModule("shaders/smaa_neighborhood_blend.comp"));
+
         framesData.resize(framesInFlight);
         for (auto& frame : framesData) {
             frame.fxaaDescriptorSet = vireo->createDescriptorSet(descriptorLayout);
@@ -86,12 +92,10 @@ namespace samples {
             frame.effectDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
             frame.gammaCorrectionDescriptorSet = vireo->createDescriptorSet(descriptorLayout);
             frame.gammaCorrectionDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
-            frame.smaaEdgeDescriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            frame.smaaEdgeDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
-            frame.smaaBlendWeightDescriptorSet = vireo->createDescriptorSet(descriptorLayout);
-            frame.smaaBlendWeightDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
-            frame.smaaBlendDescriptorSet = vireo->createDescriptorSet(smaaDescriptorLayout);
-            frame.smaaBlendDescriptorSet->update(BINDING_PARAMS, paramsBuffer);
+            frame.smaaComputeDescriptorSet = vireo->createDescriptorSet(smaaComputeDescLayout);
+            frame.smaaComputeDescriptorSet->update(BINDING_PARAMS,    paramsBuffer);
+            frame.smaaComputeDescriptorSet->update(SMAA_BINDING_DATA, smaaDataBuffer);
+            frame.smaaExtraDescriptorSet = vireo->createDescriptorSet(smaaExtraDescLayout);
             frame.taaDescriptorSet[0] = vireo->createDescriptorSet(taaDescriptorLayout);
             frame.taaDescriptorSet[0]->update(BINDING_PARAMS, paramsBuffer);
             frame.taaDescriptorSet[1] = vireo->createDescriptorSet(taaDescriptorLayout);
@@ -124,13 +128,13 @@ namespace samples {
             cmdList->barrier(
                 frame.smaaEdgeBuffer,
                 vireo::ResourceState::UNDEFINED,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
+                vireo::ResourceState::COMPUTE_READ);
             cmdList->barrier(
                 frame.smaaBlendBuffer,
                 vireo::ResourceState::UNDEFINED,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
+                vireo::ResourceState::COMPUTE_READ);
             cmdList->barrier(
-                frame.smaaColorBuffer,
+                frame.smaaColorImage,
                 vireo::ResourceState::UNDEFINED,
                 vireo::ResourceState::RENDER_TARGET_COLOR);
         }
@@ -182,79 +186,43 @@ namespace samples {
 
         if (applySMAA) {
             const auto colorInput =
-                applyGammaCorrection ? frame.gammaCorrectionColorBuffer :
-                applyEffect ? frame.effectColorBuffer :
-                applyTAA ? frame.taaColorBuffer[taaIndex] :
-                colorBuffer;
-            cmdList->barrier(
-               colorInput,
-               vireo::ResourceState::RENDER_TARGET_COLOR,
-               vireo::ResourceState::SHADER_READ);
-            frame.smaaEdgeDescriptorSet->update(BINDING_INPUT, colorInput->getImage());
-            renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaEdgeBuffer;
-            cmdList->beginRendering(renderingConfig);
-            cmdList->setViewport(vireo::Viewport{
-                static_cast<float>(extent.width),
-                static_cast<float>(extent.height)});
-            cmdList->setScissors(vireo::Rect{
-                extent.width,
-                extent.height});
-            cmdList->bindPipeline(smaaEdgePipeline);
-            cmdList->bindDescriptors({frame.smaaEdgeDescriptorSet, samplers.getDescriptorSet()});
-            cmdList->draw(3);
-            cmdList->endRendering();
-            shaderReadTargets.push_back(colorInput->getImage());
+                applyGammaCorrection ? frame.gammaCorrectionColorBuffer->getImage() :
+                applyEffect ? frame.effectColorBuffer->getImage() :
+                applyTAA ? frame.taaColorBuffer[taaIndex]->getImage() :
+                colorBuffer->getImage();
 
-            cmdList->barrier(
-                frame.smaaEdgeBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::SHADER_READ);
-            frame.smaaBlendWeightDescriptorSet->update(BINDING_INPUT, frame.smaaEdgeBuffer->getImage());
-            renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaBlendBuffer;
-            cmdList->beginRendering(renderingConfig);
-            cmdList->setViewport(vireo::Viewport{
-                static_cast<float>(extent.width),
-                static_cast<float>(extent.height)});
-            cmdList->setScissors(vireo::Rect{
-                extent.width,
-                extent.height});
-            cmdList->bindPipeline(smaaBlendWeightPipeline);
-            cmdList->bindDescriptors({frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
-            cmdList->draw(3);
-            cmdList->endRendering();
-            cmdList->barrier(
-                frame.smaaEdgeBuffer,
-                vireo::ResourceState::SHADER_READ,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
-            shaderReadTargets.push_back(frame.smaaEdgeBuffer->getImage());
-
-            cmdList->barrier(
-                frame.smaaBlendBuffer,
-                vireo::ResourceState::RENDER_TARGET_COLOR,
-                vireo::ResourceState::SHADER_READ);
-            frame.smaaBlendDescriptorSet->update(BINDING_INPUT, colorInput->getImage());
-            frame.smaaBlendDescriptorSet->update(BINDING_SMAA_INPUT, frame.smaaBlendBuffer->getImage());
-            renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaColorBuffer;
-            cmdList->beginRendering(renderingConfig);
-            cmdList->setViewport(vireo::Viewport{
-                static_cast<float>(extent.width),
-                static_cast<float>(extent.height)});
-            cmdList->setScissors(vireo::Rect{
-                extent.width,
-                extent.height});
-            cmdList->bindPipeline(smaaBlendPipeline);
-            cmdList->bindDescriptors({frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
-            cmdList->draw(3);
-            cmdList->endRendering();
-            cmdList->barrier(
-                frame.smaaBlendBuffer,
-                vireo::ResourceState::SHADER_READ,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
-            cmdList->barrier(
+            const std::vector<std::shared_ptr<vireo::Image>> smaaTextures = {
                 colorInput,
-                vireo::ResourceState::SHADER_READ,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
-            shaderReadTargets.push_back(frame.smaaBlendBuffer->getImage());
+                frame.smaaEdgeBuffer,
+                frame.smaaBlendBuffer
+            };
+            frame.smaaComputeDescriptorSet->update(SMAA_BINDING_OUTPUT,   frame.smaaColorImage);
+            frame.smaaComputeDescriptorSet->update(SMAA_BINDING_TEXTURES, smaaTextures);
+            frame.smaaExtraDescriptorSet->update(SMAA_BINDING_EDGE,   frame.smaaEdgeBuffer);
+            frame.smaaExtraDescriptorSet->update(SMAA_BINDING_WEIGHT, frame.smaaBlendBuffer);
+
+            cmdList->bindDescriptors(
+                vireo::PipelineType::COMPUTE,
+                smaaComputeResources,
+                { frame.smaaComputeDescriptorSet, samplers.getDescriptorSet(), frame.smaaExtraDescriptorSet });
+
+            const auto tile_x = (extent.width  + TILE_SIZE - 1) / TILE_SIZE;
+            const auto tile_y = (extent.height + TILE_SIZE - 1) / TILE_SIZE;
+
+            cmdList->barrier(frame.smaaEdgeBuffer, vireo::ResourceState::COMPUTE_READ, vireo::ResourceState::COMPUTE_WRITE);
+            cmdList->bindPipeline(smaaEdgePipeline);
+            cmdList->dispatch(tile_x, tile_y, 1);
+            cmdList->barrier(frame.smaaEdgeBuffer, vireo::ResourceState::COMPUTE_WRITE, vireo::ResourceState::COMPUTE_READ);
+
+            cmdList->barrier(frame.smaaBlendBuffer, vireo::ResourceState::COMPUTE_READ, vireo::ResourceState::COMPUTE_WRITE);
+            cmdList->bindPipeline(smaaBlendWeightPipeline);
+            cmdList->dispatch(tile_x, tile_y, 1);
+            cmdList->barrier(frame.smaaBlendBuffer, vireo::ResourceState::COMPUTE_WRITE, vireo::ResourceState::COMPUTE_READ);
+
+            cmdList->barrier(frame.smaaColorImage, vireo::ResourceState::RENDER_TARGET_COLOR, vireo::ResourceState::COMPUTE_WRITE);
+            cmdList->bindPipeline(smaaBlendPipeline);
+            cmdList->dispatch(tile_x, tile_y, 1);
+            cmdList->barrier(frame.smaaColorImage, vireo::ResourceState::COMPUTE_WRITE, vireo::ResourceState::RENDER_TARGET_COLOR);
         }
 
         if (applyFXAA) {
@@ -370,23 +338,21 @@ namespace samples {
                 vireo::RenderTargetType::COLOR, {},
                 1, vireo::MSAA::NONE,
                 "FXAA Color Buffer");
-            frame.smaaColorBuffer = vireo->createRenderTarget(
+            frame.smaaColorImage = vireo->createReadWriteImage(
                 pipelineConfig.colorRenderFormats[0],
                 extent.width, extent.height,
-                vireo::RenderTargetType::COLOR, {},
-                1, vireo::MSAA::NONE,
-                "SMAA Color Buffer");
-            frame.smaaEdgeBuffer = vireo->createRenderTarget(
+                1, 1,
+                "SMAA Color Image");
+            frame.smaaColorBuffer = vireo->createRenderTarget(frame.smaaColorImage);
+            frame.smaaEdgeBuffer = vireo->createReadWriteImage(
                 vireo::ImageFormat::R16G16_SFLOAT,
                 extent.width, extent.height,
-                vireo::RenderTargetType::COLOR, {},
-                1, vireo::MSAA::NONE,
+                1, 1,
                 "SMAA Edge Buffer");
-            frame.smaaBlendBuffer = vireo->createRenderTarget(
+            frame.smaaBlendBuffer = vireo->createReadWriteImage(
                 vireo::ImageFormat::R16G16_SFLOAT,
                 extent.width, extent.height,
-                vireo::RenderTargetType::COLOR, {},
-                1, vireo::MSAA::NONE,
+                1, 1,
                 "SMAA Blend Buffer");
             frame.taaColorBuffer[0] = vireo->createRenderTarget(
                 pipelineConfig.colorRenderFormats[0],

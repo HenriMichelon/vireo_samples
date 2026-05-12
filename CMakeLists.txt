@@ -29,7 +29,7 @@ set(VIREO_TARGET "vireo_rhi")
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SHADERS_SRC_DIR ${SRC_DIR}/shaders)
-set(SHADERS_INCLUDE_DIR ${SRC_DIR}/shaders/include)
+set(SHADERS_INCLUDE_DIR ${SRC_DIR}/shaders)
 set(SHADERS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
 
 #######################################################
