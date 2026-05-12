@@ -39,7 +39,6 @@ include(cmake/libraries.cmake)
 
 #######################################################
 # Slang shaders
-file(MAKE_DIRECTORY ${SHADERS_BUILD_DIR})
 file(GLOB_RECURSE SHADERS_SOURCE_FILES
         "${SHADERS_SRC_DIR}/*.slang"
 )
@@ -90,7 +89,7 @@ function(build_target TARGET_NAME SRCS MODULES)
     vireo_compile_options(${TARGET_NAME})
     target_include_directories(${TARGET_NAME} PUBLIC ${INCLUDE_DIR})
     target_link_libraries(${TARGET_NAME} ${VIREO_TARGET} glm::glm glm-modules)
-    add_dependencies(${TARGET_NAME} ${VIREO_TARGET})
+    add_dependencies(${TARGET_NAME} ${VIREO_TARGET} shaders)
 endfunction()
 
 #######################################################
