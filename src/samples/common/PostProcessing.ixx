@@ -97,7 +97,7 @@ export namespace samples {
             .colorRenderTargets = {{}}
         };
 
-        bool applySMAA{false};
+        bool applySMAA{true};
         bool applyFXAA{false};
         bool applyEffect{false};
         bool applyGammaCorrection{true};

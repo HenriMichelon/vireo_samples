@@ -175,10 +175,12 @@ namespace samples {
                colorInput,
                vireo::ResourceState::RENDER_TARGET_COLOR,
                vireo::ResourceState::SHADER_READ);
-            cmdList->barrier(
-                frame.smaaEdgeBuffer,
-                vireo::ResourceState::UNDEFINED,
-                vireo::ResourceState::RENDER_TARGET_COLOR);
+            if (!frame.colorBuffersInitialized) {
+                cmdList->barrier(
+                    frame.smaaEdgeBuffer,
+                    vireo::ResourceState::UNDEFINED,
+                    vireo::ResourceState::RENDER_TARGET_COLOR);
+            }
             frame.smaaEdgeDescriptorSet->update(BINDING_INPUT, colorInput->getImage());
             renderingConfig.colorRenderTargets[0].renderTarget = frame.smaaEdgeBuffer;
             cmdList->beginRendering(renderingConfig);
@@ -217,6 +219,10 @@ namespace samples {
             cmdList->bindDescriptors({frame.smaaBlendWeightDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
+            cmdList->barrier(
+                frame.smaaEdgeBuffer,
+                vireo::ResourceState::SHADER_READ,
+                vireo::ResourceState::RENDER_TARGET_COLOR);
             shaderReadTargets.push_back(frame.smaaEdgeBuffer->getImage());
 
             cmdList->barrier(
@@ -243,6 +249,10 @@ namespace samples {
             cmdList->bindDescriptors({frame.smaaBlendDescriptorSet, samplers.getDescriptorSet()});
             cmdList->draw(3);
             cmdList->endRendering();
+            cmdList->barrier(
+                frame.smaaBlendBuffer,
+                vireo::ResourceState::SHADER_READ,
+                vireo::ResourceState::RENDER_TARGET_COLOR);
             cmdList->barrier(
                 colorInput,
                 vireo::ResourceState::SHADER_READ,

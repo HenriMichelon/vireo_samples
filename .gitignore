@@ -378,3 +378,4 @@ log.txt
 cmake-build-debug-mingw
 *.dxil
 /renderdoc.cap
+/.claude/
