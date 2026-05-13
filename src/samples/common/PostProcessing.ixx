@@ -73,7 +73,7 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex SMAA_BINDING_EDGE{0};
         static constexpr vireo::DescriptorIndex SMAA_BINDING_WEIGHT{1};
 
-        static constexpr uint32_t TILE_SIZE{16};
+        static constexpr std::uint32_t TILE_SIZE{16};
         static constexpr int SMAA_TEXTURES_COUNT{3};
 
         struct PostProcessingParams {
