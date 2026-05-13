@@ -100,9 +100,9 @@ namespace samples {
         cmdList->setScissors(vireo::Rect{
             extent.width,
             extent.height});
+        cmdList->setStencilTestEnable(false);
         cmdList->bindPipeline(oitPipeline);
         cmdList->bindDescriptors({frame.oitDescriptorSet, samplers.getDescriptorSet()});
-        cmdList->setStencilTestEnable(false);
         pushConstants.modelIndex = Scene::MODEL_TRANSPARENT;
         pushConstants.materialIndex = Scene::MATERIAL_GRID;
         cmdList->pushConstants(oitPipelineConfig.resources, pushConstantsDesc, &pushConstants);
