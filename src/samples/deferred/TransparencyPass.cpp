@@ -100,7 +100,6 @@ namespace samples {
         cmdList->setScissors(vireo::Rect{
             extent.width,
             extent.height});
-        cmdList->setStencilTestEnable(false);
         cmdList->bindPipeline(oitPipeline);
         cmdList->bindDescriptors({frame.oitDescriptorSet, samplers.getDescriptorSet()});
         pushConstants.modelIndex = Scene::MODEL_TRANSPARENT;

@@ -100,7 +100,7 @@ export namespace samples {
                     .colorWriteMask = vireo::ColorWriteMask::RED,
                 }},
             .depthTestEnable = true,
-            .depthWriteEnable = false
+            .depthWriteEnable = false,
         };
         vireo::RenderingConfiguration oitRenderingConfig {
             .colorRenderTargets = {
