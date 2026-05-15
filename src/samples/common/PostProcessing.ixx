@@ -65,16 +65,10 @@ export namespace samples {
         static constexpr vireo::DescriptorIndex BINDING_HISTORY{2}; // TAA Only
         static constexpr vireo::DescriptorIndex BINDING_VELOCITY{3}; // TAA Only
 
-        // SMAA compute descriptor bindings (space 0)
         static constexpr vireo::DescriptorIndex SMAA_BINDING_DATA{1};
-        static constexpr vireo::DescriptorIndex SMAA_BINDING_OUTPUT{2};
-        static constexpr vireo::DescriptorIndex SMAA_BINDING_TEXTURES{3};
-        // SMAA compute descriptor bindings (space 2)
-        static constexpr vireo::DescriptorIndex SMAA_BINDING_EDGE{0};
-        static constexpr vireo::DescriptorIndex SMAA_BINDING_WEIGHT{1};
-
-        static constexpr std::uint32_t TILE_SIZE{16};
-        static constexpr int SMAA_TEXTURES_COUNT{3};
+        static constexpr vireo::DescriptorIndex SMAA_BINDING_INPUT{2};
+        static constexpr vireo::DescriptorIndex SMAA_BLEND_BINDING_INPUT{1};
+        static constexpr vireo::DescriptorIndex SMAA_BLEND_BINDING_BLEND{2};
 
         struct PostProcessingParams {
             glm::ivec2 imageSize{};
@@ -93,12 +87,12 @@ export namespace samples {
             std::shared_ptr<vireo::RenderTarget>  effectColorBuffer;
             std::shared_ptr<vireo::DescriptorSet> gammaCorrectionDescriptorSet;
             std::shared_ptr<vireo::RenderTarget>  gammaCorrectionColorBuffer;
-            std::shared_ptr<vireo::DescriptorSet> smaaComputeDescriptorSet;
-            std::shared_ptr<vireo::DescriptorSet> smaaExtraDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> smaaEdgeDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> smaaBlendWeightDescriptorSet;
+            std::shared_ptr<vireo::DescriptorSet> smaaBlendDescriptorSet;
             std::shared_ptr<vireo::RenderTarget>  smaaColorBuffer;
-            std::shared_ptr<vireo::Image>         smaaColorImage;
-            std::shared_ptr<vireo::Image>         smaaEdgeBuffer;
-            std::shared_ptr<vireo::Image>         smaaBlendBuffer;
+            std::shared_ptr<vireo::RenderTarget>  smaaEdgeBuffer;
+            std::shared_ptr<vireo::RenderTarget>  smaaBlendBuffer;
             std::shared_ptr<vireo::DescriptorSet> taaDescriptorSet[2];
             std::shared_ptr<vireo::RenderTarget>  taaColorBuffer[2];
             bool colorBuffersInitialized{false};
@@ -111,7 +105,7 @@ export namespace samples {
             .colorRenderTargets = {{}}
         };
 
-        bool applySMAA{true};
+        bool applySMAA{false};
         bool applyFXAA{false};
         bool applyEffect{false};
         bool applyGammaCorrection{true};
@@ -131,9 +125,10 @@ export namespace samples {
         std::shared_ptr<vireo::Pipeline>          gammaCorrectionPipeline;
         std::shared_ptr<vireo::DescriptorLayout>  descriptorLayout;
         std::shared_ptr<vireo::DescriptorLayout>  taaDescriptorLayout;
-        std::shared_ptr<vireo::DescriptorLayout>  smaaComputeDescLayout;
-        std::shared_ptr<vireo::DescriptorLayout>  smaaExtraDescLayout;
-        std::shared_ptr<vireo::PipelineResources> smaaComputeResources;
+        std::shared_ptr<vireo::DescriptorLayout>  smaaDescLayout;
+        std::shared_ptr<vireo::DescriptorLayout>  smaaBlendDescLayout;
+        std::shared_ptr<vireo::PipelineResources> smaaResources;
+        std::shared_ptr<vireo::PipelineResources> smaaBlendResources;
 
         std::uint32_t taaIndex{0};
 
